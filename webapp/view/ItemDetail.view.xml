@@ -10,19 +10,22 @@
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
 		<VBox class="sapUiSmallMargin">
-			<Text text="{detail>/description}" class="sapUiSmallMarginBottom" />
-			<Panel headerText="{i18n>statistics}" visible="{detail>/hasStats}" expandable="true" expanded="true">
-				<Text text="{detail>/stats}" />
+			<VBox id="formHost" />
+			<VBox id="nestedHost" />
+			<Panel headerText="{i18n>statistics}" visible="{detail>/hasStats}" expandable="true" expanded="false">
+				<TextArea value="{detail>/stats}" editable="false" rows="12" width="100%" growing="false" />
 			</Panel>
-			<Panel headerText="{i18n>rawJson}" expandable="true" expanded="true">
-				<TextArea value="{detail>/json}" editable="true" rows="24" width="100%" growing="false" />
+			<Panel headerText="{i18n>advancedJson}" expandable="true" expanded="false" expand=".refreshJson">
+				<VBox>
+					<TextArea value="{detail>/json}" editable="true" rows="18" width="100%" growing="false" />
+					<Button text="{i18n>applyJson}" icon="sap-icon://synchronize" press=".onApplyJson" class="sapUiSmallMarginTop" />
+				</VBox>
 			</Panel>
 		</VBox>
 		<footer>
 			<Toolbar>
 				<Button text="{i18n>delete}" type="Reject" icon="sap-icon://delete" press=".onDelete" visible="{= !${detail>/isNew} }" />
 				<ToolbarSpacer />
-				<Button text="{i18n>conditionEditor}" icon="sap-icon://tree" press=".onEditCondition" visible="{detail>/canEditCondition}" />
 				<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
 			</Toolbar>
 		</footer>

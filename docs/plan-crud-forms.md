@@ -83,12 +83,13 @@ bind bidireccional a un `JSONModel`. Nada de un form escrito a mano por entidad.
 
 ## Fases entregables
 
-| Fase | Contenido | Valor |
-|---|---|---|
-| 4 | `FormEngine` + `MetadataForm` + `ActionBuilder` + `KeyValueEditor`; migrar las 5 entidades ya CRUD (Segments, Rules, Scoring, Goals, Campaigns) del TextArea al form nativo (con toggle "JSON avanzado") | fin del JSON crudo en el core |
-| 5 | Nuevos recursos como form CRUD: **Lists, Scopes, PropertyTypes** | gestión de catálogo |
-| 6 | **Profiles/Personas** a fondo: editar propiedades, aliases, consents, segmentos, batch, export; `GeonamesInput` | operación real del CDP |
-| 7 | Ops/config: **Import/Export config, groovyActions, jsonSchema, patches, privacy** | paridad total con la API |
+| Fase | Contenido | Valor | Estado |
+|---|---|---|---|
+| 4 | `FormEngine` (config-driven) + configs de las 5 entidades; `ItemDetail` migrado a form nativo (metadata + campos escalares) con panel "Advanced (JSON)" + Aplicar como red de seguridad; reuso de `ConditionBuilder` | fin del JSON crudo para el 80% de campos | ✅ hecho |
+| 4b | Módulo compartido `control/builders.ts` (Condition + Action recursivos, `properties` map, scoring `elements`); editores **inline** en `ItemDetail` para condition/actions/elements/start-target/entry; se eliminó la ruta separada `ConditionBuilder` (todo en una pantalla, un solo Save) | fin del JSON crudo también en arrays anidados | ✅ hecho |
+| 5 | Nuevos recursos como form CRUD: **Lists, Scopes, PropertyTypes** | gestión de catálogo | pendiente |
+| 6 | **Profiles/Personas** a fondo: editar propiedades, aliases, consents, segmentos, batch, export; `GeonamesInput` | operación real del CDP | pendiente |
+| 7 | Ops/config: **Import/Export config, groovyActions, jsonSchema, patches, privacy** | paridad total con la API | pendiente |
 
 ### Fase 4 concreta (arranque)
 

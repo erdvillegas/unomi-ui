@@ -71,7 +71,6 @@
         { "name": "goalDetail", "pattern": "goals/{itemId}", "target": "goalDetail" },
         { "name": "campaigns", "pattern": "campaigns", "target": "campaigns" },
         { "name": "campaignDetail", "pattern": "campaigns/{itemId}", "target": "campaignDetail" },
-        { "name": "conditionEditor", "pattern": "condition/{res}/{itemId}", "target": "conditionEditor" },
         { "name": "definitions", "pattern": "definitions", "target": "definitions" }
       ],
       "targets": {
@@ -88,7 +87,6 @@
         "goalDetail": { "id": "goalDetail", "name": "ItemDetail" },
         "campaigns": { "id": "campaigns", "name": "MetadataList" },
         "campaignDetail": { "id": "campaignDetail", "name": "ItemDetail" },
-        "conditionEditor": { "id": "conditionEditor", "name": "ConditionBuilder" },
         "definitions": { "id": "definitions", "name": "DefinitionCatalog" }
       }
     }
