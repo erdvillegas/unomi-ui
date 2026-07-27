@@ -63,9 +63,14 @@ agrupado por categoría** (Profile / Session / Event / Behavioral / Geo / Logica
 |---|---|---|---|
 | **F1** | `typedFieldsRow` genérico (label + control por tipo desde `defs.cond[type].parameters`; `Condition`→editor recursivo) + `+ condition` con **submenús por categoría** (Event/Session/Profile/Aggregated/Logical/Other) desde `defs.condTags`. Los 24 pasan de fallback técnico a **fila de campos nativa**. | todo editable visualmente | ✅ hecho |
 | **F2** | **Chip** para condiciones sin parámetros (7); `comparisonOperator`→Select y multivaluado→MultiInput/boolean→Switch en el genérico (cubre topic/aliases/userListProperty y `idsCondition`) | UX correcta para casos simples | ✅ hecho |
-| **F3** | Pickers en campos conocidos: `goalId`→/goals, `eventTypeId`→tipos de evento, y demás vía `TYPE_META` | menos texto libre, menos errores | pendiente |
-| **F4** | Composites: `pastEventCondition` (sub-condición + ventana temporal + `operator` válido), `nestedCondition` (path + sub-condición), geo con `GeonamesInput` | los tipos "difíciles" con UX real | pendiente |
-| **F5** | Registro `TYPE_META` (títulos/iconos/labels) + **`SelectDialog` buscable con filtro por target** (systemTags) + validación de campos requeridos + resumen legible | pulido BRM | pendiente |
+| **F3** | Pickers en campos conocidos: `goalId`→/goals, `eventTypeId`→`/events/types`, vía `PICKERS` (TYPE_META). `renderParam` detecta operador por id (`operator`/`comparisonOperator`) además de por tipo. | menos texto libre, menos errores | ✅ hecho |
+| **F4** | Composites: `pastEventCondition` y `nestedCondition` ya editan por el genérico recursivo (Condition→`conditionEditor`, escalares tipados). **Geo: `/geonames/*` responde 500 en este Unomi (sin DB importada) → se queda en texto libre**, el escape previsto. `GeonamesInput` se añade cuando el endpoint viva. | los tipos "difíciles" editables | ✅ hecho (geo degradado) |
+| **F5** | **`SelectDialog` buscable** (categoría en `info`, filtro por título/categoría) reemplaza los submenús anidados de "+ condition". **Resumen legible** (`summarize`) de una línea sobre la raíz, recomputado en cada render. `PICKERS` cumple el rol de TYPE_META para pickers. | pulido BRM | ✅ hecho |
+
+Notas de alcance (ponytail):
+- **Filtro por target**: el `SelectDialog` lista todos los tipos; el buscador cubre findability. El filtro por systemTags/target se añade si el ruido molesta (los controllers aún no pasan `target`).
+- **Validación de requeridos**: omitida — el genérico ya impide errores de tipo; Unomi valida al guardar. Añadir marca visual de requerido si hace falta.
+- **Geo autocomplete**: pendiente de que `/geonames/*` tenga datos.
 
 ## Riesgos / decisiones
 

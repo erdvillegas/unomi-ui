@@ -18,6 +18,11 @@ import DateTimePicker from "sap/m/DateTimePicker";
 import Button from "sap/m/Button";
 import Label from "sap/m/Label";
 import Text from "sap/m/Text";
+import SelectDialog from "sap/m/SelectDialog";
+import StandardListItem from "sap/m/StandardListItem";
+import Filter from "sap/ui/model/Filter";
+import FilterOperator from "sap/ui/model/FilterOperator";
+import JSONModel from "sap/ui/model/json/JSONModel";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
@@ -30,9 +35,16 @@ import { Node, Defs, Param, conditionPanel, emptyCondition } from "unomi/ui/cont
 export interface PropDef { id: string; name: string; valueTypeId: string | null; }
 export interface Opt { id: string; name: string; }
 type Target = "profile" | "session" | "event";
-export interface BrmCtx { defs: Defs; props: Record<Target, PropDef[]>; cat: { segments: Opt[]; scorings: Opt[]; lists: Opt[] }; }
+type CatKey = "segments" | "scorings" | "lists" | "goals" | "eventTypes";
+export interface BrmCtx { defs: Defs; props: Record<Target, PropDef[]>; cat: Record<CatKey, Opt[]>; }
 
-export const emptyCat = (): BrmCtx["cat"] => ({ segments: [], scorings: [], lists: [] });
+export const emptyCat = (): BrmCtx["cat"] => ({ segments: [], scorings: [], lists: [], goals: [], eventTypes: [] });
+
+// TYPE_META (F3): which param of which type is filled from which catalog. Absent → generic control.
+const PICKERS: Record<string, Record<string, CatKey>> = {
+	goalMatchCondition: { goalId: "goals" },
+	eventTypeCondition: { eventTypeId: "eventTypes" }
+};
 
 const ROW_TYPE: Record<Target, string> = { profile: "profilePropertyCondition", session: "sessionPropertyCondition", event: "eventPropertyCondition" };
 const TARGET_OF: Record<string, Target> = { profilePropertyCondition: "profile", sessionPropertyCondition: "session", eventPropertyCondition: "event" };
@@ -101,23 +113,50 @@ export async function loadCatalogs(): Promise<BrmCtx["cat"]> {
 	if (catCache) {
 		return catCache;
 	}
-	const [segs, scos, lists] = await Promise.all([
+	const [segs, scos, lists, goals, evts] = await Promise.all([
 		UnomiClient.getJson<{ id: string; name?: string }[]>("/segments"),
 		UnomiClient.getJson<{ id: string; name?: string }[]>("/scoring"),
-		UnomiClient.getJson<{ list: { id: string; name?: string }[] }>("/lists")
+		UnomiClient.getJson<{ list: { id: string; name?: string }[] }>("/lists"),
+		UnomiClient.getJson<{ id: string; name?: string }[]>("/goals"),
+		UnomiClient.getJson<string[]>("/events/types")
 	]);
 	const flat = (a: { id: string; name?: string }[]): Opt[] => (a || []).map((x) => ({ id: x.id, name: x.name || x.id }));
-	catCache = { segments: flat(segs), scorings: flat(scos), lists: flat(lists.list || []) };
+	// /events/types is a plain string[]; goals are metadata objects.
+	catCache = { segments: flat(segs), scorings: flat(scos), lists: flat(lists.list || []), goals: flat(goals), eventTypes: (evts || []).map((e) => ({ id: e, name: e })) };
 	return catCache;
 }
 
-export function conditionEditor(root: Node, ctx: BrmCtx, refresh: () => void): Control {
+export function conditionEditor(root: Node, ctx: BrmCtx, refresh: () => void, showSummary = true): Control {
 	if (!isGroup(root.type)) {
 		const orig: Node = { type: root.type, parameterValues: root.parameterValues };
 		root.type = "booleanCondition";
 		root.parameterValues = { operator: "and", subConditions: [orig] };
 	}
-	return group(root, ctx, refresh);
+	const g = group(root, ctx, refresh);
+	if (!showSummary) {
+		return g;
+	}
+	// F5: one-line human-readable summary of the whole condition, recomputed each render.
+	const summary = new Text({ text: summarize(root) }).addStyleClass("sapUiTinyMargin sapMText");
+	return new VBox({ items: [summary, g] });
+}
+
+// Compact readable string, e.g. "(properties.age greaterThan 30 AND in segment: vip)".
+function summarize(n: Node): string {
+	if (isGroup(n.type)) {
+		const g = readGroup(n);
+		const inner = g.subs.map(summarize).join(g.mode === "any" ? " OR " : " AND ") || "everything";
+		return g.mode === "none" ? `NOT (${inner})` : g.subs.length > 1 ? `(${inner})` : inner;
+	}
+	const pv = n.parameterValues;
+	if (isRow(n.type)) {
+		const v = VALUE_SLOTS.map((s) => pv[s]).find((x) => x != null);
+		return `${pv.propertyName || "?"} ${pv.comparisonOperator || ""} ${v == null ? "" : JSON.stringify(v)}`.trim();
+	}
+	if (n.type === "profileSegmentCondition") { return `in segment: ${((pv.segments as string[]) || []).join(", ") || "?"}`; }
+	if (n.type === "profileUserListCondition") { return `in list: ${((pv.lists as string[]) || []).join(", ") || "?"}`; }
+	if (n.type === "scoringCondition") { return `score ${pv.scoringPlanId || "?"} ${pv.comparisonOperator || ""} ${pv.scoreValue ?? ""}`.trim(); }
+	return friendly(n.type);
 }
 
 // ---- Groups (booleanCondition and/or, notCondition = NONE) --------------------
@@ -157,18 +196,34 @@ function buildAddMenu(add: (n: Node) => void, ctx: BrmCtx): Menu {
 		new MenuItem({ text: "Score", icon: "sap-icon://target-group", press: () => add({ type: "scoringCondition", parameterValues: { comparisonOperator: "greaterThanOrEqualTo" } }) }),
 		new MenuItem({ text: "In list", icon: "sap-icon://list", press: () => add({ type: "profileUserListCondition", parameterValues: { matchType: "in", lists: [] } }) })
 	];
-	const byCat: Record<string, string[]> = {};
-	ctx.defs.condTypes.forEach((t) => {
-		if (MENU_EXCLUDE.has(t)) { return; }
-		(byCat[category(ctx.defs.condTags[t] || [])] ??= []).push(t);
-	});
-	["Event", "Session", "Profile", "Aggregated", "Logical", "Other"].forEach((cat) => {
-		const types = byCat[cat];
-		if (!types) { return; }
-		const sub = types.sort().map((t) => new MenuItem({ text: friendly(t), press: () => add({ type: t, parameterValues: {} }) }));
-		items.push(new MenuItem({ text: cat, icon: "sap-icon://slim-arrow-right", items: sub }));
-	});
+	items.push(new MenuItem({ text: "More conditions…", icon: "sap-icon://search", press: () => openTypeDialog(add, ctx) }));
 	return new Menu({ items });
+}
+
+// F5: searchable, category-grouped picker over every remaining condition type.
+function openTypeDialog(add: (n: Node) => void, ctx: BrmCtx): void {
+	const rows = ctx.defs.condTypes
+		.filter((t) => !MENU_EXCLUDE.has(t))
+		.map((t) => ({ id: t, title: friendly(t), cat: category(ctx.defs.condTags[t] || []) }))
+		.sort((a, b) => a.cat.localeCompare(b.cat) || a.title.localeCompare(b.title));
+	const dialog = new SelectDialog({
+		title: "Add condition",
+		growing: false,
+		confirm: (e: Event) => { const it = e.getParameter("selectedItem" as never) as StandardListItem; const row = it?.getBindingContext()?.getObject() as { id: string } | undefined; if (row) { add({ type: row.id, parameterValues: {} }); } },
+		search: (e: Event) => filterDialog(e),
+		liveChange: (e: Event) => filterDialog(e)
+	});
+	dialog.setModel(new JSONModel({ rows }));
+	dialog.bindAggregation("items", { path: "/rows", template: new StandardListItem({ title: "{title}", info: "{cat}", type: "Active" }) });
+	dialog.attachConfirm(() => dialog.destroy());
+	dialog.attachCancel(() => dialog.destroy());
+	dialog.open("");
+}
+
+function filterDialog(e: Event): void {
+	const v = (e.getParameter("value" as never) as string) || "";
+	const binding = (e.getSource() as SelectDialog).getBinding("items") as unknown as { filter: (f: Filter[]) => void };
+	binding.filter(v ? [new Filter({ filters: [new Filter("title", FilterOperator.Contains, v), new Filter("cat", FilterOperator.Contains, v)], and: false })] : []);
 }
 
 function group(node: Node, ctx: BrmCtx, refresh: () => void, onRemove?: () => void): Control {
@@ -279,7 +334,7 @@ function typedFieldsRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: 
 		return head.addStyleClass("sapUiTinyMarginBottom"); // event chip (no params)
 	}
 	const fields = new VBox().addStyleClass("sapUiSmallMarginBegin");
-	params.forEach((p) => renderParam(p, node.parameterValues, ctx, refresh, fields));
+	params.forEach((p) => renderParam(node.type, p, node.parameterValues, ctx, refresh, fields));
 	return new VBox({ items: [head, fields] }).addStyleClass("sapUiSmallMarginTop");
 }
 
@@ -287,15 +342,25 @@ function labeled(text: string, ctrl: Control): HBox {
 	return new HBox({ alignItems: "Center", items: [new Label({ text, width: "12rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
 }
 
-function renderParam(p: Param, pv: Record<string, any>, ctx: BrmCtx, refresh: () => void, host: VBox): void {
+function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: BrmCtx, refresh: () => void, host: VBox): void {
 	const label = friendly(p.id);
 	if (p.type.toLowerCase() === "condition") {
 		host.addItem(new Label({ text: label, design: "Bold" }));
 		pv[p.id] ??= emptyCondition();
-		host.addItem(conditionEditor(pv[p.id] as Node, ctx, refresh));
+		host.addItem(conditionEditor(pv[p.id] as Node, ctx, refresh, false));
 		return;
 	}
-	if (p.type === "comparisonOperator") {
+	// F3: catalog-backed picker (goalId→goals, eventTypeId→eventTypes).
+	const catKey = PICKERS[nodeType]?.[p.id];
+	if (catKey) {
+		const cb = new ComboBox({ selectedKey: (pv[p.id] as string) || "", value: (pv[p.id] as string) || "", width: "16rem" });
+		ctx.cat[catKey].forEach((o) => cb.addItem(new Item({ key: o.id, text: o.name })));
+		cb.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv[p.id] = it.getKey(); } });
+		cb.attachChange(() => (pv[p.id] = cb.getSelectedKey() || cb.getValue()));
+		host.addItem(labeled(label, cb));
+		return;
+	}
+	if (p.type === "comparisonOperator" || p.id === "comparisonOperator" || p.id === "operator") {
 		const sel = new Select({ selectedKey: (pv[p.id] as string) || "", width: "12rem" });
 		BROAD_OPS.forEach((o) => sel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
 		sel.attachChange(() => (pv[p.id] = sel.getSelectedKey()));
