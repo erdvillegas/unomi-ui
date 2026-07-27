@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": ["ES2022", "DOM"],
+    "types": ["@openui5/types"],
+    "baseUrl": "./",
+    "paths": {
+      "unomi/ui/*": ["webapp/*"]
+    }
+  },
+  "include": ["webapp/**/*.ts"]
+}

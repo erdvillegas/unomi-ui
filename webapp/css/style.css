@@ -1,0 +1,7 @@
+/* Routed views live inside ToolPage's main-content wrapper. The XMLView wrapper
+   and its sap.m.Page default to height:auto, so the Page's scroll container
+   collapses to 0 and clips all page content. Stretch both to fill. */
+.sapTntToolPageMainContentWrapper > .sapUiView,
+.sapTntToolPageMainContentWrapper > .sapUiView > .sapMPage {
+	height: 100%;
+}

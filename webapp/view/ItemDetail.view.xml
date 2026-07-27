@@ -1,0 +1,30 @@
+<mvc:View
+	controllerName="unomi.ui.controller.ItemDetail"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page
+		title="{detail>/name}"
+		showNavButton="true"
+		navButtonPress=".onNavBack"
+		busy="{detail>/busy}"
+		busyIndicatorDelay="0">
+		<VBox class="sapUiSmallMargin">
+			<Text text="{detail>/description}" class="sapUiSmallMarginBottom" />
+			<Panel headerText="{i18n>statistics}" visible="{detail>/hasStats}" expandable="true" expanded="true">
+				<Text text="{detail>/stats}" />
+			</Panel>
+			<Panel headerText="{i18n>rawJson}" expandable="true" expanded="true">
+				<TextArea value="{detail>/json}" editable="true" rows="24" width="100%" growing="false" />
+			</Panel>
+		</VBox>
+		<footer>
+			<Toolbar>
+				<Button text="{i18n>delete}" type="Reject" icon="sap-icon://delete" press=".onDelete" visible="{= !${detail>/isNew} }" />
+				<ToolbarSpacer />
+				<Button text="{i18n>conditionEditor}" icon="sap-icon://tree" press=".onEditCondition" visible="{detail>/canEditCondition}" />
+				<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
+			</Toolbar>
+		</footer>
+	</Page>
+</mvc:View>

@@ -1,0 +1,77 @@
+<mvc:View
+	controllerName="unomi.ui.controller.ProfileDetail"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page
+		title="{detail>/profileId}"
+		showNavButton="true"
+		navButtonPress=".onNavBack"
+		busy="{detail>/busy}"
+		busyIndicatorDelay="0">
+		<Panel headerText="{i18n>properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<Table items="{detail>/props}" noDataText="{i18n>noData}">
+				<columns>
+					<Column><Text text="{i18n>colKey}" /></Column>
+					<Column><Text text="{i18n>colValue}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{detail>key}" />
+							<Text text="{detail>value}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</Panel>
+
+		<Panel headerText="{i18n>segments}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<List items="{detail>/segments}" noDataText="{i18n>noData}">
+				<StandardListItem title="{detail>name}" description="{detail>id}" />
+			</List>
+		</Panel>
+
+		<Panel headerText="{i18n>sessions}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<Table
+				items="{detail>/sessions}"
+				mode="SingleSelectMaster"
+				itemPress=".onSessionPress"
+				noDataText="{i18n>noData}">
+				<columns>
+					<Column><Text text="{i18n>colId}" /></Column>
+					<Column><Text text="{i18n>colTimestamp}" /></Column>
+					<Column><Text text="{i18n>colDuration}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Active">
+						<cells>
+							<Text text="{detail>itemId}" />
+							<Text text="{detail>timeStamp}" />
+							<Text text="{detail>duration}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</Panel>
+
+		<Panel headerText="{i18n>events}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<Table items="{detail>/events}" noDataText="{i18n>selectSession}">
+				<columns>
+					<Column><Text text="{i18n>colType}" /></Column>
+					<Column><Text text="{i18n>colScope}" /></Column>
+					<Column><Text text="{i18n>colTimestamp}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{detail>eventType}" />
+							<Text text="{detail>scope}" />
+							<Text text="{detail>timeStamp}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</Panel>
+	</Page>
+</mvc:View>

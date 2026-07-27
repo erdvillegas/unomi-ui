@@ -1,0 +1,33 @@
+<mvc:View
+	controllerName="unomi.ui.controller.MetadataList"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{list>/title} ({list>/items/length})" busy="{list>/busy}" busyIndicatorDelay="0">
+		<headerContent>
+			<Button text="{i18n>newItem}" icon="sap-icon://add" type="Emphasized" press=".onNew" />
+		</headerContent>
+		<Table
+			items="{list>/items}"
+			mode="SingleSelectMaster"
+			itemPress=".onPress"
+			noDataText="{i18n>noData}">
+			<columns>
+				<Column><Text text="{i18n>colName}" /></Column>
+				<Column><Text text="{i18n>colId}" /></Column>
+				<Column hAlign="Center"><Text text="{i18n>colEnabled}" /></Column>
+			</columns>
+			<items>
+				<ColumnListItem type="Navigation">
+					<cells>
+						<Text text="{list>name}" />
+						<Text text="{list>id}" />
+						<ObjectStatus
+							text="{= ${list>enabled} ? 'yes' : 'no' }"
+							state="{= ${list>enabled} ? 'Success' : 'None' }" />
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+	</Page>
+</mvc:View>

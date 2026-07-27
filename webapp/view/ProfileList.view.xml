@@ -1,0 +1,40 @@
+<mvc:View
+	controllerName="unomi.ui.controller.ProfileList"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="Profiles ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
+		<subHeader>
+			<Toolbar>
+				<SearchField placeholder="{i18n>search}" search=".onSearch" width="100%" />
+			</Toolbar>
+		</subHeader>
+		<Table
+			id="profilesTable"
+			items="{list>/profiles}"
+			mode="SingleSelectMaster"
+			itemPress=".onProfilePress"
+			noDataText="{i18n>noData}">
+			<columns>
+				<Column><Text text="{i18n>colId}" /></Column>
+				<Column><Text text="{i18n>colEmail}" /></Column>
+				<Column><Text text="{i18n>colScope}" /></Column>
+			</columns>
+			<items>
+				<ColumnListItem type="Navigation">
+					<cells>
+						<Text text="{list>itemId}" />
+						<Text text="{list>properties/email}" />
+						<Text text="{list>scope}" />
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+		<footer>
+			<Toolbar>
+				<ToolbarSpacer />
+				<Button text="{i18n>loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
+			</Toolbar>
+		</footer>
+	</Page>
+</mvc:View>

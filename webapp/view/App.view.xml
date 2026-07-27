@@ -1,0 +1,30 @@
+<mvc:View
+	controllerName="unomi.ui.controller.App"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:tnt="sap.tnt"
+	xmlns="sap.m"
+	displayBlock="true">
+	<tnt:ToolPage id="toolPage">
+		<tnt:header>
+			<tnt:ToolHeader>
+				<Title text="{i18n>appTitle}" level="H2" />
+				<ToolbarSpacer />
+				<Button icon="sap-icon://log" tooltip="{i18n>logout}" press=".onLogout" />
+			</tnt:ToolHeader>
+		</tnt:header>
+		<tnt:sideContent>
+			<tnt:SideNavigation id="sideNav" itemSelect=".onNavSelect">
+				<tnt:NavigationList>
+					<tnt:NavigationListItem text="{i18n>profiles}" icon="sap-icon://person-placeholder" key="profiles" />
+					<tnt:NavigationListItem text="{i18n>segments}" icon="sap-icon://group" key="segments" />
+					<tnt:NavigationListItem text="{i18n>rules}" icon="sap-icon://workflow-tasks" key="rules" />
+					<tnt:NavigationListItem text="{i18n>scoring}" icon="sap-icon://target-group" key="scoring" />
+					<tnt:NavigationListItem text="{i18n>goals}" icon="sap-icon://goal" key="goals" />
+					<tnt:NavigationListItem text="{i18n>campaigns}" icon="sap-icon://marketing-campaign" key="campaigns" />
+					<tnt:NavigationListItem text="{i18n>definitions}" icon="sap-icon://activities" key="definitions" />
+				</tnt:NavigationList>
+			</tnt:SideNavigation>
+		</tnt:sideContent>
+		<tnt:mainContents />
+	</tnt:ToolPage>
+</mvc:View>

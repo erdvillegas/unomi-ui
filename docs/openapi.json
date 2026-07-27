@@ -1,0 +1,7029 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "contact" : {
+      "email" : "dev@unomi.apache.org"
+    },
+    "license" : {
+      "name" : "Apache 2.0 License",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8181/cxs"
+  } ],
+  "paths" : {
+    "/api-docs/{resource}" : {
+      "get" : {
+        "operationId" : "getResource",
+        "parameters" : [ {
+          "name" : "resource",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "pattern" : ".*",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "*/*" : { }
+            }
+          }
+        }
+      }
+    },
+    "/geonames/capitals/{id}" : {
+      "get" : {
+        "operationId" : "getCapitalEntries",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GeonameEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geonames/cities/{items}" : {
+      "get" : {
+        "operationId" : "getChildrenCities",
+        "parameters" : [ {
+          "name" : "items",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "matrixParameters" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string"
+                    }
+                  }
+                },
+                "path" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListGeonameEntry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geonames/entries/{items}" : {
+      "get" : {
+        "operationId" : "getChildrenEntries",
+        "parameters" : [ {
+          "name" : "items",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "matrixParameters" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string"
+                    }
+                  }
+                },
+                "path" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListGeonameEntry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geonames/hierarchy/{id}" : {
+      "get" : {
+        "operationId" : "getHierarchy",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GeonameEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geonames/reverseGeoCode/{latlon}" : {
+      "get" : {
+        "operationId" : "reverseGeoCode",
+        "parameters" : [ {
+          "name" : "latlon",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GeonameEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/groovyActions/{actionId}" : {
+      "delete" : {
+        "operationId" : "remove",
+        "parameters" : [ {
+          "name" : "actionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : { }
+            }
+          }
+        }
+      }
+    },
+    "/groovyActions" : {
+      "post" : {
+        "operationId" : "save",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Attachment"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/lists/{listId}" : {
+      "get" : {
+        "operationId" : "load",
+        "parameters" : [ {
+          "name" : "listId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "name" : "listId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/lists" : {
+      "get" : {
+        "operationId" : "getListMetadatas",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListMetadata"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "save_1",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserList"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/lists/query" : {
+      "post" : {
+        "operationId" : "getListMetadatas_1",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/profiles/{profileId}/anonymousBrowsing" : {
+      "get" : {
+        "operationId" : "isAnonymousBrowsing",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "activateAnonymousBrowsing",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "anonymizePastBrowsing",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "name" : "scope",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "deactivateAnonymousBrowsing",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "scope",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/profiles/{profileId}/anonymize" : {
+      "post" : {
+        "operationId" : "anonymizeProfile",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "scope",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/profiles/{profileId}" : {
+      "delete" : {
+        "operationId" : "deleteProfileData",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "withData",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "name" : "purgeAll",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/profiles/{profileId}/eventFilters" : {
+      "get" : {
+        "operationId" : "getEventFilters",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setEventFilters",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/info" : {
+      "get" : {
+        "operationId" : "getServerInfo",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ServerInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/infos" : {
+      "get" : {
+        "operationId" : "getServerInfos",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ServerInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/privacy/profiles/{profileId}/properties/{propertyName}" : {
+      "delete" : {
+        "operationId" : "removeProperty",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "propertyName",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/{campaignID}" : {
+      "get" : {
+        "operationId" : "getCampaignDefinition",
+        "parameters" : [ {
+          "name" : "campaignID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Campaign"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "removeCampaignDefinition",
+        "parameters" : [ {
+          "name" : "campaignID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/{campaignID}/detailed" : {
+      "get" : {
+        "operationId" : "getCampaignDetail",
+        "parameters" : [ {
+          "name" : "campaignID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CampaignDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/query/detailed" : {
+      "post" : {
+        "operationId" : "getCampaignDetails",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListCampaignDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/events/query" : {
+      "post" : {
+        "operationId" : "getCampaignEvents",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListCampaignEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns" : {
+      "get" : {
+        "operationId" : "getCampaignMetadatas",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setCampaignDefinition",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Campaign"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/query" : {
+      "post" : {
+        "operationId" : "getCampaignMetadatas_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/event/{eventId}" : {
+      "delete" : {
+        "operationId" : "removeCampaignEventDefinition",
+        "parameters" : [ {
+          "name" : "eventId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/campaigns/event" : {
+      "post" : {
+        "operationId" : "setCampaignEventDefinition",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CampaignEvent"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/client/{operation}/{param}" : {
+      "get" : {
+        "operationId" : "getClient",
+        "parameters" : [ {
+          "name" : "operation",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "param",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "*/*" : { }
+            }
+          }
+        }
+      },
+      "options" : {
+        "operationId" : "options",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "*/*" : { }
+            }
+          }
+        }
+      }
+    },
+    "/cluster/{scope}" : {
+      "delete" : {
+        "operationId" : "deleteScopedData",
+        "parameters" : [ {
+          "name" : "scope",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/cluster" : {
+      "get" : {
+        "operationId" : "getClusterNodes",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ClusterNode"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cluster/purge/{date}" : {
+      "get" : {
+        "operationId" : "purge",
+        "parameters" : [ {
+          "name" : "date",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/context.js" : {
+      "get" : {
+        "operationId" : "contextJSAsGet",
+        "parameters" : [ {
+          "name" : "payload",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/ContextRequest"
+          }
+        }, {
+          "name" : "personaId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sessionId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "invalidateProfile",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "invalidateSession",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "text/plain" : { }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "contextJSAsPost",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sessionId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "invalidateProfile",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "invalidateSession",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ContextRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "text/plain" : { }
+            }
+          }
+        }
+      },
+      "options" : {
+        "operationId" : "contextJSAsOptions",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "*/*" : { }
+            }
+          }
+        }
+      }
+    },
+    "/context.json" : {
+      "get" : {
+        "operationId" : "contextJSONAsGet",
+        "parameters" : [ {
+          "name" : "payload",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/ContextRequest"
+          }
+        }, {
+          "name" : "personaId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sessionId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "invalidateProfile",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "invalidateSession",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContextResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "contextJSONAsPost",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "sessionId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "invalidateProfile",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "invalidateSession",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ContextRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContextResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options" : {
+        "operationId" : "contextJSONAsOptions",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "*/*" : { }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/actions/{actionId}" : {
+      "get" : {
+        "operationId" : "getActionType",
+        "parameters" : [ {
+          "name" : "actionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RESTActionType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/actions/systemTags/{tags}" : {
+      "get" : {
+        "operationId" : "getActionTypeBySystemTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTActionType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/actions/tags/{tags}" : {
+      "get" : {
+        "operationId" : "getActionTypeByTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTActionType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/actions" : {
+      "get" : {
+        "operationId" : "getAllActionTypes",
+        "parameters" : [ {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTActionType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setActionType",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ActionType"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : { }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/conditions" : {
+      "get" : {
+        "operationId" : "getAllConditionTypes",
+        "parameters" : [ {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTConditionType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setConditionType",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConditionType"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : { }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/values" : {
+      "get" : {
+        "operationId" : "getAllValueTypes",
+        "parameters" : [ {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTValueType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/conditions/{conditionId}" : {
+      "get" : {
+        "operationId" : "getConditionType",
+        "parameters" : [ {
+          "name" : "conditionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RESTConditionType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/conditions/systemTags/{tags}" : {
+      "get" : {
+        "operationId" : "getConditionTypesBySystemTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTConditionType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/conditions/tags/{tags}" : {
+      "get" : {
+        "operationId" : "getConditionTypesByTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTConditionType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/typesByPlugin" : {
+      "get" : {
+        "operationId" : "getTypesByPlugin",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/PluginType"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/values/{valueTypeId}" : {
+      "get" : {
+        "operationId" : "getValueType",
+        "parameters" : [ {
+          "name" : "valueTypeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RESTValueType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/values/tags/{tags}" : {
+      "get" : {
+        "operationId" : "getValueTypeByTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RESTValueType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/actions/{actionTypeId}" : {
+      "delete" : {
+        "operationId" : "removeActionType",
+        "parameters" : [ {
+          "name" : "actionTypeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : { }
+            }
+          }
+        }
+      }
+    },
+    "/definitions/conditions/{conditionTypeId}" : {
+      "delete" : {
+        "operationId" : "removeConditionType",
+        "parameters" : [ {
+          "name" : "conditionTypeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : { }
+            }
+          }
+        }
+      }
+    },
+    "/events/types" : {
+      "get" : {
+        "operationId" : "getEventTypeNames",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}" : {
+      "get" : {
+        "operationId" : "getEvents",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Event"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/search" : {
+      "post" : {
+        "operationId" : "searchEvents",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eventcollector" : {
+      "get" : {
+        "operationId" : "collectAsGet",
+        "parameters" : [ {
+          "name" : "payload",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/EventsCollectorRequest"
+          }
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventCollectorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "collectAsPost",
+        "parameters" : [ {
+          "name" : "timestamp",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EventsCollectorRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EventCollectorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options" : {
+        "operationId" : "options_1",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : { }
+            }
+          }
+        }
+      }
+    },
+    "/goals/{goalId}" : {
+      "get" : {
+        "operationId" : "getGoal",
+        "parameters" : [ {
+          "name" : "goalId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Goal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "removeGoal",
+        "parameters" : [ {
+          "name" : "goalId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/goals" : {
+      "get" : {
+        "operationId" : "getGoalMetadatas",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setGoal",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Goal"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/goals/query" : {
+      "post" : {
+        "operationId" : "getGoalMetadatas_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goals/{goalID}/report" : {
+      "get" : {
+        "operationId" : "getGoalReport",
+        "parameters" : [ {
+          "name" : "goalID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GoalReport"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "getGoalReport_1",
+        "parameters" : [ {
+          "name" : "goalID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AggregateQuery"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GoalReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patches/apply" : {
+      "post" : {
+        "operationId" : "setPatch",
+        "parameters" : [ {
+          "name" : "force",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Patch"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{profileId}/aliases/{aliasId}" : {
+      "post" : {
+        "operationId" : "addAliasToProfile",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "aliasId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "X-Unomi-ClientId",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "removeAliasFromProfile",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "aliasId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "X-Unomi-ClientId",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/batchProfilesUpdate" : {
+      "post" : {
+        "operationId" : "batchProfilesUpdate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BatchUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/personas/{personaId}" : {
+      "get" : {
+        "operationId" : "loadPersona",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Persona"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "operationId" : "createPersona",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Persona"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "deletePersona",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "persona",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean",
+            "default" : true
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{profileId}" : {
+      "get" : {
+        "operationId" : "load_1",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "delete_1",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "persona",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties/{propertyId}" : {
+      "get" : {
+        "operationId" : "getPropertyType",
+        "parameters" : [ {
+          "name" : "propertyId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PropertyType"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "deleteProperty",
+        "parameters" : [ {
+          "name" : "propertyId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/export" : {
+      "get" : {
+        "operationId" : "getExportProfiles",
+        "parameters" : [ {
+          "name" : "query",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "text/csv" : { }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "exportProfiles",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "text/csv" : { }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/count" : {
+      "get" : {
+        "operationId" : "getAllProfilesCount",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/existingProperties" : {
+      "get" : {
+        "operationId" : "getExistingProperties",
+        "parameters" : [ {
+          "name" : "tag",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "isSystemTag",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "itemType",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PropertyType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/personas/{personaId}/sessions" : {
+      "get" : {
+        "operationId" : "getPersonaSessions",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListSession"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/personas/search" : {
+      "post" : {
+        "operationId" : "getPersonas",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListPersona"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{profileId}/segments" : {
+      "get" : {
+        "operationId" : "getProfileSegments",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{profileId}/sessions" : {
+      "get" : {
+        "operationId" : "getProfileSessions",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListSession"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/search" : {
+      "post" : {
+        "operationId" : "getProfiles",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties/systemTags/{tags}" : {
+      "get" : {
+        "operationId" : "getPropertyTypeBySystemTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PropertyType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties/tags/{tags}" : {
+      "get" : {
+        "operationId" : "getPropertyTypeByTag",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PropertyType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties/mappings/{fromPropertyTypeId}" : {
+      "get" : {
+        "operationId" : "getPropertyTypeMapping",
+        "parameters" : [ {
+          "name" : "fromPropertyTypeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties" : {
+      "get" : {
+        "operationId" : "getPropertyTypes",
+        "parameters" : [ {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/PropertyType"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setPropertyType",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PropertyType"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties/targets/{target}" : {
+      "get" : {
+        "operationId" : "getPropertyTypesByTarget",
+        "parameters" : [ {
+          "name" : "target",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept-Language",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PropertyType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/sessions/{sessionId}/events" : {
+      "get" : {
+        "operationId" : "getSessionEvents",
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "eventTypes",
+          "in" : "query",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{profileId}/aliases" : {
+      "get" : {
+        "operationId" : "listAliasesByProfileId",
+        "parameters" : [ {
+          "name" : "profileId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListProfileAlias"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/personasWithSessions/{personaId}" : {
+      "get" : {
+        "operationId" : "loadPersonaWithSessions",
+        "parameters" : [ {
+          "name" : "personaId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PersonaWithSessions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/sessions/{sessionId}" : {
+      "get" : {
+        "operationId" : "loadSession",
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Session"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "saveSession",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Session"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Session"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles" : {
+      "post" : {
+        "operationId" : "save_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Profile"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/personas" : {
+      "post" : {
+        "operationId" : "savePersona",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Persona"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Persona"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/personasWithSessions" : {
+      "post" : {
+        "operationId" : "savePersonaWithSessions",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PersonaWithSessions"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PersonaWithSessions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/search/sessions" : {
+      "post" : {
+        "operationId" : "searchSession",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListSession"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/properties/bulk" : {
+      "post" : {
+        "operationId" : "setPropertyTypes",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/PropertyType"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/{type}/{property}" : {
+      "get" : {
+        "operationId" : "getAggregate",
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "property",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int64"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "getAggregate_1",
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "property",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "optimizedQuery",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AggregateQuery"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int64"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/{type}/{property}/{metricTypes}" : {
+      "post" : {
+        "operationId" : "getMetric",
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "property",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "metricTypes",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "pattern" : "((sum|avg|min|max)/?)*",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Condition"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "number",
+                    "format" : "double"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/{type}/count" : {
+      "post" : {
+        "operationId" : "getQueryCount",
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "validate",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Condition"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rules/statistics" : {
+      "get" : {
+        "operationId" : "getAllRuleStatistics",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "$ref" : "#/components/schemas/RuleStatistics"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "resetAllRuleStatistics",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/rules/{ruleId}" : {
+      "get" : {
+        "operationId" : "getRule",
+        "parameters" : [ {
+          "name" : "ruleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Rule"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "removeRule",
+        "parameters" : [ {
+          "name" : "ruleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/rules/query/detailed" : {
+      "post" : {
+        "operationId" : "getRuleDetails",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListRule"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rules" : {
+      "get" : {
+        "operationId" : "getRuleMetadatas",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setRule",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Rule"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/rules/query" : {
+      "post" : {
+        "operationId" : "getRuleMetadatas_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rules/{ruleId}/statistics" : {
+      "get" : {
+        "operationId" : "getRuleStatistics",
+        "parameters" : [ {
+          "name" : "ruleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RuleStatistics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rules/resetQueries" : {
+      "get" : {
+        "operationId" : "resetQueries",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/scopes/{scopeId}" : {
+      "get" : {
+        "operationId" : "getScope",
+        "parameters" : [ {
+          "name" : "scopeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Scope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "delete_2",
+        "parameters" : [ {
+          "name" : "scopeId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/scopes" : {
+      "get" : {
+        "operationId" : "getScopes",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Scope"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "save_3",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Scope"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/{scope}/{scoringID}" : {
+      "put" : {
+        "operationId" : "createScoringDefinition",
+        "parameters" : [ {
+          "name" : "scope",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "scoringID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "scoringName" : {
+                    "type" : "string"
+                  },
+                  "scoringDescription" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/{scoringID}" : {
+      "get" : {
+        "operationId" : "getScoringDefinition",
+        "parameters" : [ {
+          "name" : "scoringID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Scoring"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "removeScoringDefinition",
+        "parameters" : [ {
+          "name" : "scoringID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "validate",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DependentMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/{scoringID}/impacted" : {
+      "get" : {
+        "operationId" : "getScoringDependentMetadata",
+        "parameters" : [ {
+          "name" : "scoringID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DependentMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/query" : {
+      "post" : {
+        "operationId" : "getScoringMetadatas",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scoring" : {
+      "get" : {
+        "operationId" : "getScoringMetadatas_1",
+        "parameters" : [ {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setScoringDefinition",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Scoring"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/resetQueries" : {
+      "get" : {
+        "operationId" : "resetQueries_1",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/segments/query" : {
+      "post" : {
+        "operationId" : "getListMetadatas_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Query"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/{segmentID}/match" : {
+      "get" : {
+        "operationId" : "getMatchingIndividuals",
+        "parameters" : [ {
+          "name" : "segmentID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartialListProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/{segmentID}/count" : {
+      "get" : {
+        "operationId" : "getMatchingIndividualsCount",
+        "parameters" : [ {
+          "name" : "segmentID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/{segmentID}" : {
+      "get" : {
+        "operationId" : "getSegmentDefinition",
+        "parameters" : [ {
+          "name" : "segmentID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Segment"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "removeSegmentDefinition",
+        "parameters" : [ {
+          "name" : "segmentID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "validate",
+          "in" : "query",
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DependentMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/{segmentID}/impacted" : {
+      "get" : {
+        "operationId" : "getSegmentDependentMetadata",
+        "parameters" : [ {
+          "name" : "segmentID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DependentMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments" : {
+      "get" : {
+        "operationId" : "getSegmentMetadatas",
+        "parameters" : [ {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "setSegmentDefinition",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Segment"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/segments/{segmentID}/match/{profile}" : {
+      "get" : {
+        "operationId" : "isProfileInSegment",
+        "parameters" : [ {
+          "name" : "profile",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Profile"
+          }
+        }, {
+          "name" : "segmentID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/resetQueries" : {
+      "get" : {
+        "operationId" : "resetQueries_2",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        },
+        "deprecated" : true
+      }
+    },
+    "/test/ping" : {
+      "get" : {
+        "operationId" : "ping",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "text/plain;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userList" : {
+      "get" : {
+        "operationId" : "getUserListsMetadatas",
+        "parameters" : [ {
+          "name" : "offset",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Metadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exportConfiguration/{configId}" : {
+      "get" : {
+        "operationId" : "getConfiguration",
+        "parameters" : [ {
+          "name" : "configId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExportConfiguration"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "deleteConfiguration",
+        "parameters" : [ {
+          "name" : "configId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/exportConfiguration" : {
+      "get" : {
+        "operationId" : "getConfigurations",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExportConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "saveConfiguration",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExportConfiguration"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExportConfiguration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exportConfiguration/oneshot" : {
+      "post" : {
+        "operationId" : "processOneshotImportConfigurationCSV",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExportConfiguration"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "text/csv" : { }
+            }
+          }
+        }
+      }
+    },
+    "/importConfiguration/{configId}" : {
+      "get" : {
+        "operationId" : "getConfiguration_1",
+        "parameters" : [ {
+          "name" : "configId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportConfiguration"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "operationId" : "deleteConfiguration_1",
+        "parameters" : [ {
+          "name" : "configId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/importConfiguration" : {
+      "get" : {
+        "operationId" : "getConfigurations_1",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ImportConfiguration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "saveConfiguration_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ImportConfiguration"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportConfiguration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/importConfiguration/oneshot" : {
+      "post" : {
+        "operationId" : "processOneshotImportConfigurationCSV_1",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "pattern" : "^[a-zA-Z0-9_.\\-]{1,255}$",
+                "type" : "string"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/jsonSchema" : {
+      "get" : {
+        "operationId" : "getInstalledJsonSchemaIds",
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "uniqueItems" : true,
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "operationId" : "save_4",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        }
+      }
+    },
+    "/jsonSchema/query" : {
+      "post" : {
+        "operationId" : "getSchema",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jsonSchema/delete" : {
+      "post" : {
+        "operationId" : "remove_1",
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jsonSchema/validateEvent" : {
+      "post" : {
+        "operationId" : "validateEvent",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jsonSchema/validateEvents" : {
+      "post" : {
+        "operationId" : "validateEvents",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "default" : {
+            "description" : "default response",
+            "content" : {
+              "application/json;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "uniqueItems" : true,
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/ValidationError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "GeonameEntry" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "asciiname" : {
+            "type" : "string"
+          },
+          "location" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "featureClass" : {
+            "type" : "string"
+          },
+          "featureCode" : {
+            "type" : "string"
+          },
+          "countryCode" : {
+            "type" : "string"
+          },
+          "cc2" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "admin1Code" : {
+            "type" : "string"
+          },
+          "admin2Code" : {
+            "type" : "string"
+          },
+          "admin3Code" : {
+            "type" : "string"
+          },
+          "admin4Code" : {
+            "type" : "string"
+          },
+          "population" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "elevation" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "dem" : {
+            "type" : "string"
+          },
+          "timezone" : {
+            "type" : "string"
+          },
+          "modificationDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PartialListGeonameEntry" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/GeonameEntry"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Attachment" : {
+        "type" : "object",
+        "properties" : {
+          "headers" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          },
+          "object" : {
+            "type" : "object"
+          },
+          "dataHandler" : {
+            "type" : "object",
+            "properties" : {
+              "commandMap" : {
+                "type" : "object",
+                "properties" : {
+                  "mimeTypes" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string"
+                    }
+                  }
+                },
+                "writeOnly" : true
+              },
+              "dataSource" : {
+                "type" : "object",
+                "properties" : {
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "inputStream" : {
+                    "type" : "object"
+                  },
+                  "contentType" : {
+                    "type" : "string"
+                  },
+                  "outputStream" : {
+                    "type" : "object"
+                  }
+                }
+              },
+              "transferDataFlavors" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "mimeType" : {
+                      "type" : "string"
+                    },
+                    "humanPresentableName" : {
+                      "type" : "string"
+                    },
+                    "primaryType" : {
+                      "type" : "string"
+                    },
+                    "subType" : {
+                      "type" : "string"
+                    },
+                    "representationClassInputStream" : {
+                      "type" : "boolean"
+                    },
+                    "representationClassByteBuffer" : {
+                      "type" : "boolean"
+                    },
+                    "flavorTextType" : {
+                      "type" : "boolean"
+                    },
+                    "representationClassReader" : {
+                      "type" : "boolean"
+                    },
+                    "representationClassCharBuffer" : {
+                      "type" : "boolean"
+                    },
+                    "representationClassSerializable" : {
+                      "type" : "boolean"
+                    },
+                    "representationClassRemote" : {
+                      "type" : "boolean"
+                    },
+                    "mimeTypeSerializedObject" : {
+                      "type" : "boolean"
+                    },
+                    "defaultRepresentationClassAsString" : {
+                      "type" : "string"
+                    },
+                    "flavorSerializedObjectType" : {
+                      "type" : "boolean"
+                    },
+                    "flavorRemoteObjectType" : {
+                      "type" : "boolean"
+                    },
+                    "flavorJavaFileListType" : {
+                      "type" : "boolean"
+                    }
+                  }
+                }
+              },
+              "preferredCommands" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "commandName" : {
+                      "type" : "string"
+                    },
+                    "commandClass" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              },
+              "allCommands" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "properties" : {
+                    "commandName" : {
+                      "type" : "string"
+                    },
+                    "commandClass" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              },
+              "name" : {
+                "type" : "string"
+              },
+              "inputStream" : {
+                "type" : "object"
+              },
+              "content" : {
+                "type" : "object"
+              },
+              "contentType" : {
+                "type" : "string"
+              },
+              "outputStream" : {
+                "type" : "object"
+              }
+            }
+          },
+          "contentId" : {
+            "type" : "string"
+          },
+          "contentDisposition" : {
+            "$ref" : "#/components/schemas/ContentDisposition"
+          },
+          "contentType" : {
+            "type" : "object",
+            "properties" : {
+              "type" : {
+                "type" : "string"
+              },
+              "subtype" : {
+                "type" : "string"
+              },
+              "parameters" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              },
+              "wildcardType" : {
+                "type" : "boolean"
+              },
+              "wildcardSubtype" : {
+                "type" : "boolean"
+              }
+            }
+          }
+        }
+      },
+      "ContentDisposition" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "filename" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Metadata" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "systemTags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "enabled" : {
+            "type" : "boolean"
+          },
+          "missingPlugins" : {
+            "type" : "boolean"
+          },
+          "hidden" : {
+            "type" : "boolean"
+          },
+          "readOnly" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PartialListMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Metadata"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Condition" : {
+        "type" : "object",
+        "properties" : {
+          "conditionType" : {
+            "$ref" : "#/components/schemas/ConditionType"
+          },
+          "conditionTypeId" : {
+            "type" : "string",
+            "xml" : {
+              "name" : "type"
+            }
+          },
+          "parameterValues" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "ConditionType" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "conditionEvaluator" : {
+            "type" : "string"
+          },
+          "queryBuilder" : {
+            "type" : "string"
+          },
+          "parentCondition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Parameter"
+            }
+          }
+        }
+      },
+      "Parameter" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "multivalued" : {
+            "type" : "boolean"
+          },
+          "defaultValue" : {
+            "type" : "string"
+          },
+          "choiceListInitializerFilter" : {
+            "type" : "string",
+            "writeOnly" : true
+          }
+        }
+      },
+      "Query" : {
+        "type" : "object",
+        "properties" : {
+          "text" : {
+            "type" : "string"
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "limit" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sortby" : {
+            "type" : "string"
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "forceRefresh" : {
+            "type" : "boolean"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          }
+        }
+      },
+      "UserList" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          }
+        }
+      },
+      "EventInfo" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "occurences" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "ServerInfo" : {
+        "type" : "object",
+        "properties" : {
+          "serverIdentifier" : {
+            "type" : "string"
+          },
+          "serverVersion" : {
+            "type" : "string"
+          },
+          "serverBuildNumber" : {
+            "type" : "string"
+          },
+          "serverBuildDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "serverTimestamp" : {
+            "type" : "string"
+          },
+          "serverScmBranch" : {
+            "type" : "string"
+          },
+          "eventTypes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EventInfo"
+            }
+          },
+          "capabilities" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "logoLines" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Campaign" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "entryCondition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "cost" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "currency" : {
+            "type" : "string"
+          },
+          "primaryGoal" : {
+            "type" : "string"
+          },
+          "timezone" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CampaignDetail" : {
+        "type" : "object",
+        "properties" : {
+          "engagedProfiles" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "campaignSessionViews" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "campaignSessionSuccess" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numberOfGoals" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "conversionRate" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "campaign" : {
+            "$ref" : "#/components/schemas/Campaign"
+          }
+        }
+      },
+      "PartialListCampaignDetail" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CampaignDetail"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CampaignEvent" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "eventDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "campaignId" : {
+            "type" : "string"
+          },
+          "cost" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "currency" : {
+            "type" : "string"
+          },
+          "timezone" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PartialListCampaignEvent" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CampaignEvent"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ClusterNode" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "cpuLoad" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "loadAverage" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "publicHostAddress" : {
+            "type" : "string"
+          },
+          "internalHostAddress" : {
+            "type" : "string"
+          },
+          "uptime" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "master" : {
+            "type" : "boolean"
+          },
+          "data" : {
+            "type" : "boolean"
+          },
+          "startTime" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "lastHeartbeat" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "serverInfo" : {
+            "$ref" : "#/components/schemas/ServerInfo"
+          }
+        }
+      },
+      "ActionPostExecutor" : {
+        "type" : "object"
+      },
+      "Consent" : {
+        "type" : "object",
+        "properties" : {
+          "scope" : {
+            "type" : "string"
+          },
+          "typeIdentifier" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "GRANTED", "DENIED", "REVOKED" ]
+          },
+          "statusDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "revokeDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "consentGrantedNow" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ContextRequest" : {
+        "type" : "object",
+        "properties" : {
+          "source" : {
+            "$ref" : "#/components/schemas/Item"
+          },
+          "requireSegments" : {
+            "type" : "boolean"
+          },
+          "requiredProfileProperties" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requiredSessionProperties" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "requireScores" : {
+            "type" : "boolean"
+          },
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Event"
+            }
+          },
+          "filters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonalizedContent"
+            }
+          },
+          "personalizations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonalizationRequest"
+            }
+          },
+          "profileOverrides" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "sessionPropertiesOverrides" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "sessionId" : {
+            "type" : "string"
+          },
+          "profileId" : {
+            "type" : "string"
+          },
+          "clientId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Event" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "eventType" : {
+            "type" : "string"
+          },
+          "sessionId" : {
+            "type" : "string"
+          },
+          "profileId" : {
+            "type" : "string"
+          },
+          "timeStamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "flattenedProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/Item"
+          },
+          "target" : {
+            "$ref" : "#/components/schemas/Item"
+          },
+          "persistent" : {
+            "type" : "boolean"
+          },
+          "session" : {
+            "$ref" : "#/components/schemas/Session"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "actionPostExecutors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ActionPostExecutor"
+            }
+          },
+          "attributes" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "Filter" : {
+        "type" : "object",
+        "properties" : {
+          "appliesOn" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Target"
+            }
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "Item" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "PersonalizationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "strategy" : {
+            "type" : "string"
+          },
+          "strategyOptions" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "contents" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonalizedContent"
+            }
+          }
+        }
+      },
+      "PersonalizedContent" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "filters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Filter"
+            }
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "filterid" : {
+            "type" : "string",
+            "writeOnly" : true
+          }
+        }
+      },
+      "Profile" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "systemProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "segments" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "mergedWith" : {
+            "type" : "string"
+          },
+          "consents" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Consent"
+            }
+          },
+          "anonymousProfile" : {
+            "type" : "boolean"
+          },
+          "consent" : {
+            "type" : "boolean",
+            "writeOnly" : true
+          }
+        }
+      },
+      "Session" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "profileId" : {
+            "type" : "string"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "systemProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "timeStamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "lastEventDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "duration" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "originEventTypes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "originEventIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Target" : {
+        "type" : "object",
+        "properties" : {
+          "target" : {
+            "type" : "string"
+          },
+          "values" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "ContextResponse" : {
+        "type" : "object",
+        "properties" : {
+          "profileId" : {
+            "type" : "string"
+          },
+          "sessionId" : {
+            "type" : "string"
+          },
+          "profileProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "sessionProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "profileSegments" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "profileScores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "filteringResults" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "boolean"
+            }
+          },
+          "processedEvents" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "personalizations" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          },
+          "personalizationResults" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/PersonalizationResult"
+            }
+          },
+          "trackedConditions" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Condition"
+            }
+          },
+          "anonymousBrowsing" : {
+            "type" : "boolean"
+          },
+          "consents" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Consent"
+            }
+          }
+        }
+      },
+      "PersonalizationResult" : {
+        "type" : "object",
+        "properties" : {
+          "contentIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "additionalResultInfos" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "changeType" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inControlGroup" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "RESTActionType" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "systemTags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RESTParameter"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "RESTParameter" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "multivalued" : {
+            "type" : "boolean"
+          },
+          "defaultValue" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RESTConditionType" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "systemTags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RESTParameter"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "RESTValueType" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PluginType" : {
+        "type" : "object",
+        "properties" : {
+          "pluginId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "ActionType" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "actionExecutor" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Parameter"
+            }
+          }
+        }
+      },
+      "PartialListEvent" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Event"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EventCollectorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "updated" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "EventsCollectorRequest" : {
+        "type" : "object",
+        "properties" : {
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Event"
+            }
+          },
+          "sessionId" : {
+            "type" : "string"
+          },
+          "profileId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Goal" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "startEvent" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "targetEvent" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "campaignId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "GoalReport" : {
+        "type" : "object",
+        "properties" : {
+          "globalStats" : {
+            "$ref" : "#/components/schemas/Stat"
+          },
+          "split" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Stat"
+            }
+          }
+        }
+      },
+      "Stat" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "startCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "targetCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "conversionRate" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "percentage" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "Aggregate" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "property" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "dateRanges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DateRange"
+            }
+          },
+          "numericRanges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/NumericRange"
+            }
+          },
+          "ipRanges" : {
+            "type" : "array",
+            "writeOnly" : true,
+            "items" : {
+              "$ref" : "#/components/schemas/IpRange"
+            }
+          }
+        }
+      },
+      "AggregateQuery" : {
+        "type" : "object",
+        "properties" : {
+          "aggregate" : {
+            "$ref" : "#/components/schemas/Aggregate"
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          }
+        }
+      },
+      "DateRange" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "object"
+          },
+          "to" : {
+            "type" : "object"
+          }
+        }
+      },
+      "IpRange" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        }
+      },
+      "NumericRange" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "to" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "Patch" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "patchedItemId" : {
+            "type" : "string"
+          },
+          "patchedItemType" : {
+            "type" : "string"
+          },
+          "operation" : {
+            "type" : "string"
+          },
+          "data" : {
+            "type" : "object"
+          },
+          "lastApplication" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "BatchUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "propertyName" : {
+            "type" : "string"
+          },
+          "propertyValue" : {
+            "type" : "object"
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "strategy" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          },
+          "scrollBatchSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "Persona" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "systemProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "segments" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "mergedWith" : {
+            "type" : "string"
+          },
+          "consents" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Consent"
+            }
+          },
+          "anonymousProfile" : {
+            "type" : "boolean"
+          },
+          "consent" : {
+            "type" : "boolean",
+            "writeOnly" : true
+          }
+        }
+      },
+      "PropertyType" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "valueTypeId" : {
+            "type" : "string",
+            "xml" : {
+              "name" : "type"
+            }
+          },
+          "valueType" : {
+            "$ref" : "#/components/schemas/ValueType"
+          },
+          "defaultValue" : {
+            "type" : "string"
+          },
+          "dateRanges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DateRange"
+            }
+          },
+          "numericRanges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/NumericRange"
+            }
+          },
+          "ipRanges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IpRange"
+            }
+          },
+          "automaticMappingsFrom" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "rank" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "mergeStrategy" : {
+            "type" : "string"
+          },
+          "multivalued" : {
+            "type" : "boolean"
+          },
+          "childPropertyTypes" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PropertyType"
+            }
+          },
+          "protected" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ValueType" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "nameKey" : {
+            "type" : "string"
+          },
+          "descriptionKey" : {
+            "type" : "string"
+          },
+          "pluginId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tags" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PartialListSession" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Session"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PartialListPersona" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Persona"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PartialListProfile" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Profile"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PartialListProfileAlias" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProfileAlias"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ProfileAlias" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "profileID" : {
+            "type" : "string"
+          },
+          "clientID" : {
+            "type" : "string"
+          },
+          "creationTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "modifiedTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PersonaSession" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "profileId" : {
+            "type" : "string"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "systemProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "timeStamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "lastEventDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "duration" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "originEventTypes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "originEventIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PersonaWithSessions" : {
+        "type" : "object",
+        "properties" : {
+          "persona" : {
+            "$ref" : "#/components/schemas/Persona"
+          },
+          "sessions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonaSession"
+            }
+          },
+          "lastSession" : {
+            "$ref" : "#/components/schemas/PersonaSession"
+          }
+        }
+      },
+      "RuleStatistics" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "executionCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "localExecutionCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "conditionsTime" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "localConditionsTime" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "actionsTime" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "localActionsTime" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "lastSyncDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "Action" : {
+        "type" : "object",
+        "properties" : {
+          "actionType" : {
+            "$ref" : "#/components/schemas/ActionType"
+          },
+          "actionTypeId" : {
+            "type" : "string",
+            "xml" : {
+              "name" : "type"
+            }
+          },
+          "parameterValues" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "Rule" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "actions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Action"
+            }
+          },
+          "linkedItems" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "raiseEventOnlyOnceForProfile" : {
+            "type" : "boolean"
+          },
+          "raiseEventOnlyOnceForSession" : {
+            "type" : "boolean"
+          },
+          "raiseEventOnlyOnce" : {
+            "type" : "boolean"
+          },
+          "priority" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "PartialListRule" : {
+        "type" : "object",
+        "properties" : {
+          "list" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Rule"
+            }
+          },
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSize" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalSizeRelation" : {
+            "type" : "string",
+            "enum" : [ "EQUAL", "GREATER_THAN_OR_EQUAL_TO" ]
+          },
+          "scrollIdentifier" : {
+            "type" : "string"
+          },
+          "scrollTimeValidity" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Scope" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          }
+        }
+      },
+      "Scoring" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "elements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ScoringElement"
+            }
+          }
+        }
+      },
+      "ScoringElement" : {
+        "type" : "object",
+        "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          },
+          "value" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "DependentMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "segments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Metadata"
+            }
+          },
+          "scorings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Metadata"
+            }
+          }
+        }
+      },
+      "Segment" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/Condition"
+          }
+        }
+      },
+      "ExportConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "configType" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "columnSeparator" : {
+            "type" : "string"
+          },
+          "lineSeparator" : {
+            "type" : "string"
+          },
+          "multiValueSeparator" : {
+            "type" : "string"
+          },
+          "multiValueDelimiter" : {
+            "type" : "string"
+          },
+          "active" : {
+            "type" : "boolean"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "executions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "object"
+              }
+            }
+          }
+        }
+      },
+      "ImportConfiguration" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "itemType" : {
+            "type" : "string"
+          },
+          "scope" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "configType" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "columnSeparator" : {
+            "type" : "string"
+          },
+          "lineSeparator" : {
+            "type" : "string"
+          },
+          "multiValueSeparator" : {
+            "type" : "string"
+          },
+          "multiValueDelimiter" : {
+            "type" : "string"
+          },
+          "active" : {
+            "type" : "boolean"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "executions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "object"
+              }
+            }
+          },
+          "mergingProperty" : {
+            "type" : "string"
+          },
+          "overwriteExistingProfiles" : {
+            "type" : "boolean"
+          },
+          "propertiesToOverwrite" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "hasHeader" : {
+            "type" : "boolean"
+          },
+          "hasDeleteColumn" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ValidationError" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}

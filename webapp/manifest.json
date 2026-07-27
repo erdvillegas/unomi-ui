@@ -1,0 +1,96 @@
+{
+  "_version": "1.60.0",
+  "sap.app": {
+    "id": "unomi.ui",
+    "type": "application",
+    "title": "{{appTitle}}",
+    "applicationVersion": { "version": "0.0.1" },
+    "dataSources": {
+      "unomi": {
+        "uri": "/cxs/",
+        "type": "JSON"
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": { "desktop": true, "tablet": true, "phone": true }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "unomi.ui.view.App",
+      "type": "XML",
+      "id": "app",
+      "async": true
+    },
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.m": {},
+        "sap.f": {},
+        "sap.ui.layout": {},
+        "sap.tnt": {}
+      }
+    },
+    "resources": {
+      "css": [ { "uri": "css/style.css" } ]
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "unomi.ui.i18n.i18n",
+          "supportedLocales": ["", "en"],
+          "fallbackLocale": ""
+        }
+      }
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "type": "View",
+        "viewType": "XML",
+        "path": "unomi.ui.view",
+        "controlId": "toolPage",
+        "controlAggregation": "mainContents",
+        "clearControlAggregation": true,
+        "async": true
+      },
+      "routes": [
+        { "name": "login", "pattern": "", "target": "login" },
+        { "name": "profiles", "pattern": "profiles", "target": "profiles" },
+        { "name": "profileDetail", "pattern": "profiles/{profileId}", "target": "profileDetail" },
+        { "name": "segments", "pattern": "segments", "target": "segments" },
+        { "name": "segmentDetail", "pattern": "segments/{itemId}", "target": "segmentDetail" },
+        { "name": "rules", "pattern": "rules", "target": "rules" },
+        { "name": "ruleDetail", "pattern": "rules/{itemId}", "target": "ruleDetail" },
+        { "name": "scoring", "pattern": "scoring", "target": "scoring" },
+        { "name": "scoringDetail", "pattern": "scoring/{itemId}", "target": "scoringDetail" },
+        { "name": "goals", "pattern": "goals", "target": "goals" },
+        { "name": "goalDetail", "pattern": "goals/{itemId}", "target": "goalDetail" },
+        { "name": "campaigns", "pattern": "campaigns", "target": "campaigns" },
+        { "name": "campaignDetail", "pattern": "campaigns/{itemId}", "target": "campaignDetail" },
+        { "name": "conditionEditor", "pattern": "condition/{res}/{itemId}", "target": "conditionEditor" },
+        { "name": "definitions", "pattern": "definitions", "target": "definitions" }
+      ],
+      "targets": {
+        "login": { "id": "login", "name": "Login" },
+        "profiles": { "id": "profiles", "name": "ProfileList" },
+        "profileDetail": { "id": "profileDetail", "name": "ProfileDetail" },
+        "segments": { "id": "segments", "name": "MetadataList" },
+        "segmentDetail": { "id": "segmentDetail", "name": "ItemDetail" },
+        "rules": { "id": "rules", "name": "MetadataList" },
+        "ruleDetail": { "id": "ruleDetail", "name": "ItemDetail" },
+        "scoring": { "id": "scoring", "name": "MetadataList" },
+        "scoringDetail": { "id": "scoringDetail", "name": "ItemDetail" },
+        "goals": { "id": "goals", "name": "MetadataList" },
+        "goalDetail": { "id": "goalDetail", "name": "ItemDetail" },
+        "campaigns": { "id": "campaigns", "name": "MetadataList" },
+        "campaignDetail": { "id": "campaignDetail", "name": "ItemDetail" },
+        "conditionEditor": { "id": "conditionEditor", "name": "ConditionBuilder" },
+        "definitions": { "id": "definitions", "name": "DefinitionCatalog" }
+      }
+    }
+  }
+}
