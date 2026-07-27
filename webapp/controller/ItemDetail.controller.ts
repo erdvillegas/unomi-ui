@@ -17,7 +17,10 @@ const RES: Record<string, { path: string; list: string; stats: boolean; template
 	ruleDetail: { path: "/rules", list: "rules", stats: true, template: { metadata: meta, condition: emptyCondition(), actions: [] } },
 	scoringDetail: { path: "/scoring", list: "scoring", stats: false, template: { metadata: meta, elements: [] } },
 	goalDetail: { path: "/goals", list: "goals", stats: false, template: { metadata: meta } },
-	campaignDetail: { path: "/campaigns", list: "campaigns", stats: false, template: { metadata: meta } }
+	campaignDetail: { path: "/campaigns", list: "campaigns", stats: false, template: { metadata: meta } },
+	scopeDetail: { path: "/scopes", list: "scopes", stats: false, template: { metadata: meta } },
+	listDetail: { path: "/lists", list: "lists", stats: false, template: { metadata: meta } },
+	propertyDetail: { path: "/profiles/properties", list: "properties", stats: false, template: { metadata: meta, target: "profiles", valueTypeId: "string", defaultValue: "", multivalued: false, rank: 0, dateRanges: [], numericRanges: [], ipRanges: [], childPropertyTypes: [] } }
 };
 
 // Nested typed fields per resource, edited inline on the shared form model.

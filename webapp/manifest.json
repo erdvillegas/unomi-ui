@@ -71,6 +71,12 @@
         { "name": "goalDetail", "pattern": "goals/{itemId}", "target": "goalDetail" },
         { "name": "campaigns", "pattern": "campaigns", "target": "campaigns" },
         { "name": "campaignDetail", "pattern": "campaigns/{itemId}", "target": "campaignDetail" },
+        { "name": "scopes", "pattern": "scopes", "target": "scopes" },
+        { "name": "scopeDetail", "pattern": "scopes/{itemId}", "target": "scopeDetail" },
+        { "name": "lists", "pattern": "lists", "target": "lists" },
+        { "name": "listDetail", "pattern": "lists/{itemId}", "target": "listDetail" },
+        { "name": "properties", "pattern": "properties", "target": "properties" },
+        { "name": "propertyDetail", "pattern": "properties/{itemId}", "target": "propertyDetail" },
         { "name": "definitions", "pattern": "definitions", "target": "definitions" }
       ],
       "targets": {
@@ -87,6 +93,12 @@
         "goalDetail": { "id": "goalDetail", "name": "ItemDetail" },
         "campaigns": { "id": "campaigns", "name": "MetadataList" },
         "campaignDetail": { "id": "campaignDetail", "name": "ItemDetail" },
+        "scopes": { "id": "scopes", "name": "MetadataList" },
+        "scopeDetail": { "id": "scopeDetail", "name": "ItemDetail" },
+        "lists": { "id": "lists", "name": "MetadataList" },
+        "listDetail": { "id": "listDetail", "name": "ItemDetail" },
+        "properties": { "id": "properties", "name": "MetadataList" },
+        "propertyDetail": { "id": "propertyDetail", "name": "ItemDetail" },
         "definitions": { "id": "definitions", "name": "DefinitionCatalog" }
       }
     }

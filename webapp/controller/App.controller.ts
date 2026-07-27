@@ -12,6 +12,9 @@ const NAV_KEY: Record<string, string> = {
 	scoring: "scoring", scoringDetail: "scoring",
 	goals: "goals", goalDetail: "goals",
 	campaigns: "campaigns", campaignDetail: "campaigns",
+	scopes: "scopes", scopeDetail: "scopes",
+	lists: "lists", listDetail: "lists",
+	properties: "properties", propertyDetail: "properties",
 	definitions: "definitions"
 };
 

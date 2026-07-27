@@ -6,13 +6,19 @@ import ListItemBase from "sap/m/ListItemBase";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { Metadata } from "unomi/ui/model/types";
 
-// One view/controller serves both routes; config is picked by route name.
-const RES: Record<string, { path: string; title: string; detail: string }> = {
+// One view/controller serves every metadata list; config is picked by route name.
+// `extract` normalizes each endpoint's response to a flat Metadata[] — most return
+// Metadata[] already, but scopes/lists/properties wrap full items differently.
+interface ListCfg { path: string; title: string; detail: string; extract?: (raw: any) => Metadata[]; }
+const RES: Record<string, ListCfg> = {
 	segments: { path: "/segments", title: "Segments", detail: "segmentDetail" },
 	rules: { path: "/rules", title: "Rules", detail: "ruleDetail" },
 	scoring: { path: "/scoring", title: "Scoring", detail: "scoringDetail" },
 	goals: { path: "/goals", title: "Goals", detail: "goalDetail" },
-	campaigns: { path: "/campaigns", title: "Campaigns", detail: "campaignDetail" }
+	campaigns: { path: "/campaigns", title: "Campaigns", detail: "campaignDetail" },
+	scopes: { path: "/scopes", title: "Scopes", detail: "scopeDetail", extract: (r) => (r as { metadata: Metadata }[]).map((x) => x.metadata) },
+	lists: { path: "/lists", title: "Lists", detail: "listDetail", extract: (r) => ((r as { list: { metadata: Metadata }[] }).list || []).map((x) => x.metadata) },
+	properties: { path: "/profiles/properties", title: "Properties", detail: "propertyDetail", extract: (r) => Object.values(r as Record<string, { metadata: Metadata }[]>).flat().map((x) => x.metadata) }
 };
 
 /**
@@ -37,13 +43,13 @@ export default class MetadataList extends BaseController {
 		void this.load(cfg);
 	}
 
-	private async load(cfg: { path: string; title: string }): Promise<void> {
+	private async load(cfg: ListCfg): Promise<void> {
 		const model = this.getView()?.getModel("list") as JSONModel;
 		model.setProperty("/title", cfg.title);
 		model.setProperty("/busy", true);
 		try {
-			const items = await UnomiClient.getJson<Metadata[]>(cfg.path);
-			model.setProperty("/items", items);
+			const raw = await UnomiClient.getJson<unknown>(cfg.path);
+			model.setProperty("/items", cfg.extract ? cfg.extract(raw) : raw);
 		} catch (e) {
 			MessageToast.show(`Load failed: ${(e as Error).message}`);
 		} finally {

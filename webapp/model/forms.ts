@@ -29,6 +29,13 @@ export function formFields(res: string, isNew: boolean): Field[] {
 			{ path: "currency", label: "Currency", type: "text" },
 			{ path: "primaryGoal", label: "Primary goal", type: "text" },
 			{ path: "timezone", label: "Timezone", type: "text" }
+		],
+		properties: [
+			{ path: "target", label: "Target", type: "text", readonly: !isNew },
+			{ path: "valueTypeId", label: "Value type", type: "text" },
+			{ path: "defaultValue", label: "Default value", type: "text" },
+			{ path: "rank", label: "Rank", type: "float" },
+			{ path: "multivalued", label: "Multivalued", type: "switch" }
 		]
 	};
 	return [...meta, ...(extra[res] || [])];

@@ -21,6 +21,9 @@
 					<tnt:NavigationListItem text="{i18n>scoring}" icon="sap-icon://target-group" key="scoring" />
 					<tnt:NavigationListItem text="{i18n>goals}" icon="sap-icon://goal" key="goals" />
 					<tnt:NavigationListItem text="{i18n>campaigns}" icon="sap-icon://marketing-campaign" key="campaigns" />
+					<tnt:NavigationListItem text="{i18n>lists}" icon="sap-icon://list" key="lists" />
+					<tnt:NavigationListItem text="{i18n>scopes}" icon="sap-icon://folder-blank" key="scopes" />
+					<tnt:NavigationListItem text="{i18n>properties}" icon="sap-icon://form" key="properties" />
 					<tnt:NavigationListItem text="{i18n>definitions}" icon="sap-icon://activities" key="definitions" />
 				</tnt:NavigationList>
 			</tnt:SideNavigation>
