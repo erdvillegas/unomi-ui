@@ -16,6 +16,7 @@
 			<tnt:SideNavigation id="sideNav" itemSelect=".onNavSelect">
 				<tnt:NavigationList>
 					<tnt:NavigationListItem text="{i18n>profiles}" icon="sap-icon://person-placeholder" key="profiles" />
+					<tnt:NavigationListItem text="{i18n>events}" icon="sap-icon://newspaper" key="events" />
 					<tnt:NavigationListItem text="{i18n>segments}" icon="sap-icon://group" key="segments" />
 					<tnt:NavigationListItem text="{i18n>rules}" icon="sap-icon://workflow-tasks" key="rules" />
 					<tnt:NavigationListItem text="{i18n>scoring}" icon="sap-icon://target-group" key="scoring" />

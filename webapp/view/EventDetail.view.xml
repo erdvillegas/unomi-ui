@@ -1,0 +1,27 @@
+<mvc:View
+	controllerName="unomi.ui.controller.EventDetail"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:form="sap.ui.layout.form"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page
+		title="{detail>/title}"
+		showNavButton="true"
+		navButtonPress=".onNavBack"
+		busy="{detail>/busy}"
+		busyIndicatorDelay="0">
+		<Panel headerText="{i18n>eventDetail}" class="sapUiResponsiveMargin" width="auto">
+			<form:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
+				<Label text="{i18n>colId}" /><Text text="{detail>/e/itemId}" />
+				<Label text="{i18n>colType}" /><Text text="{detail>/e/eventType}" />
+				<Label text="{i18n>colScope}" /><Text text="{detail>/e/scope}" />
+				<Label text="{i18n>colProfile}" /><Text text="{detail>/e/profileId}" />
+				<Label text="{i18n>colSession}" /><Text text="{detail>/e/sessionId}" />
+				<Label text="{i18n>colTimestamp}" /><Text text="{detail>/e/timeStamp}" />
+			</form:SimpleForm>
+		</Panel>
+		<Panel headerText="JSON" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<TextArea value="{detail>/json}" editable="false" growing="true" width="100%" rows="20" />
+		</Panel>
+	</Page>
+</mvc:View>

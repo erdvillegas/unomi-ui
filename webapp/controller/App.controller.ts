@@ -7,6 +7,7 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 // Route name -> side-nav key (detail routes highlight their parent section).
 const NAV_KEY: Record<string, string> = {
 	profiles: "profiles", profileDetail: "profiles",
+	events: "events", eventDetail: "events",
 	segments: "segments", segmentDetail: "segments",
 	rules: "rules", ruleDetail: "rules",
 	scoring: "scoring", scoringDetail: "scoring",

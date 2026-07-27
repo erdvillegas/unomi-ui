@@ -1,0 +1,49 @@
+<mvc:View
+	controllerName="unomi.ui.controller.EventList"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{i18n>events} ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
+		<subHeader>
+			<Toolbar>
+				<Label text="{i18n>colType}" />
+				<Select items="{list>/types}" selectedKey="{list>/f/eventType}" width="12rem">
+					<core:Item key="{list>key}" text="{list>text}" />
+				</Select>
+				<Input value="{list>/f/scope}" placeholder="{i18n>colScope}" width="9rem" submit=".onSearch" />
+				<Input value="{list>/f/profileId}" placeholder="{i18n>colProfile}" width="14rem" submit=".onSearch" />
+				<ToolbarSpacer />
+				<Button text="{i18n>runQuery}" type="Emphasized" icon="sap-icon://search" press=".onSearch" />
+			</Toolbar>
+		</subHeader>
+		<Table
+			items="{list>/events}"
+			mode="SingleSelectMaster"
+			itemPress=".onEventPress"
+			noDataText="{i18n>noData}">
+			<columns>
+				<Column><Text text="{i18n>colType}" /></Column>
+				<Column><Text text="{i18n>colScope}" /></Column>
+				<Column><Text text="{i18n>colProfile}" /></Column>
+				<Column><Text text="{i18n>colTimestamp}" /></Column>
+			</columns>
+			<items>
+				<ColumnListItem type="Navigation">
+					<cells>
+						<Text text="{list>eventType}" />
+						<Text text="{list>scope}" />
+						<Text text="{list>profileId}" />
+						<Text text="{list>timeStamp}" />
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+		<footer>
+			<Toolbar>
+				<ToolbarSpacer />
+				<Button text="{i18n>loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
+			</Toolbar>
+		</footer>
+	</Page>
+</mvc:View>
