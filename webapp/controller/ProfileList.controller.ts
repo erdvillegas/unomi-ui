@@ -8,7 +8,7 @@ import Input from "sap/m/Input";
 import Select from "sap/m/Select";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { Profile } from "unomi/ui/model/types";
-import { loadDefs, Defs, Node } from "unomi/ui/control/builders";
+import { loadDefs, emptyDefs, Defs, Node } from "unomi/ui/control/builders";
 import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef, emptyCondition } from "unomi/ui/control/brm/conditionEditor";
 
 const PAGE = 25;
@@ -24,7 +24,7 @@ export default class ProfileList extends BaseController {
 
 	private offset = 0;
 	private searchText = "";
-	private defs: Defs = { cond: {}, condTypes: [], action: {}, actionTypes: [] };
+	private defs: Defs = emptyDefs();
 	private props: { profile: PropDef[]; session: PropDef[]; event: PropDef[] } = { profile: [], session: [], event: [] };
 	private cat = emptyCat();
 

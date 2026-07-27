@@ -17,7 +17,7 @@ const RES: Record<string, ListCfg> = {
 	goals: { path: "/goals", title: "Goals", detail: "goalDetail" },
 	campaigns: { path: "/campaigns", title: "Campaigns", detail: "campaignDetail" },
 	scopes: { path: "/scopes", title: "Scopes", detail: "scopeDetail", extract: (r) => (r as { metadata: Metadata }[]).map((x) => x.metadata) },
-	lists: { path: "/lists", title: "Lists", detail: "listDetail", extract: (r) => ((r as { list: { metadata: Metadata }[] }).list || []).map((x) => x.metadata) },
+	lists: { path: "/lists", title: "Lists", detail: "listDetail", extract: (r) => (r as { list: Metadata[] }).list || [] },
 	properties: { path: "/profiles/properties", title: "Properties", detail: "propertyDetail", extract: (r) => Object.values(r as Record<string, { metadata: Metadata }[]>).flat().map((x) => x.metadata) },
 	importConfig: { path: "/importConfiguration", title: "Import config", detail: "importConfigDetail", extract: (r) => (r as { itemId: string; name: string; active: boolean }[]).map((c) => ({ id: c.itemId, name: c.name, enabled: c.active })) },
 	exportConfig: { path: "/exportConfiguration", title: "Export config", detail: "exportConfigDetail", extract: (r) => (r as { itemId: string; name: string; active: boolean }[]).map((c) => ({ id: c.itemId, name: c.name, enabled: c.active })) }

@@ -21,7 +21,7 @@ import Text from "sap/m/Text";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
-import { Node, Defs, conditionPanel, emptyCondition } from "unomi/ui/control/builders";
+import { Node, Defs, Param, conditionPanel, emptyCondition } from "unomi/ui/control/builders";
 
 // BRM-style visual editor: AND/OR/NOT groups + "property → operator → value" rows.
 // Rows map to profile/session PropertyCondition; anything else falls back to the
@@ -46,6 +46,22 @@ const advanced = new WeakSet<object>();
 const advBtn = (node: Node, refresh: () => void): Button => new Button({ icon: "sap-icon://syntax", tooltip: "Advanced (raw)", press: () => { advanced.add(node); refresh(); } });
 const rmBtn = (onRemove: () => void): Button => new Button({ icon: "sap-icon://decline", tooltip: "Remove", press: onRemove });
 const MATCH_TYPES: [string, string][] = [["in", "is in any of"], ["notin", "is not in"], ["all", "is in all of"]];
+// Broad operator set for generic property-ish conditions (topic/aliases/userList props).
+const BROAD_OPS = ["equals", "notEquals", "contains", "startsWith", "endsWith", "matchesRegex", "in", "notIn", "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo", "between", "exists", "missing"];
+
+// "eventTypeCondition" -> "Event type"; "numberOfDays" -> "Number of days".
+function friendly(s: string): string {
+	const t = s.replace(/Condition$/, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/\bId\b/g, "ID").trim();
+	return t.charAt(0).toUpperCase() + t.slice(1);
+}
+function category(tags: string[]): string {
+	if (tags.includes("logical")) { return "Logical"; }
+	if (tags.includes("eventCondition")) { return "Event"; }
+	if (tags.includes("sessionCondition")) { return "Session"; }
+	if (tags.includes("aggregated")) { return "Aggregated"; }
+	if (tags.includes("profileCondition")) { return "Profile"; }
+	return "Other";
+}
 const isRow = (t: string) => t in TARGET_OF;
 const isGroup = (t: string) => t === "booleanCondition" || t === "notCondition" || t === "matchAllCondition";
 
@@ -88,10 +104,10 @@ export async function loadCatalogs(): Promise<BrmCtx["cat"]> {
 	const [segs, scos, lists] = await Promise.all([
 		UnomiClient.getJson<{ id: string; name?: string }[]>("/segments"),
 		UnomiClient.getJson<{ id: string; name?: string }[]>("/scoring"),
-		UnomiClient.getJson<{ list: { metadata: { id: string; name?: string } }[] }>("/lists")
+		UnomiClient.getJson<{ list: { id: string; name?: string }[] }>("/lists")
 	]);
 	const flat = (a: { id: string; name?: string }[]): Opt[] => (a || []).map((x) => ({ id: x.id, name: x.name || x.id }));
-	catCache = { segments: flat(segs), scorings: flat(scos), lists: (lists.list || []).map((x) => ({ id: x.metadata.id, name: x.metadata.name || x.metadata.id })) };
+	catCache = { segments: flat(segs), scorings: flat(scos), lists: flat(lists.list || []) };
 	return catCache;
 }
 
@@ -131,6 +147,30 @@ function setGroupMode(node: Node, mode: string, subs: Node[]): void {
 	}
 }
 
+// "+ condition" menu: bespoke shortcuts on top, then every other condition type
+// grouped by category (Event/Session/Profile/Aggregated/Logical/Other).
+const MENU_EXCLUDE = new Set([ROW_TYPE.profile, ROW_TYPE.session, ROW_TYPE.event, "profileSegmentCondition", "profileUserListCondition", "scoringCondition", "booleanCondition", "notCondition", "matchAllCondition"]);
+function buildAddMenu(add: (n: Node) => void, ctx: BrmCtx): Menu {
+	const items: MenuItem[] = [
+		new MenuItem({ text: "Property", icon: "sap-icon://user-edit", press: () => add({ type: ROW_TYPE.profile, parameterValues: {} }) }),
+		new MenuItem({ text: "In segment", icon: "sap-icon://group", press: () => add({ type: "profileSegmentCondition", parameterValues: { matchType: "in", segments: [] } }) }),
+		new MenuItem({ text: "Score", icon: "sap-icon://target-group", press: () => add({ type: "scoringCondition", parameterValues: { comparisonOperator: "greaterThanOrEqualTo" } }) }),
+		new MenuItem({ text: "In list", icon: "sap-icon://list", press: () => add({ type: "profileUserListCondition", parameterValues: { matchType: "in", lists: [] } }) })
+	];
+	const byCat: Record<string, string[]> = {};
+	ctx.defs.condTypes.forEach((t) => {
+		if (MENU_EXCLUDE.has(t)) { return; }
+		(byCat[category(ctx.defs.condTags[t] || [])] ??= []).push(t);
+	});
+	["Event", "Session", "Profile", "Aggregated", "Logical", "Other"].forEach((cat) => {
+		const types = byCat[cat];
+		if (!types) { return; }
+		const sub = types.sort().map((t) => new MenuItem({ text: friendly(t), press: () => add({ type: t, parameterValues: {} }) }));
+		items.push(new MenuItem({ text: cat, icon: "sap-icon://slim-arrow-right", items: sub }));
+	});
+	return new Menu({ items });
+}
+
 function group(node: Node, ctx: BrmCtx, refresh: () => void, onRemove?: () => void): Control {
 	const g = readGroup(node);
 
@@ -145,14 +185,8 @@ function group(node: Node, ctx: BrmCtx, refresh: () => void, onRemove?: () => vo
 		readGroup(node).subs.push(child);
 		refresh();
 	};
-	const addMenu = new Menu({ items: [
-		new MenuItem({ text: "Property", press: () => add({ type: ROW_TYPE.profile, parameterValues: {} }) }),
-		new MenuItem({ text: "In segment", press: () => add({ type: "profileSegmentCondition", parameterValues: { matchType: "in", segments: [] } }) }),
-		new MenuItem({ text: "Score", press: () => add({ type: "scoringCondition", parameterValues: { comparisonOperator: "greaterThanOrEqualTo" } }) }),
-		new MenuItem({ text: "In list", press: () => add({ type: "profileUserListCondition", parameterValues: { matchType: "in", lists: [] } }) })
-	] });
 	const header = new Toolbar({ content: [new Label({ text: "Match" }), modeSel, new ToolbarSpacer(),
-		new MenuButton({ text: "+ condition", icon: "sap-icon://add", menu: addMenu }),
+		new MenuButton({ text: "+ condition", icon: "sap-icon://add", menu: buildAddMenu(add, ctx) }),
 		new Button({ text: "+ group", icon: "sap-icon://add-folder", press: () => add({ type: "booleanCondition", parameterValues: { operator: "and", subConditions: [] } }) })
 	] });
 	if (onRemove) {
@@ -190,7 +224,7 @@ function childEditor(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () 
 	if (node.type === "scoringCondition") {
 		return scoreRow(node, ctx, refresh, onRemove);
 	}
-	return advancedWrap(node, ctx, refresh, onRemove); // non-mapped type → technical tree, no data loss
+	return typedFieldsRow(node, ctx, refresh, onRemove); // generic def-driven row (all other types)
 }
 
 // "Profile is in segment/list [X, Y]" with a multi-select picker from the catalog.
@@ -229,15 +263,70 @@ function scoreRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => 
 	return box;
 }
 
-// Raw tree editor (builders.ts) for a node, with a "back to visual" affordance
-// when the node is actually mappable to the BRM UI.
+// Raw tree editor (builders.ts) for a node, with a "back to visual" affordance.
 function advancedWrap(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void): Control {
 	const panel = conditionPanel(node, ctx.defs, refresh, onRemove);
-	if (!isRow(node.type) && !isGroup(node.type)) {
-		return panel;
-	}
 	const bar = new Toolbar({ content: [new Button({ text: "◀ visual", icon: "sap-icon://tree", press: () => { advanced.delete(node); refresh(); } }), new ToolbarSpacer()] });
 	return new VBox({ items: [bar, panel] }).addStyleClass("sapUiSmallMarginTop");
+}
+
+// Generic renderer for any condition, driven by its definition parameters.
+// Zero params → a read-only event chip (F2). Otherwise a titled block of typed fields.
+function typedFieldsRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void): Control {
+	const params = ctx.defs.cond[node.type] || [];
+	const head = new HBox({ alignItems: "Center", items: [new Label({ text: friendly(node.type), design: "Bold" }), new ToolbarSpacer(), advBtn(node, refresh), rmBtn(onRemove)] });
+	if (params.length === 0) {
+		return head.addStyleClass("sapUiTinyMarginBottom"); // event chip (no params)
+	}
+	const fields = new VBox().addStyleClass("sapUiSmallMarginBegin");
+	params.forEach((p) => renderParam(p, node.parameterValues, ctx, refresh, fields));
+	return new VBox({ items: [head, fields] }).addStyleClass("sapUiSmallMarginTop");
+}
+
+function labeled(text: string, ctrl: Control): HBox {
+	return new HBox({ alignItems: "Center", items: [new Label({ text, width: "12rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
+}
+
+function renderParam(p: Param, pv: Record<string, any>, ctx: BrmCtx, refresh: () => void, host: VBox): void {
+	const label = friendly(p.id);
+	if (p.type.toLowerCase() === "condition") {
+		host.addItem(new Label({ text: label, design: "Bold" }));
+		pv[p.id] ??= emptyCondition();
+		host.addItem(conditionEditor(pv[p.id] as Node, ctx, refresh));
+		return;
+	}
+	if (p.type === "comparisonOperator") {
+		const sel = new Select({ selectedKey: (pv[p.id] as string) || "", width: "12rem" });
+		BROAD_OPS.forEach((o) => sel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
+		sel.attachChange(() => (pv[p.id] = sel.getSelectedKey()));
+		host.addItem(labeled(label, sel));
+		return;
+	}
+	if (p.type === "boolean") {
+		const sw = new Switch({ state: !!pv[p.id] });
+		sw.attachChange((e: Event) => (pv[p.id] = e.getParameter("state" as never) as boolean));
+		host.addItem(new HBox({ alignItems: "Center", items: [new Label({ text: label, width: "12rem" }), sw] }).addStyleClass("sapUiTinyMarginBottom"));
+		return;
+	}
+	if (p.multivalued) {
+		const arr = (pv[p.id] ??= []) as any[];
+		const mi = new MultiInput({ width: "22rem" });
+		arr.forEach((v) => mi.addToken(new Token({ text: String(v) })));
+		const sync = () => (pv[p.id] = mi.getTokens().map((t) => p.type === "integer" ? Number(t.getText()) : t.getText()));
+		mi.attachTokenUpdate(() => setTimeout(sync, 0));
+		mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
+		host.addItem(labeled(label, mi));
+		return;
+	}
+	if (p.type === "date") {
+		const dp = new DateTimePicker({ value: (pv[p.id] as string) || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
+		dp.attachChange(() => (pv[p.id] = dp.getValue()));
+		host.addItem(labeled(label, dp));
+		return;
+	}
+	const inp = new Input({ value: pv[p.id] == null ? "" : String(pv[p.id]), type: p.type === "integer" ? "Number" : "Text", width: "16rem" });
+	inp.attachChange(() => (pv[p.id] = p.type === "integer" ? Number(inp.getValue()) : inp.getValue()));
+	host.addItem(labeled(label, inp));
 }
 
 // ---- Rows (property → operator → value) --------------------------------------

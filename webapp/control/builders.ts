@@ -21,9 +21,10 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 export interface Param { id: string; type: string; multivalued: boolean; }
 export interface Node { type: string; parameterValues: Record<string, any>; }
 export interface Defs {
-	cond: Record<string, Param[]>; condTypes: string[];
+	cond: Record<string, Param[]>; condTypes: string[]; condTags: Record<string, string[]>;
 	action: Record<string, Param[]>; actionTypes: string[];
 }
+export const emptyDefs = (): Defs => ({ cond: {}, condTypes: [], condTags: {}, action: {}, actionTypes: [] });
 
 // Unomi's standard comparison operators — no live endpoint exposes them (500).
 const OPERATORS = ["equals", "notEquals", "greaterThan", "greaterThanOrEqualTo", "lessThan",
@@ -39,10 +40,10 @@ export async function loadDefs(): Promise<Defs> {
 		UnomiClient.getJson<Array<{ id: string; parameters: Param[] }>>("/definitions/conditions"),
 		UnomiClient.getJson<Array<{ id: string; parameters: Param[] }>>("/definitions/actions")
 	]);
-	const cond: Record<string, Param[]> = {}, action: Record<string, Param[]> = {};
-	c.forEach((x) => (cond[x.id] = x.parameters || []));
+	const cond: Record<string, Param[]> = {}, action: Record<string, Param[]> = {}, condTags: Record<string, string[]> = {};
+	c.forEach((x) => { cond[x.id] = x.parameters || []; condTags[x.id] = (x as { systemTags?: string[] }).systemTags || []; });
 	a.forEach((x) => (action[x.id] = x.parameters || []));
-	cache = { cond, condTypes: Object.keys(cond).sort(), action, actionTypes: Object.keys(action).sort() };
+	cache = { cond, condTypes: Object.keys(cond).sort(), condTags, action, actionTypes: Object.keys(action).sort() };
 	return cache;
 }
 

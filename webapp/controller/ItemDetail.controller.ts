@@ -9,7 +9,7 @@ import Button from "sap/m/Button";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { buildForm } from "unomi/ui/control/FormEngine";
 import { formFields } from "unomi/ui/model/forms";
-import { loadDefs, conditionPanel, actionsList, elementPanel, emptyCondition, Defs, Node } from "unomi/ui/control/builders";
+import { loadDefs, conditionPanel, actionsList, elementPanel, emptyCondition, emptyDefs, Defs, Node } from "unomi/ui/control/builders";
 import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef } from "unomi/ui/control/brm/conditionEditor";
 
 const meta = { id: "", name: "", scope: "systemscope", enabled: true };
@@ -43,7 +43,7 @@ export default class ItemDetail extends BaseController {
 
 	private cfg = RES.segmentDetail;
 	private itemId = "";
-	private defs: Defs = { cond: {}, condTypes: [], action: {}, actionTypes: [] };
+	private defs: Defs = emptyDefs();
 	private props: { profile: PropDef[]; session: PropDef[]; event: PropDef[] } = { profile: [], session: [], event: [] };
 	private cat = emptyCat();
 
