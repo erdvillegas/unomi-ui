@@ -1,6 +1,7 @@
 <mvc:View
 	controllerName="unomi.ui.controller.ProfileList"
 	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
 	xmlns="sap.m"
 	displayBlock="true">
 	<Page title="Profiles ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
@@ -9,6 +10,22 @@
 				<SearchField placeholder="{i18n>search}" search=".onSearch" width="100%" />
 			</Toolbar>
 		</subHeader>
+		<Panel headerText="{i18n>queryBuilder}" expandable="true" expanded="false" class="sapUiResponsiveMargin" width="auto">
+			<VBox>
+				<VBox id="queryHost" />
+				<Toolbar>
+					<Select id="savedQueries" items="{query>/saved}" width="12rem">
+						<core:Item key="{query>}" text="{query>}" />
+					</Select>
+					<Button text="{i18n>loadQuery}" icon="sap-icon://open-folder" press=".onLoadQuery" />
+					<Button text="{i18n>delete}" icon="sap-icon://delete" press=".onDeleteQuery" />
+					<ToolbarSpacer />
+					<Input id="queryName" placeholder="{i18n>queryName}" width="12rem" />
+					<Button text="{i18n>save}" icon="sap-icon://save" press=".onSaveQuery" />
+					<Button text="{i18n>runQuery}" type="Emphasized" icon="sap-icon://search" press=".onRunQuery" />
+				</Toolbar>
+			</VBox>
+		</Panel>
 		<Table
 			id="profilesTable"
 			items="{list>/profiles}"

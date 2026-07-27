@@ -10,6 +10,7 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { buildForm } from "unomi/ui/control/FormEngine";
 import { formFields } from "unomi/ui/model/forms";
 import { loadDefs, conditionPanel, actionsList, elementPanel, emptyCondition, Defs, Node } from "unomi/ui/control/builders";
+import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef } from "unomi/ui/control/brm/conditionEditor";
 
 const meta = { id: "", name: "", scope: "systemscope", enabled: true };
 const RES: Record<string, { path: string; list: string; stats: boolean; template: object }> = {
@@ -26,13 +27,13 @@ const RES: Record<string, { path: string; list: string; stats: boolean; template
 };
 
 // Nested typed fields per resource, edited inline on the shared form model.
-type Section = { prop: string; kind: "condition" | "actions" | "elements"; label: string };
+type Section = { prop: string; kind: "condition" | "actions" | "elements"; label: string; brm?: boolean };
 const NESTED: Record<string, Section[]> = {
-	segments: [{ prop: "condition", kind: "condition", label: "Condition" }],
-	rules: [{ prop: "condition", kind: "condition", label: "Condition" }, { prop: "actions", kind: "actions", label: "Actions" }],
+	segments: [{ prop: "condition", kind: "condition", label: "Condition", brm: true }],
+	rules: [{ prop: "condition", kind: "condition", label: "Condition", brm: true }, { prop: "actions", kind: "actions", label: "Actions" }],
 	scoring: [{ prop: "elements", kind: "elements", label: "Elements" }],
-	goals: [{ prop: "startEvent", kind: "condition", label: "Start event" }, { prop: "targetEvent", kind: "condition", label: "Target event" }],
-	campaigns: [{ prop: "entryCondition", kind: "condition", label: "Entry condition" }]
+	goals: [{ prop: "startEvent", kind: "condition", label: "Start event", brm: true }, { prop: "targetEvent", kind: "condition", label: "Target event", brm: true }],
+	campaigns: [{ prop: "entryCondition", kind: "condition", label: "Entry condition", brm: true }]
 };
 
 /**
@@ -43,6 +44,8 @@ export default class ItemDetail extends BaseController {
 	private cfg = RES.segmentDetail;
 	private itemId = "";
 	private defs: Defs = { cond: {}, condTypes: [], action: {}, actionTypes: [] };
+	private props: { profile: PropDef[]; session: PropDef[]; event: PropDef[] } = { profile: [], session: [], event: [] };
+	private cat = emptyCat();
 
 	public onInit(): void {
 		this.getView()?.setModel(new JSONModel({ name: "", json: "", stats: "", hasStats: false, isNew: false, busy: false }), "detail");
@@ -105,6 +108,10 @@ export default class ItemDetail extends BaseController {
 		}
 		try {
 			this.defs = await loadDefs();
+			if ((NESTED[this.cfg.list] || []).some((s) => s.brm)) {
+				this.props = await loadProps();
+				this.cat = await loadCatalogs();
+			}
 		} catch (e) {
 			MessageToast.show(`Definitions failed: ${(e as Error).message}`);
 			return;
@@ -121,7 +128,9 @@ export default class ItemDetail extends BaseController {
 			const panel = new Panel({ headerText: sec.label, expandable: true, expanded: true });
 			if (sec.kind === "condition") {
 				data[sec.prop] ??= emptyCondition();
-				panel.addContent(conditionPanel(data[sec.prop] as Node, this.defs, refresh));
+				panel.addContent(sec.brm
+					? conditionEditor(data[sec.prop] as Node, { defs: this.defs, props: this.props, cat: this.cat }, refresh)
+					: conditionPanel(data[sec.prop] as Node, this.defs, refresh));
 			} else if (sec.kind === "actions") {
 				const arr = (data[sec.prop] ??= []) as Node[];
 				actionsList(arr, this.defs, refresh).forEach((c) => panel.addContent(c));
