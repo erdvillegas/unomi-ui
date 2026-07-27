@@ -24,6 +24,8 @@
 					<tnt:NavigationListItem text="{i18n>lists}" icon="sap-icon://list" key="lists" />
 					<tnt:NavigationListItem text="{i18n>scopes}" icon="sap-icon://folder-blank" key="scopes" />
 					<tnt:NavigationListItem text="{i18n>properties}" icon="sap-icon://form" key="properties" />
+					<tnt:NavigationListItem text="{i18n>importConfig}" icon="sap-icon://upload" key="importConfig" />
+					<tnt:NavigationListItem text="{i18n>exportConfig}" icon="sap-icon://download" key="exportConfig" />
 					<tnt:NavigationListItem text="{i18n>definitions}" icon="sap-icon://activities" key="definitions" />
 				</tnt:NavigationList>
 			</tnt:SideNavigation>

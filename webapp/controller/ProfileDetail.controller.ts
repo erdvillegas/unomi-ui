@@ -1,6 +1,7 @@
 import BaseController from "unomi/ui/controller/BaseController";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageToast from "sap/m/MessageToast";
+import MessageBox from "sap/m/MessageBox";
 import Event from "sap/ui/base/Event";
 import ListItemBase from "sap/m/ListItemBase";
 import VBox from "sap/m/VBox";
@@ -23,7 +24,7 @@ export default class ProfileDetail extends BaseController {
 	public onInit(): void {
 		this.getView()?.setModel(new JSONModel({
 			profileId: "", segments: [] as Metadata[], sessions: [] as Session[],
-			events: [] as UnomiEvent[], aliases: [] as Alias[], busy: false
+			events: [] as UnomiEvent[], aliases: [] as Alias[], anonBrowsing: false, busy: false
 		}), "detail");
 		this.getView()?.setModel(new JSONModel({}), "profile");
 		this.getRouter().getRoute("profileDetail")?.attachPatternMatched(this.onShow, this);
@@ -39,20 +40,22 @@ export default class ProfileDetail extends BaseController {
 
 	private async load(): Promise<void> {
 		const model = this.getView()?.getModel("detail") as JSONModel;
-		model.setData({ profileId: this.profileId, segments: [], sessions: [], events: [], aliases: [], busy: true });
+		model.setData({ profileId: this.profileId, segments: [], sessions: [], events: [], aliases: [], anonBrowsing: false, busy: true });
 		const enc = encodeURIComponent(this.profileId);
 		try {
-			const [profile, segments, sessions, aliases] = await Promise.all([
+			const [profile, segments, sessions, aliases, anon] = await Promise.all([
 				UnomiClient.getJson<FullProfile>(`/profiles/${enc}`),
 				UnomiClient.getJson<Metadata[]>(`/profiles/${enc}/segments`),
 				UnomiClient.getJson<PartialList<Session>>(`/profiles/${enc}/sessions?size=50`),
-				UnomiClient.getJson<PartialList<Alias>>(`/profiles/${enc}/aliases`)
+				UnomiClient.getJson<PartialList<Alias>>(`/profiles/${enc}/aliases`),
+				UnomiClient.getJson<boolean>(`/privacy/profiles/${enc}/anonymousBrowsing`)
 			]);
 			(this.getView()?.getModel("profile") as JSONModel).setData(profile);
 			this.renderProps();
 			model.setProperty("/segments", segments);
 			model.setProperty("/sessions", sessions.list);
 			model.setProperty("/aliases", aliases.list);
+			model.setProperty("/anonBrowsing", anon);
 		} catch (e) {
 			MessageToast.show(`Load failed: ${(e as Error).message}`);
 		} finally {
@@ -118,6 +121,51 @@ export default class ProfileDetail extends BaseController {
 			(this.getView()?.getModel("detail") as JSONModel).setProperty("/events", events.list);
 		} catch (e) {
 			MessageToast.show(`Events failed: ${(e as Error).message}`);
+		}
+	}
+
+	public async onAnonymize(): Promise<void> {
+		try {
+			await UnomiClient.postJson(`/privacy/profiles/${encodeURIComponent(this.profileId)}/anonymize?scope=systemscope`, {});
+			MessageToast.show("Profile anonymized");
+		} catch (e) {
+			MessageToast.show(`Anonymize failed: ${(e as Error).message}`);
+		}
+	}
+
+	public async onToggleAnonBrowsing(event: Event): Promise<void> {
+		const on = event.getParameter("state" as never) as boolean;
+		const enc = encodeURIComponent(this.profileId);
+		try {
+			if (on) {
+				await UnomiClient.postJson(`/privacy/profiles/${enc}/anonymousBrowsing`, {});
+			} else {
+				await UnomiClient.del(`/privacy/profiles/${enc}/anonymousBrowsing`);
+			}
+			MessageToast.show("Anonymous browsing updated");
+		} catch (e) {
+			MessageToast.show(`Update failed: ${(e as Error).message}`);
+			(this.getView()?.getModel("detail") as JSONModel).setProperty("/anonBrowsing", !on);
+		}
+	}
+
+	public onDeleteData(): void {
+		MessageBox.confirm("Delete all data for this profile? This cannot be undone.", {
+			onClose: (action: string | null) => {
+				if (action === MessageBox.Action.OK) {
+					void this.doDeleteData();
+				}
+			}
+		});
+	}
+
+	private async doDeleteData(): Promise<void> {
+		try {
+			await UnomiClient.del(`/privacy/profiles/${encodeURIComponent(this.profileId)}`);
+			MessageToast.show("Profile data deleted");
+			this.getRouter().navTo("profiles");
+		} catch (e) {
+			MessageToast.show(`Delete failed: ${(e as Error).message}`);
 		}
 	}
 

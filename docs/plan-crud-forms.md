@@ -90,7 +90,8 @@ bind bidireccional a un `JSONModel`. Nada de un form escrito a mano por entidad.
 | 5 | Nuevos recursos como form CRUD: **Lists, Scopes, PropertyTypes** (reuso de `MetadataList`/`ItemDetail` con `extract` por recurso para normalizar array/envelope/dict-agrupado a `Metadata[]`) + 3 entradas de nav | gestión de catálogo | ✅ hecho |
 | 6 | **Profiles**: editar `properties` con `KeyValueEditor` (coerción por `JSON.parse`, preserva tipos) + Save (POST /profiles); **aliases** list/add/remove; `keyValueBox` extraído a `builders.ts` y compartido | edición real de perfiles | ✅ hecho |
 | 6b | **Personas** CRUD (módulo paralelo a Profiles, sin `metadata`); consents, `batchProfilesUpdate`, export, `GeonamesInput` | resto de gestión de perfiles | pendiente |
-| 7 | Ops/config: **Import/Export config, groovyActions, jsonSchema, patches, privacy** | paridad total con la API | pendiente |
+| 7 | **Import/Export config** form CRUD (campos raíz sin `metadata`, reuso de genéricos con `extract`); **Privacy** en ProfileDetail (anonymize, anonymous-browsing toggle, delete data) | config + privacidad | ✅ hecho |
+| 7b | **jsonSchema** (registro + CodeEditor), **groovyActions** (upload/script), **patches** (apply); privacy avanzado (eventFilters, borrar propiedad) | resto de ops | pendiente |
 
 ### Fase 4 concreta (arranque)
 

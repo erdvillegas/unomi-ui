@@ -15,6 +15,8 @@ const NAV_KEY: Record<string, string> = {
 	scopes: "scopes", scopeDetail: "scopes",
 	lists: "lists", listDetail: "lists",
 	properties: "properties", propertyDetail: "properties",
+	importConfig: "importConfig", importConfigDetail: "importConfig",
+	exportConfig: "exportConfig", exportConfigDetail: "exportConfig",
 	definitions: "definitions"
 };
 

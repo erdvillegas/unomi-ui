@@ -27,6 +27,19 @@
 			</List>
 		</Panel>
 
+		<Panel headerText="{i18n>privacy}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<VBox class="sapUiSmallMargin">
+				<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+					<Switch state="{detail>/anonBrowsing}" change=".onToggleAnonBrowsing" />
+					<Label text="{i18n>anonBrowsing}" class="sapUiSmallMarginBegin" />
+				</HBox>
+				<HBox>
+					<Button text="{i18n>anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" class="sapUiTinyMarginEnd" />
+					<Button text="{i18n>deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" />
+				</HBox>
+			</VBox>
+		</Panel>
+
 		<Panel headerText="{i18n>segments}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
 			<List items="{detail>/segments}" noDataText="{i18n>noData}">
 				<StandardListItem title="{detail>name}" description="{detail>id}" />

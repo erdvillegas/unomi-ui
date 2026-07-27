@@ -77,6 +77,10 @@
         { "name": "listDetail", "pattern": "lists/{itemId}", "target": "listDetail" },
         { "name": "properties", "pattern": "properties", "target": "properties" },
         { "name": "propertyDetail", "pattern": "properties/{itemId}", "target": "propertyDetail" },
+        { "name": "importConfig", "pattern": "importConfig", "target": "importConfig" },
+        { "name": "importConfigDetail", "pattern": "importConfig/{itemId}", "target": "importConfigDetail" },
+        { "name": "exportConfig", "pattern": "exportConfig", "target": "exportConfig" },
+        { "name": "exportConfigDetail", "pattern": "exportConfig/{itemId}", "target": "exportConfigDetail" },
         { "name": "definitions", "pattern": "definitions", "target": "definitions" }
       ],
       "targets": {
@@ -99,6 +103,10 @@
         "listDetail": { "id": "listDetail", "name": "ItemDetail" },
         "properties": { "id": "properties", "name": "MetadataList" },
         "propertyDetail": { "id": "propertyDetail", "name": "ItemDetail" },
+        "importConfig": { "id": "importConfig", "name": "MetadataList" },
+        "importConfigDetail": { "id": "importConfigDetail", "name": "ItemDetail" },
+        "exportConfig": { "id": "exportConfig", "name": "MetadataList" },
+        "exportConfigDetail": { "id": "exportConfigDetail", "name": "ItemDetail" },
         "definitions": { "id": "definitions", "name": "DefinitionCatalog" }
       }
     }

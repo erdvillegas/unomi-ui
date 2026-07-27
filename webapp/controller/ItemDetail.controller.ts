@@ -20,7 +20,9 @@ const RES: Record<string, { path: string; list: string; stats: boolean; template
 	campaignDetail: { path: "/campaigns", list: "campaigns", stats: false, template: { metadata: meta } },
 	scopeDetail: { path: "/scopes", list: "scopes", stats: false, template: { metadata: meta } },
 	listDetail: { path: "/lists", list: "lists", stats: false, template: { metadata: meta } },
-	propertyDetail: { path: "/profiles/properties", list: "properties", stats: false, template: { metadata: meta, target: "profiles", valueTypeId: "string", defaultValue: "", multivalued: false, rank: 0, dateRanges: [], numericRanges: [], ipRanges: [], childPropertyTypes: [] } }
+	propertyDetail: { path: "/profiles/properties", list: "properties", stats: false, template: { metadata: meta, target: "profiles", valueTypeId: "string", defaultValue: "", multivalued: false, rank: 0, dateRanges: [], numericRanges: [], ipRanges: [], childPropertyTypes: [] } },
+	importConfigDetail: { path: "/importConfiguration", list: "importConfig", stats: false, template: { itemId: "", name: "", description: "", configType: "", columnSeparator: ",", lineSeparator: "\n", multiValueSeparator: ";", multiValueDelimiter: "[]", active: true, hasHeader: true, hasDeleteColumn: false, overwriteExistingProfiles: false, mergingProperty: "", propertiesToOverwrite: [], properties: {}, executions: [] } },
+	exportConfigDetail: { path: "/exportConfiguration", list: "exportConfig", stats: false, template: { itemId: "", name: "", description: "", configType: "", columnSeparator: ",", lineSeparator: "\n", multiValueSeparator: ";", multiValueDelimiter: "[]", active: true, properties: {}, executions: [] } }
 };
 
 // Nested typed fields per resource, edited inline on the shared form model.
@@ -77,8 +79,8 @@ export default class ItemDetail extends BaseController {
 			const item = await UnomiClient.getJson<object>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}`);
 			(this.getView()?.getModel("form") as JSONModel).setData(item);
 			this.renderForm(false);
-			const m = (item as { metadata?: { name?: string } }).metadata;
-			detail.setProperty("/name", m?.name || this.itemId);
+			const it = item as { metadata?: { name?: string }; name?: string };
+			detail.setProperty("/name", it.metadata?.name ?? it.name ?? this.itemId);
 			await this.initNested();
 			if (this.cfg.stats) {
 				const stats = await UnomiClient.getJson<object>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}/statistics`);
