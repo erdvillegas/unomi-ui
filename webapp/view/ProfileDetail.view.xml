@@ -10,20 +10,21 @@
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
 		<Panel headerText="{i18n>properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<Table items="{detail>/props}" noDataText="{i18n>noData}">
-				<columns>
-					<Column><Text text="{i18n>colKey}" /></Column>
-					<Column><Text text="{i18n>colValue}" /></Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<cells>
-							<Text text="{detail>key}" />
-							<Text text="{detail>value}" />
-						</cells>
-					</ColumnListItem>
-				</items>
-			</Table>
+			<VBox id="propsHost" />
+		</Panel>
+
+		<Panel headerText="{i18n>aliases}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<headerToolbar>
+				<Toolbar>
+					<Title text="{i18n>aliases}" />
+					<ToolbarSpacer />
+					<Input id="aliasInput" placeholder="{i18n>aliasPlaceholder}" width="14rem" />
+					<Button text="{i18n>add}" icon="sap-icon://add" press=".onAddAlias" />
+				</Toolbar>
+			</headerToolbar>
+			<List items="{detail>/aliases}" mode="Delete" delete=".onRemoveAlias" noDataText="{i18n>noData}">
+				<StandardListItem title="{detail>itemId}" />
+			</List>
 		</Panel>
 
 		<Panel headerText="{i18n>segments}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
@@ -73,5 +74,11 @@
 				</items>
 			</Table>
 		</Panel>
+		<footer>
+			<Toolbar>
+				<ToolbarSpacer />
+				<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
+			</Toolbar>
+		</footer>
 	</Page>
 </mvc:View>

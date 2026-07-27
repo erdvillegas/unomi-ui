@@ -90,7 +90,7 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 			body.addItem(sel);
 		} else if (p.type === "properties") {
 			body.addItem(new Label({ text: p.id, design: "Bold" }));
-			body.addItem(propsBox((node.parameterValues[p.id] ??= {}) as Record<string, any>, refresh));
+			body.addItem(keyValueBox((node.parameterValues[p.id] ??= {}) as Record<string, any>, refresh));
 		} else if (p.type === "boolean") {
 			const cb = new CheckBox({ text: p.id, selected: !!node.parameterValues[p.id] });
 			cb.attachSelect(() => (node.parameterValues[p.id] = cb.getSelected()));
@@ -106,18 +106,29 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 	});
 }
 
-// Free key/value map editor (action `properties` param).
-function propsBox(map: Record<string, any>, refresh: () => void): VBox {
+// Free key/value map editor (action `properties` param, profile properties, ...).
+// ponytail: value coercion via JSON.parse preserves numbers/booleans/objects
+// (nbOfVisits stays a number); a bare word that fails to parse stays a string.
+export function keyValueBox(map: Record<string, any>, refresh: () => void): VBox {
 	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
 	Object.keys(map).forEach((k) => {
-		const key = new Input({ value: k, width: "40%" });
-		const val = new Input({ value: map[k] == null ? "" : String(map[k]), width: "45%" });
+		const cur = map[k];
+		const key = new Input({ value: k, width: "35%" });
+		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), width: "50%" });
 		key.attachChange(() => { const nk = key.getValue(); if (nk !== k) { map[nk] = map[k]; delete map[k]; refresh(); } });
-		val.attachChange(() => (map[key.getValue()] = val.getValue()));
-		box.addItem(new HBox({ items: [key, val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } })] }));
+		val.attachChange(() => (map[key.getValue()] = parseValue(val.getValue())));
+		box.addItem(new HBox({ items: [key, val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } })] }).addStyleClass("sapUiTinyMarginBottom"));
 	});
 	box.addItem(new Button({ text: "+", icon: "sap-icon://add", press: () => { let i = 1; while (("key" + i) in map) { i++; } map["key" + i] = ""; refresh(); } }));
 	return box;
+}
+
+function parseValue(s: string): unknown {
+	try {
+		return JSON.parse(s);
+	} catch {
+		return s;
+	}
 }
 
 function coerce(v: string, p: Param): unknown {
