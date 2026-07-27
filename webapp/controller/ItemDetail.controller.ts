@@ -164,7 +164,13 @@ export default class ItemDetail extends BaseController {
 	}
 
 	public async onSave(): Promise<void> {
-		const item = (this.getView()?.getModel("form") as JSONModel).getData() as object;
+		const item = (this.getView()?.getModel("form") as JSONModel).getData() as { metadata?: { id?: string }; itemId?: string };
+		// Guard: saving without an identity creates a blank, un-openable row (id "" → nothing to route to).
+		const id = (item.metadata?.id ?? item.itemId ?? "").trim();
+		if (!id) {
+			MessageToast.show("ID is required");
+			return;
+		}
 		try {
 			await UnomiClient.postJson(this.cfg.path, item);
 			MessageToast.show("Saved");
