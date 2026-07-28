@@ -110,9 +110,33 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 // Free key/value map editor (action `properties` param, profile properties, ...).
 // ponytail: value coercion via JSON.parse preserves numbers/booleans/objects
 // (nbOfVisits stays a number); a bare word that fails to parse stays a string.
-export function keyValueBox(map: Record<string, any>, refresh: () => void): VBox {
+// Labeled inputs for Unomi's known/native profile property definitions, bound to
+// the profile's `properties` map by id. Boolean → CheckBox, integer → number Input,
+// everything else → text Input. Missing values render empty so the user can fill them.
+export interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
+export function nativePropsBox(map: Record<string, any>, defs: NativeProp[], refresh: () => void): VBox {
 	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
-	Object.keys(map).forEach((k) => {
+	defs.forEach((d) => {
+		const label = new Label({ text: d.name || d.id, width: "35%", tooltip: d.id });
+		let field: Control;
+		if (d.valueTypeId === "boolean") {
+			const cb = new CheckBox({ selected: !!map[d.id] });
+			cb.attachSelect(() => (map[d.id] = cb.getSelected()));
+			field = cb;
+		} else {
+			const isInt = d.valueTypeId === "integer";
+			const inp = new Input({ value: map[d.id] == null ? "" : String(map[d.id]), type: isInt ? "Number" : "Text", width: "60%" });
+			inp.attachChange(() => { const v = inp.getValue(); if (v === "") { delete map[d.id]; } else { map[d.id] = isInt ? Number(v) : v; } });
+			field = inp;
+		}
+		box.addItem(new HBox({ items: [label, field] }).addStyleClass("sapUiTinyMarginBottom"));
+	});
+	return box;
+}
+
+export function keyValueBox(map: Record<string, any>, refresh: () => void, exclude?: Set<string>): VBox {
+	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
+	Object.keys(map).filter((k) => !exclude?.has(k)).forEach((k) => {
 		const cur = map[k];
 		const key = new Input({ value: k, width: "35%" });
 		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), width: "50%" });

@@ -9,7 +9,9 @@ import Input from "sap/m/Input";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { PartialList } from "unomi/ui/service/UnomiClient";
 import { Session, UnomiEvent, Metadata } from "unomi/ui/model/types";
-import { keyValueBox } from "unomi/ui/control/builders";
+import Label from "sap/m/Label";
+import { keyValueBox, nativePropsBox } from "unomi/ui/control/builders";
+import { loadProps } from "unomi/ui/control/brm/conditionEditor";
 
 interface FullProfile { itemId: string; properties?: Record<string, unknown>; }
 interface Alias { itemId: string; }
@@ -63,11 +65,15 @@ export default class ProfileDetail extends BaseController {
 		}
 	}
 
-	private renderProps(): void {
+	private async renderProps(): Promise<void> {
 		const host = this.byId("propsHost") as VBox;
 		host.destroyItems();
 		const data = (this.getView()?.getModel("profile") as JSONModel).getData() as FullProfile;
-		host.addItem(keyValueBox((data.properties ??= {}) as Record<string, any>, () => this.renderProps()));
+		const props = (data.properties ??= {}) as Record<string, any>;
+		const native = (await loadProps()).profile;
+		host.addItem(nativePropsBox(props, native, () => void this.renderProps()));
+		host.addItem(new Label({ text: "Otras propiedades", design: "Bold" }).addStyleClass("sapUiSmallMarginTop"));
+		host.addItem(keyValueBox(props, () => void this.renderProps(), new Set(native.map((p) => p.id))));
 	}
 
 	public async onSave(): Promise<void> {
