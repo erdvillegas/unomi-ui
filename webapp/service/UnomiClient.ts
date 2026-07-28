@@ -5,8 +5,13 @@
  * need more than one concurrent Unomi connection (we won't).
  */
 
-const BASE = "/cxs";
+let base = "/cxs";
 let authHeader = "";
+
+/** Override the API base (from Settings). Empty falls back to the dev proxy path. */
+export function setBaseUrl(url: string): void {
+	base = url || "/cxs";
+}
 
 export interface PartialList<T> {
 	list: T[];
@@ -35,7 +40,7 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 	if (init.body) {
 		headers.set("Content-Type", "application/json");
 	}
-	const res = await fetch(BASE + path, { ...init, headers });
+	const res = await fetch(base + path, { ...init, headers });
 	if (!res.ok) {
 		throw new Error(`${res.status} ${res.statusText}`);
 	}

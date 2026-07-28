@@ -83,7 +83,8 @@
         { "name": "importConfigDetail", "pattern": "importConfig/{itemId}", "target": "importConfigDetail" },
         { "name": "exportConfig", "pattern": "exportConfig", "target": "exportConfig" },
         { "name": "exportConfigDetail", "pattern": "exportConfig/{itemId}", "target": "exportConfigDetail" },
-        { "name": "definitions", "pattern": "definitions", "target": "definitions" }
+        { "name": "definitions", "pattern": "definitions", "target": "definitions" },
+        { "name": "settings", "pattern": "settings", "target": "settings" }
       ],
       "targets": {
         "login": { "id": "login", "name": "Login" },
@@ -111,7 +112,8 @@
         "importConfigDetail": { "id": "importConfigDetail", "name": "ItemDetail" },
         "exportConfig": { "id": "exportConfig", "name": "MetadataList" },
         "exportConfigDetail": { "id": "exportConfigDetail", "name": "ItemDetail" },
-        "definitions": { "id": "definitions", "name": "DefinitionCatalog" }
+        "definitions": { "id": "definitions", "name": "DefinitionCatalog" },
+        "settings": { "id": "settings", "name": "Settings" }
       }
     }
   }
