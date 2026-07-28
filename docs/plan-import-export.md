@@ -38,6 +38,20 @@ El spec lista los campos multipart del import oneshot **vacíos**. Verificar:
 
 Salida: una nota de "shapes verificadas" al pie de este plan.
 
+### Fase 0 — verificado (2026-07-28, contenedor unomi 3.0.0)
+
+- `POST /profiles/export` `{condition}` → **200 `text/csv`**, sep `;`, header
+  `Content-Disposition: attachment; filename=Profiles_export_<ts>.csv`. ✅
+- Import oneshot es multipart **`importConfigId` + `file`**; requiere una
+  `ImportConfiguration` **ya guardada** (sin `importConfigId` → 400 "No multipart
+  with content id importConfigId found"). Devuelve 200 body vacío. ✅
+- `ImportConfiguration.properties.mapping` = `{ "<colIndex>": "<propertyName>" }`
+  (aceptado al guardar). `columnSeparator/lineSeparator/mergingProperty/hasHeader`
+  se guardan tal cual. Listas de configs vacías por defecto.
+- **Pendiente F3**: con el mapping probado el oneshot no reflejó el perfil (import
+  async vía camel router); afinar dirección de `mapping`/`mergingProperty` y si
+  requiere `active:true` cuando se construya la UI de import.
+
 ## Fase 1 — extender UnomiClient (base para todo lo demás)
 
 `ponytail:` solo lo mínimo que JSON no cubre:
