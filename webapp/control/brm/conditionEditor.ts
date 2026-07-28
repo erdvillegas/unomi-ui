@@ -101,7 +101,7 @@ export async function loadProps(): Promise<BrmCtx["props"]> {
 	}
 	const raw = await UnomiClient.getJson<Record<string, { valueTypeId?: string; metadata: { id: string; name?: string } }[]>>("/profiles/properties");
 	const map = (arr?: { valueTypeId?: string; metadata: { id: string; name?: string } }[]): PropDef[] =>
-		(arr || []).map((p) => ({ id: p.metadata.id, name: p.metadata.name || p.metadata.id, valueTypeId: p.valueTypeId || null }));
+		(arr || []).filter((p) => p && p.metadata && p.metadata.id).map((p) => ({ id: p.metadata.id, name: p.metadata.name || p.metadata.id, valueTypeId: p.valueTypeId || null }));
 	// Event properties have no catalog endpoint → free-text picker (empty list).
 	propsCache = { profile: map(raw.profiles), session: map(raw.sessions), event: [] };
 	return propsCache;
@@ -120,7 +120,8 @@ export async function loadCatalogs(): Promise<BrmCtx["cat"]> {
 		UnomiClient.getJson<{ id: string; name?: string }[]>("/goals"),
 		UnomiClient.getJson<string[]>("/events/types")
 	]);
-	const flat = (a: { id: string; name?: string }[]): Opt[] => (a || []).map((x) => ({ id: x.id, name: x.name || x.id }));
+	// ponytail: filter nulls/id-less — junk catalog rows (id="") crash the picker map.
+	const flat = (a: { id: string; name?: string }[]): Opt[] => (a || []).filter((x) => x && x.id).map((x) => ({ id: x.id, name: x.name || x.id }));
 	// /events/types is a plain string[]; goals are metadata objects.
 	catCache = { segments: flat(segs), scorings: flat(scos), lists: flat(lists.list || []), goals: flat(goals), eventTypes: (evts || []).map((e) => ({ id: e, name: e })) };
 	return catCache;
