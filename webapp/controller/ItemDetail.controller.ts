@@ -31,7 +31,7 @@ type Section = { prop: string; kind: "condition" | "actions" | "elements"; label
 const NESTED: Record<string, Section[]> = {
 	segments: [{ prop: "condition", kind: "condition", label: "Condition", brm: true }],
 	rules: [{ prop: "condition", kind: "condition", label: "Condition", brm: true }, { prop: "actions", kind: "actions", label: "Actions" }],
-	scoring: [{ prop: "elements", kind: "elements", label: "Elements" }],
+	scoring: [{ prop: "elements", kind: "elements", label: "Elements", brm: true }],
 	goals: [{ prop: "startEvent", kind: "condition", label: "Start event", brm: true }, { prop: "targetEvent", kind: "condition", label: "Target event", brm: true }],
 	campaigns: [{ prop: "entryCondition", kind: "condition", label: "Entry condition", brm: true }]
 };
@@ -136,7 +136,9 @@ export default class ItemDetail extends BaseController {
 				actionsList(arr, this.defs, refresh).forEach((c) => panel.addContent(c));
 			} else {
 				const arr = (data[sec.prop] ??= []) as Array<{ condition?: Node; value?: number }>;
-				arr.forEach((el, i) => panel.addContent(elementPanel(el, this.defs, refresh, () => { arr.splice(i, 1); refresh(); })));
+				const ctx = { defs: this.defs, props: this.props, cat: this.cat };
+				const brm = (node: Node, r: () => void) => conditionEditor(node, ctx, r);
+				arr.forEach((el, i) => panel.addContent(elementPanel(el, this.defs, refresh, () => { arr.splice(i, 1); refresh(); }, brm)));
 				panel.addContent(new Button({ text: "+ element", icon: "sap-icon://add", press: () => { arr.push({ condition: emptyCondition(), value: 0 }); refresh(); } }));
 			}
 			host.addItem(panel);
