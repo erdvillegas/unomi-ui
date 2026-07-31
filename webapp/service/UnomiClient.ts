@@ -5,8 +5,13 @@
  * need more than one concurrent Unomi connection (we won't).
  */
 
-const BASE = "/cxs";
+let base = "/cxs";
 let authHeader = "";
+
+/** Override the API base (from Settings). Empty falls back to the dev proxy path. */
+export function setBaseUrl(url: string): void {
+	base = url || "/cxs";
+}
 
 export interface PartialList<T> {
 	list: T[];
@@ -32,10 +37,12 @@ async function request(path: string, init: RequestInit = {}): Promise<Response> 
 	if (authHeader) {
 		headers.set("Authorization", authHeader);
 	}
-	if (init.body) {
+	// Only JSON string bodies get a JSON content-type; FormData sets its own
+	// multipart boundary, so leave it untouched.
+	if (init.body && typeof init.body === "string") {
 		headers.set("Content-Type", "application/json");
 	}
-	const res = await fetch(BASE + path, { ...init, headers });
+	const res = await fetch(base + path, { ...init, headers });
 	if (!res.ok) {
 		throw new Error(`${res.status} ${res.statusText}`);
 	}
@@ -68,4 +75,25 @@ export async function postJson(path: string, body: object): Promise<void> {
 /** DELETE a resource. Response body (if any) is ignored. */
 export async function del(path: string): Promise<void> {
 	await request(path, { method: "DELETE" });
+}
+
+/** POST a JSON body and get back the raw CSV text (e.g. /profiles/export). */
+export async function postCsv(path: string, body: object): Promise<string> {
+	const res = await request(path, { method: "POST", body: JSON.stringify(body) });
+	return res.text();
+}
+
+/** POST multipart FormData (e.g. /importConfiguration/oneshot). Returns the response. */
+export async function postForm(path: string, form: FormData): Promise<Response> {
+	return request(path, { method: "POST", body: form });
+}
+
+/** Trigger a browser download of text content. No auth involved — data is already fetched. */
+export function downloadText(text: string, filename: string, mime = "text/csv"): void {
+	const url = URL.createObjectURL(new Blob([text], { type: mime }));
+	const a = Object.assign(document.createElement("a"), { href: url, download: filename });
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	URL.revokeObjectURL(url);
 }

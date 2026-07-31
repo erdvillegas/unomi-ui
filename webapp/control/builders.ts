@@ -168,12 +168,14 @@ function coerce(v: string, p: Param): unknown {
 }
 
 // Used by ItemDetail to render a scoring element (condition + integer value).
-export function elementPanel(el: { condition?: Node; value?: number }, defs: Defs, refresh: () => void, onRemove: () => void): Panel {
+// condEditor lets the caller inject the BRM visual editor; falls back to the raw tree.
+export function elementPanel(el: { condition?: Node; value?: number }, defs: Defs, refresh: () => void, onRemove: () => void, condEditor?: (node: Node, refresh: () => void) => Control): Panel {
 	el.condition ??= emptyCondition();
 	const value = new Input({ value: String(el.value ?? 0), type: "Number", width: "8rem" });
 	value.attachChange(() => (el.value = Number(value.getValue()) || 0));
 	const header = new Toolbar({ content: [new Label({ text: "value" }), value, new ToolbarSpacer(), new Button({ icon: "sap-icon://decline", tooltip: "Remove", press: onRemove })] });
-	const body = new VBox({ items: [new Label({ text: "condition", design: "Bold" }), conditionPanel(el.condition, defs, refresh)] }).addStyleClass("sapUiSmallMarginBegin");
+	const editor = condEditor ? condEditor(el.condition, refresh) : conditionPanel(el.condition, defs, refresh);
+	const body = new VBox({ items: [new Label({ text: "condition", design: "Bold" }), editor] }).addStyleClass("sapUiSmallMarginBegin");
 	return new Panel({ headerToolbar: header, content: [body] }).addStyleClass("sapUiSmallMarginTop");
 }
 

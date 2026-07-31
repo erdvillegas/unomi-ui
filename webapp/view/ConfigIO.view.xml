@@ -1,0 +1,85 @@
+<mvc:View
+	controllerName="unomi.ui.controller.ConfigIO"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:u="sap.ui.unified"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{i18n>configIO}" busy="{io>/busy}" busyIndicatorDelay="0">
+		<IconTabBar id="tabs" selectedKey="{io>/tab}" expandable="false">
+			<items>
+				<IconTabFilter key="export" text="{i18n>exportConfig}" icon="sap-icon://download">
+					<Panel headerText="{i18n>exportNow}" class="sapUiResponsiveMargin" width="auto">
+						<VBox class="sapUiSmallMargin">
+							<Label text="{i18n>exportSource}" />
+							<Select selectedKey="{io>/exportSegment}" items="{io>/segments}" width="20rem" class="sapUiTinyMarginBottom">
+								<core:Item key="{io>id}" text="{io>name}" />
+							</Select>
+							<Button text="{i18n>exportCsv}" type="Emphasized" icon="sap-icon://excel-attachment" press=".onExportNow" width="12rem" />
+						</VBox>
+					</Panel>
+					<Panel headerText="{i18n>savedConfigs}" class="sapUiResponsiveMargin" width="auto">
+						<headerToolbar>
+							<Toolbar>
+								<Title text="{i18n>savedConfigs}" />
+								<ToolbarSpacer />
+								<Button text="{i18n>newItem}" icon="sap-icon://add" press=".onNewExport" />
+							</Toolbar>
+						</headerToolbar>
+						<Table items="{io>/exportConfigs}" mode="Delete" delete=".onDeleteExport" noDataText="{i18n>noData}">
+							<columns>
+								<Column><Text text="{i18n>colName}" /></Column>
+								<Column><Text text="{i18n>colEnabled}" /></Column>
+							</columns>
+							<items>
+								<ColumnListItem type="Navigation" press=".onExportPress">
+									<cells>
+										<Text text="{io>name}" />
+										<Text text="{io>active}" />
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</Panel>
+				</IconTabFilter>
+
+				<IconTabFilter key="import" text="{i18n>importConfig}" icon="sap-icon://upload">
+					<Panel headerText="{i18n>importNow}" class="sapUiResponsiveMargin" width="auto">
+						<VBox class="sapUiSmallMargin">
+							<Text text="{i18n>importHint}" class="sapUiTinyMarginBottom" />
+							<Label text="{i18n>importConfigSel}" />
+							<Select selectedKey="{io>/importConfigId}" items="{io>/importConfigs}" width="20rem" class="sapUiTinyMarginBottom">
+								<core:Item key="{io>itemId}" text="{io>name}" />
+							</Select>
+							<u:FileUploader id="csvUploader" fileType="csv" placeholder="{i18n>chooseCsv}" change=".onFileChange" width="24rem" class="sapUiTinyMarginBottom" />
+							<Button text="{i18n>runImport}" type="Emphasized" icon="sap-icon://upload" press=".onImportNow" width="12rem" />
+						</VBox>
+					</Panel>
+					<Panel headerText="{i18n>savedConfigs}" class="sapUiResponsiveMargin" width="auto">
+						<headerToolbar>
+							<Toolbar>
+								<Title text="{i18n>savedConfigs}" />
+								<ToolbarSpacer />
+								<Button text="{i18n>newItem}" icon="sap-icon://add" press=".onNewImport" />
+							</Toolbar>
+						</headerToolbar>
+						<Table items="{io>/importConfigs}" mode="Delete" delete=".onDeleteImport" noDataText="{i18n>noData}">
+							<columns>
+								<Column><Text text="{i18n>colName}" /></Column>
+								<Column><Text text="{i18n>colEnabled}" /></Column>
+							</columns>
+							<items>
+								<ColumnListItem type="Navigation" press=".onImportPress">
+									<cells>
+										<Text text="{io>name}" />
+										<Text text="{io>active}" />
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</Panel>
+				</IconTabFilter>
+			</items>
+		</IconTabBar>
+	</Page>
+</mvc:View>

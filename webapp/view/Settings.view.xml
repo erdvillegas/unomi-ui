@@ -1,0 +1,23 @@
+<mvc:View
+	controllerName="unomi.ui.controller.Settings"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.ui.layout.form"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{i18n>settings}">
+		<f:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
+			<f:content>
+				<Label text="{i18n>appName}" />
+				<Input value="{settings>/appName}" />
+				<Label text="{i18n>baseUrl}" />
+				<Input value="{settings>/baseUrl}" placeholder="/cxs" />
+			</f:content>
+		</f:SimpleForm>
+		<footer>
+			<Toolbar>
+				<ToolbarSpacer />
+				<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
+			</Toolbar>
+		</footer>
+	</Page>
+</mvc:View>

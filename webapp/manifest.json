@@ -30,6 +30,7 @@
         "sap.m": {},
         "sap.f": {},
         "sap.ui.layout": {},
+        "sap.ui.unified": {},
         "sap.tnt": {}
       }
     },
@@ -79,11 +80,12 @@
         { "name": "listDetail", "pattern": "lists/{itemId}", "target": "listDetail" },
         { "name": "properties", "pattern": "properties", "target": "properties" },
         { "name": "propertyDetail", "pattern": "properties/{itemId}", "target": "propertyDetail" },
-        { "name": "importConfig", "pattern": "importConfig", "target": "importConfig" },
+        { "name": "importConfig", "pattern": "importConfig", "target": "configIO" },
         { "name": "importConfigDetail", "pattern": "importConfig/{itemId}", "target": "importConfigDetail" },
-        { "name": "exportConfig", "pattern": "exportConfig", "target": "exportConfig" },
+        { "name": "exportConfig", "pattern": "exportConfig", "target": "configIO" },
         { "name": "exportConfigDetail", "pattern": "exportConfig/{itemId}", "target": "exportConfigDetail" },
-        { "name": "definitions", "pattern": "definitions", "target": "definitions" }
+        { "name": "definitions", "pattern": "definitions", "target": "definitions" },
+        { "name": "settings", "pattern": "settings", "target": "settings" }
       ],
       "targets": {
         "login": { "id": "login", "name": "Login" },
@@ -107,11 +109,11 @@
         "listDetail": { "id": "listDetail", "name": "ItemDetail" },
         "properties": { "id": "properties", "name": "MetadataList" },
         "propertyDetail": { "id": "propertyDetail", "name": "ItemDetail" },
-        "importConfig": { "id": "importConfig", "name": "MetadataList" },
+        "configIO": { "id": "configIO", "name": "ConfigIO" },
         "importConfigDetail": { "id": "importConfigDetail", "name": "ItemDetail" },
-        "exportConfig": { "id": "exportConfig", "name": "MetadataList" },
         "exportConfigDetail": { "id": "exportConfigDetail", "name": "ItemDetail" },
-        "definitions": { "id": "definitions", "name": "DefinitionCatalog" }
+        "definitions": { "id": "definitions", "name": "DefinitionCatalog" },
+        "settings": { "id": "settings", "name": "Settings" }
       }
     }
   }

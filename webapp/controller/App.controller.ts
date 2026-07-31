@@ -18,7 +18,8 @@ const NAV_KEY: Record<string, string> = {
 	properties: "properties", propertyDetail: "properties",
 	importConfig: "importConfig", importConfigDetail: "importConfig",
 	exportConfig: "exportConfig", exportConfigDetail: "exportConfig",
-	definitions: "definitions"
+	definitions: "definitions",
+	settings: "settings"
 };
 
 /**
@@ -39,7 +40,16 @@ export default class App extends BaseController {
 
 	public onNavSelect(event: Event): void {
 		const key = (event.getParameter("item" as never) as { getKey(): string }).getKey();
+		if (key === "logout") {
+			this.onLogout();
+			return;
+		}
 		this.getRouter().navTo(key);
+	}
+
+	public onSideNavButtonPress(): void {
+		const nav = this.byId("toolPage") as ToolPage;
+		nav.setSideExpanded(!nav.getSideExpanded());
 	}
 
 	public onLogout(): void {
