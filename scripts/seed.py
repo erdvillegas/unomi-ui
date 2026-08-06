@@ -2,10 +2,11 @@
 """Puebla Apache Unomi con datos ficticios de "Taller de Mike" — tienda de
 instrumentos musicales y servicios de reparación en García, Nuevo León.
 
-Eventos desde ambos entornos: tienda en línea (scope=onlinestore) y local
-físico (scope=tiendafisica). Sólo stdlib (urllib), sin dependencias.
+En una sola corrida crea: perfiles + eventos (online + físico) y, encima de
+ellos, segmentos, scoring, goals, campañas y listas orgánicos. Sólo stdlib.
 
-Uso:  python3 scripts/seed_tallermike.py [num_clientes]   # default 40
+Uso:  python3 scripts/seed.py [num_clientes]   # default 40
+      python3 scripts/seed.py --no-defs        # sólo perfiles + eventos
 Requiere Unomi en localhost:8181 (karaf/karaf) — ver CLAUDE.md.
 
 Cómo funciona (verificado contra Unomi 3.0):
@@ -16,6 +17,8 @@ Cómo funciona (verificado contra Unomi 3.0):
   3) crea perfiles ricos vía admin POST /profiles,
   4) adjunta eventos a cada perfil vía /context.json con la cookie
      context-profile-id (así los eventos quedan ligados al perfil creado).
+- Las definiciones usan formas verificadas: pastEventCondition = numberOfDays +
+  minimumEventCount + eventCondition (sin `operator`). Ver memoria unomi-event-ingestion.
 """
 import json, random, sys, time, uuid, base64
 from urllib import request, error
@@ -154,8 +157,8 @@ def session_events(env_name):
                        {"topic": random.choice(["cotizacion", "reparacion", "clases", "disponibilidad"])}))
     return out
 
-def seed(n):
-    print(f"Setup: scopes + esquemas de evento…")
+def seed_data(n):
+    print("Setup: scopes + esquemas de evento…")
     ensure_scopes()
     register_schemas()
     time.sleep(3)  # ponytail: dar tiempo a indexar los esquemas antes de emitir eventos (race verificada)
@@ -176,6 +179,73 @@ def seed(n):
             print(f"  … {i+1}/{n} clientes, {total_ev} eventos hasta ahora")
     print(f"Listo: {n} perfiles, {total_ev} eventos procesados (online + físico).")
 
+# --- Definiciones: constructores de condición --------------------------------
+def cond(t, **pv): return {"type": t, "parameterValues": pv}
+def meta(i, name, desc=""): return {"id": i, "name": name, "description": desc, "scope": "systemscope", "enabled": True}
+def prof(name, op, val): return cond("profilePropertyCondition", propertyName=f"properties.{name}", comparisonOperator=op, propertyValue=val)
+def etype_cond(eid): return cond("eventTypeCondition", eventTypeId=eid)
+def eprop(name, op, val): return cond("eventPropertyCondition", propertyName=name, comparisonOperator=op, propertyValue=val)
+def AND(*subs): return cond("booleanCondition", operator="and", subConditions=list(subs))
+def past(event_cond, days=120, min_count=1): return cond("pastEventCondition", numberOfDays=days, minimumEventCount=min_count, eventCondition=event_cond)
+
+SEGMENTS = [
+    ("clientes-garcia", "Clientes de García, N.L.", prof("city", "equals", "García")),
+    ("musicos-profesionales", "Músicos profesionales", prof("customerType", "equals", "musico_pro")),
+    ("escuelas-musica", "Escuelas de música", prof("customerType", "equals", "escuela_musica")),
+    ("compradores-online", "Compradores en línea", past(AND(etype_cond("purchase"), eprop("scope", "equals", "onlinestore")))),
+    ("clientes-tienda-fisica", "Clientes del local físico", past(eprop("scope", "equals", "tiendafisica"))),
+    ("clientes-reparacion", "Clientes de reparación", past(etype_cond("repair"))),
+    ("compradores-guitarras", "Compradores de guitarras", past(AND(etype_cond("purchase"), eprop("target.properties.category", "equals", "guitarras")))),
+    ("clientes-frecuentes", "Clientes frecuentes (3+ compras)", past(etype_cond("purchase"), min_count=3)),
+]
+SCORING = ("engagement-cliente", "Engagement del cliente", [
+    (prof("customerType", "equals", "musico_pro"), 15),
+    (prof("city", "equals", "García"), 5),
+    (past(etype_cond("purchase")), 20),
+    (past(etype_cond("purchase"), min_count=3), 25),
+    (past(etype_cond("repair")), 10),
+    (past(etype_cond("addToCart")), 5),
+])
+GOALS = [
+    ("conversion-compra", "Conversión: vista de producto → compra", etype_cond("productView"), etype_cond("purchase")),
+    ("carrito-a-compra", "Carrito abandonado → compra", etype_cond("addToCart"), etype_cond("purchase")),
+    ("explora-a-repara", "De explorar a solicitar reparación", etype_cond("productView"), etype_cond("repair")),
+]
+CAMPAIGNS = [
+    ("regreso-a-clases", "Promo regreso a clases", "Campaña dirigida a clientes de García para el regreso a clases.",
+     "2026-08-01T00:00:00Z", "2026-09-30T23:59:59Z", prof("city", "equals", "García")),
+    ("temporada-navidena", "Temporada navideña", "Ofertas de fin de año para clientes recurrentes.",
+     "2026-11-15T00:00:00Z", "2026-12-31T23:59:59Z", prof("customerType", "equals", "recurrente")),
+]
+LISTS = [
+    ("newsletter-musical", "Newsletter musical"),
+    ("interesados-clases", "Interesados en clases de música"),
+    ("clientes-vip", "Clientes VIP"),
+]
+
+def seed_definitions():
+    print("Segmentos…")
+    for i, name, c in SEGMENTS:
+        api("POST", "/segments", {"metadata": meta(i, name), "condition": c})
+    print("Scoring…")
+    sid, sname, elems = SCORING
+    api("POST", "/scoring", {"metadata": meta(sid, sname),
+        "elements": [{"condition": c, "value": v} for c, v in elems]})
+    print("Goals…")
+    for i, name, start, target in GOALS:
+        api("POST", "/goals", {"metadata": meta(i, name), "startEvent": start, "targetEvent": target})
+    print("Campañas…")
+    for i, name, desc, s, e, c in CAMPAIGNS:
+        api("POST", "/campaigns", {"metadata": meta(i, name, desc), "startDate": s, "endDate": e, "entryCondition": c})
+    print("Listas…")
+    for i, name in LISTS:
+        api("POST", "/lists", {"itemId": i, "itemType": "userList", "metadata": meta(i, name)})
+    print(f"Listo: {len(SEGMENTS)} segmentos, 1 scoring ({len(elems)} reglas), "
+          f"{len(GOALS)} goals, {len(CAMPAIGNS)} campañas, {len(LISTS)} listas.")
+
 if __name__ == "__main__":
-    n = int(sys.argv[1]) if len(sys.argv) > 1 else 40
-    seed(n)
+    args = [a for a in sys.argv[1:] if a != "--no-defs"]
+    n = int(args[0]) if args else 40
+    seed_data(n)
+    if "--no-defs" not in sys.argv:
+        seed_definitions()

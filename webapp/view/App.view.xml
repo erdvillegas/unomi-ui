@@ -12,6 +12,9 @@
 						<OverflowToolbarLayoutData priority="NeverOverflow" />
 					</layoutData>
 				</Button>
+				<Image height="1.5rem"
+					class="sapUiSmallMarginBegin"
+					src="https://unomi.apache.org/assets/images/unomi-86x20.png" />
 				<ToolbarSpacer />
 				<Title text="{app>/appName}" level="H2" />
 				<ToolbarSpacer />
