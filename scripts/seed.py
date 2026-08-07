@@ -43,6 +43,9 @@ def api(method, path, body=None, auth=True, cookie=None):
     except error.HTTPError as e:
         print(f"  ! {method} {path} -> {e.code} {e.read().decode()[:120]}")
         return None
+    except (error.URLError, TimeoutError, OSError) as e:  # timeout/red: no abortar la siembra
+        print(f"  ! {method} {path} -> {e}")
+        return None
 
 # --- Catálogo de dominio -----------------------------------------------------
 INSTRUMENTS = [  # (producto, categoria, precio_min, precio_max)
@@ -79,7 +82,15 @@ ENVIRONMENTS = {
     "online": {"scope": "onlinestore", "source": {"itemId": "tallermike-web", "itemType": "site", "scope": "onlinestore"}},
     "fisico": {"scope": "tiendafisica", "source": {"itemId": "tallermike-garcia", "itemType": "site", "scope": "tiendafisica"}},
 }
-EVENT_TYPES = ["productView", "productSearch", "addToCart", "purchase", "repair", "contact"]
+EVENT_TYPES = ["pageView", "productView", "productSearch", "addToCart", "purchase", "repair", "contact"]
+
+# Base de URL por entorno + slug para armar rutas de "página visitada".
+SITE = {"online": "https://tallermike.mx", "fisico": "https://kiosco.tallermike.mx"}
+def slug(s):
+    s = s.lower()
+    for a, b in (("á", "a"), ("é", "e"), ("í", "i"), ("ó", "o"), ("ú", "u"), ("ñ", "n"), (" ", "-"), ("/", "-"), ("'", "")):
+        s = s.replace(a, b)
+    return "".join(c for c in s if c.isalnum() or c == "-")
 
 # --- Setup: scopes + esquemas permisivos -------------------------------------
 def ensure_scopes():
@@ -126,35 +137,46 @@ def evt(etype, env, target_id, target_type, tprops=None):
     return e
 
 def session_events(env_name):
-    """Un flujo de eventos verosímil para una visita en un entorno dado."""
+    """Un flujo de eventos verosímil para una visita en un entorno dado.
+    Cada evento lleva `url`/`path` (página visitada) para probar filtros por URL."""
     env = ENVIRONMENTS[env_name]
+    base = SITE[env_name]
     out = []
+    # Landing: página visitada con URL.
+    out.append(evt("pageView", env, base + "/", "page", {"url": base + "/", "path": "/", "pageName": "Inicio"}))
     if env_name == "online" and random.random() < 0.6:
         term = random.choice(INSTRUMENTS)[1]
-        out.append(evt("productSearch", env, f"q-{term}", "searchQuery", {"query": term, "results": random.randint(2, 20)}))
+        out.append(evt("productSearch", env, f"q-{term}", "searchQuery",
+                       {"query": term, "results": random.randint(2, 20), "url": f"{base}/buscar?q={term}", "path": "/buscar"}))
     viewed = random.sample(INSTRUMENTS, k=random.randint(1, 4))
     for prod, cat, pmin, pmax in viewed:
         price = random.randint(pmin, pmax)
-        out.append(evt("productView", env, prod, "product", {"product": prod, "category": cat, "price": price}))
+        path = f"/productos/{slug(cat)}/{slug(prod)}"
+        out.append(evt("productView", env, prod, "product",
+                       {"product": prod, "category": cat, "price": price, "url": base + path, "path": path}))
     # Compra (online pasa por carrito; físico es directa)
     if random.random() < 0.45:
         prod, cat, pmin, pmax = random.choice(viewed)
         price = random.randint(pmin, pmax)
         if env_name == "online":
-            out.append(evt("addToCart", env, prod, "product", {"product": prod, "category": cat, "price": price, "qty": 1}))
+            out.append(evt("addToCart", env, prod, "product",
+                           {"product": prod, "category": cat, "price": price, "qty": 1, "url": base + "/carrito", "path": "/carrito"}))
         out.append(evt("purchase", env, f"ord-{uuid.uuid4().hex[:8]}", "order",
                        {"product": prod, "category": cat, "amount": price, "qty": 1,
-                        "paymentMethod": random.choice(["tarjeta", "efectivo", "transferencia"])}))
+                        "paymentMethod": random.choice(["tarjeta", "efectivo", "transferencia"]),
+                        "url": base + "/checkout/gracias", "path": "/checkout/gracias"}))
     # Servicio de reparación
     if random.random() < 0.35:
         svc, inst, cmin, cmax = random.choice(REPAIRS)
         out.append(evt("repair", env, f"rep-{uuid.uuid4().hex[:8]}", "service",
                        {"service": svc, "instrument": inst, "cost": random.randint(cmin, cmax),
-                        "status": random.choice(["recibido", "en_proceso", "entregado"])}))
+                        "status": random.choice(["recibido", "en_proceso", "entregado"]),
+                        "url": base + "/reparaciones", "path": "/reparaciones"}))
     # Contacto / cotización
     if random.random() < 0.2:
         out.append(evt("contact", env, "form-contacto", "form",
-                       {"topic": random.choice(["cotizacion", "reparacion", "clases", "disponibilidad"])}))
+                       {"topic": random.choice(["cotizacion", "reparacion", "clases", "disponibilidad"]),
+                        "url": base + "/contacto", "path": "/contacto"}))
     return out
 
 def seed_data(n):
