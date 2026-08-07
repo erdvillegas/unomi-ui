@@ -59,7 +59,8 @@
         "async": true
       },
       "routes": [
-        { "name": "login", "pattern": "", "target": "login" },
+        { "name": "home", "pattern": "", "target": "home" },
+        { "name": "login", "pattern": "login", "target": "login" },
         { "name": "profiles", "pattern": "profiles", "target": "profiles" },
         { "name": "profileDetail", "pattern": "profiles/{profileId}", "target": "profileDetail" },
         { "name": "events", "pattern": "events", "target": "events" },
@@ -89,6 +90,7 @@
       ],
       "targets": {
         "login": { "id": "login", "name": "Login" },
+        "home": { "id": "home", "name": "Home" },
         "profiles": { "id": "profiles", "name": "ProfileList" },
         "profileDetail": { "id": "profileDetail", "name": "ProfileDetail" },
         "events": { "id": "events", "name": "EventList" },

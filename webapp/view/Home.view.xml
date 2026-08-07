@@ -1,0 +1,82 @@
+<mvc:View
+	controllerName="unomi.ui.controller.Home"
+	xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+	xmlns:core="sap.ui.core"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+	<Page showHeader="false">
+		<l:BlockLayout background="Default">
+			<l:BlockLayoutRow>
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeA">
+					<l:VerticalLayout class="sapUiSmallMargin">
+						<Title text="{app>/appName}" level="H1" titleStyle="H1" />
+						<Text text="{i18n>homeSubtitle}" class="sapUiTinyMarginTop" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+			</l:BlockLayoutRow>
+			<l:BlockLayoutRow visible="{= !${home>/authed} }">
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeD">
+					<l:VerticalLayout class="sapUiSmallMargin">
+						<core:Icon src="sap-icon://locked" size="2.5rem" color="Default" />
+						<Title text="{i18n>homeLoggedOut}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeLoggedOutHint}" class="sapUiTinyMarginBottom" />
+						<Button text="{i18n>connect}" type="Emphasized" icon="sap-icon://log" press=".onLogin" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+			</l:BlockLayoutRow>
+			<l:BlockLayoutRow visible="{home>/authed}">
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeD">
+					<l:VerticalLayout>
+						<core:Icon src="sap-icon://person-placeholder" size="2.5rem" color="Default" />
+						<Title text="{i18n>profiles}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeProfiles}" class="sapUiTinyMarginBottom" />
+						<Link text="{i18n>homeOpen}" press=".onNav" app:nav="profiles" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeB">
+					<l:VerticalLayout>
+						<core:Icon src="sap-icon://newspaper" size="2.5rem" color="Default" />
+						<Title text="{i18n>events}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeEvents}" class="sapUiTinyMarginBottom" />
+						<Link text="{i18n>homeOpen}" press=".onNav" app:nav="events" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeD">
+					<l:VerticalLayout>
+						<core:Icon src="sap-icon://group" size="2.5rem" color="Default" />
+						<Title text="{i18n>segments}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeSegments}" class="sapUiTinyMarginBottom" />
+						<Link text="{i18n>homeOpen}" press=".onNav" app:nav="segments" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeB">
+					<l:VerticalLayout>
+						<core:Icon src="sap-icon://target-group" size="2.5rem" color="Default" />
+						<Title text="{i18n>scoring}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeScoring}" class="sapUiTinyMarginBottom" />
+						<Link text="{i18n>homeOpen}" press=".onNav" app:nav="scoring" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+			</l:BlockLayoutRow>
+			<l:BlockLayoutRow visible="{home>/authed}">
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeB">
+					<l:VerticalLayout>
+						<core:Icon src="sap-icon://marketing-campaign" size="2.5rem" color="Default" />
+						<Title text="{i18n>campaigns}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeCampaigns}" class="sapUiTinyMarginBottom" />
+						<Link text="{i18n>homeOpen}" press=".onNav" app:nav="campaigns" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+				<l:BlockLayoutCell backgroundColorSet="ColorSet11" backgroundColorShade="ShadeD">
+					<l:VerticalLayout>
+						<core:Icon src="sap-icon://upload" size="2.5rem" color="Default" />
+						<Title text="{i18n>configIO}" level="H3" titleStyle="H2" class="sapUiTinyMarginTopBottom" />
+						<Text text="{i18n>homeConfigIO}" class="sapUiTinyMarginBottom" />
+						<Link text="{i18n>homeOpen}" press=".onNav" app:nav="importConfig" />
+					</l:VerticalLayout>
+				</l:BlockLayoutCell>
+			</l:BlockLayoutRow>
+		</l:BlockLayout>
+	</Page>
+</mvc:View>
