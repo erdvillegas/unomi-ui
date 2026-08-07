@@ -50,14 +50,18 @@ function configFields(res: string, isNew: boolean): Field[] {
 		{ path: "itemId", label: "ID", type: "text", readonly: !isNew },
 		{ path: "name", label: "Name", type: "text" },
 		{ path: "description", label: "Description", type: "textarea" },
-		{ path: "configType", label: "Config type", type: "text" },
+		{ path: "configType", label: "Config type", type: "select", options: [{ key: "oneshot", text: "oneshot" }, { key: "recurrent", text: "recurrent" }] },
 		{ path: "columnSeparator", label: "Column separator", type: "text" },
 		{ path: "lineSeparator", label: "Line separator", type: "text" },
 		{ path: "multiValueSeparator", label: "Multi-value separator", type: "text" },
 		{ path: "multiValueDelimiter", label: "Multi-value delimiter", type: "text" },
 		{ path: "active", label: "Active", type: "switch" }
 	];
+	if (res === "exportConfig") {
+		base.unshift({ path: "", label: "", type: "help", html: EXPORT_HELP });
+	}
 	if (res === "importConfig") {
+		base.unshift({ path: "", label: "", type: "help", html: IMPORT_HELP });
 		base.push(
 			{ path: "hasHeader", label: "Has header row", type: "switch" },
 			{ path: "hasDeleteColumn", label: "Has delete column", type: "switch" },
@@ -67,3 +71,23 @@ function configFields(res: string, isNew: boolean): Field[] {
 	}
 	return base;
 }
+
+// Form help. Recurrent needs `properties.source` (edited in the Advanced JSON panel).
+const IMPORT_HELP =
+	"<p><strong>Config type</strong>: <code>oneshot</code> importa una vez el CSV que subes; " +
+	"<code>recurrent</code> sondea periódicamente un origen y lo importa solo.</p>" +
+	"<p>Para <strong>recurrent</strong> define <code>properties.source</code> (panel <em>Advanced JSON</em>). " +
+	"Soporta <code>ftp</code>, <code>sftp</code>, <code>ftps</code> y <code>file</code>. " +
+	"Ej.: <code>file:///tmp/?fileName=profiles.csv&amp;move=.done&amp;consumer.delay=20000</code>.</p>" +
+	"<ul><li><code>fileName=...</code> o <code>include=.*.csv</code> para consumir todos los CSV.</li>" +
+	"<li><code>consumer.delay</code>: frecuencia de sondeo (<code>20000</code> ms, <code>20s</code> o <code>2h30m10s</code>).</li>" +
+	"<li><code>move</code>: carpeta donde se mueven los archivos procesados (por defecto <code>.camel</code>).</li></ul>" +
+	"<p>El sondeo inicia solo si <strong>Active</strong> está encendido. El <code>mapping</code> (propiedad → índice de columna) también se edita en el panel JSON.</p>";
+
+const EXPORT_HELP =
+	"<p><strong>Config type</strong>: <code>oneshot</code> exporta una vez; " +
+	"<code>recurrent</code> exporta periódicamente según <code>period</code>.</p>" +
+	"<ul><li><strong>segment</strong>: el segmento cuyos perfiles se exportan.</li>" +
+	"<li><strong>period</strong>: cada cuánto se ejecuta si es recurrent (ej. <code>2m30s</code>, <code>30s</code>, <code>1h</code>).</li></ul>" +
+	"<p>El <code>mapping</code> va <em>al revés</em> que en importación: <code>índice de columna → propiedad</code>, " +
+	"ej. <code>\"0\": \"firstName\"</code> (panel <em>Advanced JSON</em>).</p>";
