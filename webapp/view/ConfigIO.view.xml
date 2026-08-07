@@ -23,6 +23,14 @@
 							<Toolbar>
 								<Title text="{i18n>savedConfigs}" />
 								<ToolbarSpacer />
+								<MenuButton text="{i18n>createSample}" icon="sap-icon://sample">
+									<menu>
+										<Menu>
+											<MenuItem text="{i18n>sampleOneshot}" press=".onCreateSampleExport" />
+											<MenuItem text="{i18n>sampleRecurrent}" press=".onCreateSampleExportRecurrent" />
+										</Menu>
+									</menu>
+								</MenuButton>
 								<Button text="{i18n>newItem}" icon="sap-icon://add" press=".onNewExport" />
 							</Toolbar>
 						</headerToolbar>
@@ -44,6 +52,9 @@
 				</IconTabFilter>
 
 				<IconTabFilter key="import" text="{i18n>importConfig}" icon="sap-icon://upload">
+					<Panel headerText="{i18n>importHelpTitle}" expandable="true" expanded="false" class="sapUiResponsiveMargin" width="auto">
+						<FormattedText htmlText="{i18n>importHelp}" class="sapUiSmallMargin" />
+					</Panel>
 					<Panel headerText="{i18n>importNow}" class="sapUiResponsiveMargin" width="auto">
 						<VBox class="sapUiSmallMargin">
 							<Text text="{i18n>importHint}" class="sapUiTinyMarginBottom" />
@@ -60,6 +71,14 @@
 							<Toolbar>
 								<Title text="{i18n>savedConfigs}" />
 								<ToolbarSpacer />
+								<MenuButton text="{i18n>createSample}" icon="sap-icon://sample">
+									<menu>
+										<Menu>
+											<MenuItem text="{i18n>sampleOneshot}" press=".onCreateSampleImport" />
+											<MenuItem text="{i18n>sampleRecurrent}" press=".onCreateSampleRecurrent" />
+										</Menu>
+									</menu>
+								</MenuButton>
 								<Button text="{i18n>newItem}" icon="sap-icon://add" press=".onNewImport" />
 							</Toolbar>
 						</headerToolbar>
