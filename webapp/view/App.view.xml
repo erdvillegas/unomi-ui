@@ -12,6 +12,9 @@
 						<OverflowToolbarLayoutData priority="NeverOverflow" />
 					</layoutData>
 				</Button>
+				<Image height="1.5rem"
+					class="sapUiSmallMarginBegin"
+					src="https://unomi.apache.org/assets/images/unomi-86x20.png" />
 				<ToolbarSpacer />
 				<Title text="{app>/appName}" level="H2" />
 				<ToolbarSpacer />
@@ -20,6 +23,7 @@
 		<tnt:sideContent>
 			<tnt:SideNavigation id="sideNav" itemSelect=".onNavSelect">
 				<tnt:NavigationList>
+					<tnt:NavigationListItem text="{i18n>home}" icon="sap-icon://home" key="home" />
 					<tnt:NavigationListItem text="{i18n>profiles}" icon="sap-icon://person-placeholder" key="profiles" />
 					<tnt:NavigationListItem text="{i18n>events}" icon="sap-icon://newspaper" key="events" />
 					<tnt:NavigationListItem text="{i18n>segments}" icon="sap-icon://group" key="segments" />

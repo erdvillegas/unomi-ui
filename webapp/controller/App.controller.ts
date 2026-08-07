@@ -6,6 +6,7 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 
 // Route name -> side-nav key (detail routes highlight their parent section).
 const NAV_KEY: Record<string, string> = {
+	home: "home",
 	profiles: "profiles", profileDetail: "profiles",
 	events: "events", eventDetail: "events",
 	segments: "segments", segmentDetail: "segments",
@@ -33,8 +34,9 @@ export default class App extends BaseController {
 
 	private onRouteMatched(event: Event): void {
 		const name = event.getParameter("name" as never) as string;
-		const isLogin = name === "login";
-		(this.byId("toolPage") as ToolPage).setSideExpanded(!isLogin);
+		// No session → hide the side controls (collapse), even on the Home landing.
+		const showNav = name !== "login" && UnomiClient.isAuthenticated();
+		(this.byId("toolPage") as ToolPage).setSideExpanded(showNav);
 		(this.byId("sideNav") as SideNavigation).setSelectedKey(NAV_KEY[name] ?? "");
 	}
 
