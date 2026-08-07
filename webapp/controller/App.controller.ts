@@ -2,6 +2,7 @@ import BaseController from "unomi/ui/controller/BaseController";
 import Event from "sap/ui/base/Event";
 import SideNavigation from "sap/tnt/SideNavigation";
 import ToolPage from "sap/tnt/ToolPage";
+import Component from "unomi/ui/Component";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 
 // Route name -> side-nav key (detail routes highlight their parent section).
@@ -29,6 +30,7 @@ const NAV_KEY: Record<string, string> = {
 export default class App extends BaseController {
 
 	public onInit(): void {
+		this.getView()?.addStyleClass((this.getOwnerComponent() as Component).getContentDensityClass());
 		this.getRouter().attachRouteMatched(this.onRouteMatched, this);
 	}
 
