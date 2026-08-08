@@ -515,3 +515,7 @@ function valueField(pv: Record<string, any>, type: string, op: string): Control 
 }
 
 export { emptyCondition };
+
+// Test-only seam: the pure tree-shape / formatting helpers, exported so unit tests
+// can exercise the tricky Unomi condition semantics without driving the UI tree.
+export const _internals = { readGroup, setGroupMode, rowType, valueSlot, clearValues, summarize, friendly, category, isMulti, noValue };
