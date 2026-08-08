@@ -4,6 +4,7 @@
     "id": "unomi.ui",
     "type": "application",
     "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
     "applicationVersion": { "version": "0.0.1" },
     "dataSources": {
       "unomi": {

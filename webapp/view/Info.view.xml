@@ -10,6 +10,8 @@
 				<f:content>
 					<Label text="{i18n>info.appName}" />
 					<Text text="{info>/appName}" />
+					<Label text="{i18n>description}" />
+					<Text text="{i18n>appDescription}" />
 					<Label text="{i18n>info.appVersion}" />
 					<Text text="{info>/appVersion}" />
 					<Label text="{i18n>info.ui5Version}" />
