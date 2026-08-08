@@ -8,13 +8,6 @@ module.exports = function (config) {
 		ui5: {
 			type: "application"
 		},
-		// The Test Starter resolves the app's tests under test-resources/<namespace>,
-		// but for an application project karma-ui5 serves the app (incl. its test
-		// folder) flat under /base/webapp. Map the virtual namespace path back to the
-		// real test folder so the tooling middleware transpiles + serves it.
-		proxies: {
-			"/base/webapp/test-resources/unomi/ui/": "/base/webapp/test/"
-		},
 		browsers: ["ChromeHeadless"],
 		reporters: ["progress"],
 		browserConsoleLogOptions: { level: "error" },
