@@ -2,6 +2,7 @@
 import { buildForm, Field } from "unomi/ui/control/FormEngine";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MultiInput from "sap/m/MultiInput";
+import * as Catalog from "unomi/ui/service/Catalog";
 
 QUnit.module("control/FormEngine");
 
@@ -39,4 +40,21 @@ QUnit.test("readonly renders a non-editable control", (assert) => {
 	const model = new JSONModel({ id: "x" });
 	const form = buildForm([{ path: "id", label: "ID", type: "text", readonly: true }], model);
 	assert.notOk((form.getContent()[1] as unknown as { getEditable(): boolean }).getEditable(), "readonly -> not editable");
+});
+
+QUnit.test("ref field: editable -> searchable ComboBox, readonly -> read-only Input", (assert) => {
+	const orig = window.fetch;
+	window.fetch = (() => Promise.resolve({ ok: true, status: 200, statusText: "OK", json: () => Promise.resolve([]) } as Response)) as unknown as typeof fetch;
+	Catalog.invalidate();
+	const model = new JSONModel({ metadata: { scope: "systemscope" } });
+
+	const editable = buildForm([{ path: "metadata.scope", label: "Scope", type: "ref", catalog: "scopes" }], model).getContent()[1];
+	assert.strictEqual(editable.getMetadata().getName(), "sap.m.ComboBox", "editable ref -> ComboBox");
+
+	const ro = buildForm([{ path: "metadata.scope", label: "Scope", type: "ref", catalog: "scopes", readonly: true }], model).getContent()[1];
+	assert.strictEqual(ro.getMetadata().getName(), "sap.m.Input", "readonly ref -> Input");
+	assert.notOk((ro as unknown as { getEditable(): boolean }).getEditable(), "read-only input");
+
+	window.fetch = orig;
+	Catalog.invalidate();
 });

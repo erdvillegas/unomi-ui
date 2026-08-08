@@ -3,6 +3,7 @@ import {
 	conditionEditor, loadProps, loadCatalogs, emptyCat, emptyCondition, _internals, BrmCtx
 } from "unomi/ui/control/brm/conditionEditor";
 import { emptyDefs, Node } from "unomi/ui/control/builders";
+import * as Catalog from "unomi/ui/service/Catalog";
 
 const { readGroup, setGroupMode, rowType, valueSlot, clearValues, summarize, friendly, category, isMulti, noValue } = _internals;
 
@@ -140,6 +141,7 @@ QUnit.test("conditionEditor wraps a non-group root in an AND boolean group", (as
 });
 
 QUnit.test("loadProps maps profile/session props and drops id-less rows", async (assert) => {
+	Catalog.invalidate();
 	const restore = stubFetchByUrl(() => ({
 		profiles: [{ valueTypeId: "integer", metadata: { id: "age", name: "Age" } }, { metadata: { name: "noid" } }],
 		sessions: [{ metadata: { id: "duration" } }]
@@ -154,6 +156,7 @@ QUnit.test("loadProps maps profile/session props and drops id-less rows", async 
 });
 
 QUnit.test("loadCatalogs flattens catalogs and filters junk rows", async (assert) => {
+	Catalog.invalidate();
 	const restore = stubFetchByUrl((url) =>
 		url.endsWith("/segments") ? [{ id: "s1", name: "Seg 1" }, { id: "" }] :
 		url.endsWith("/scoring") ? [{ id: "sc1" }] :

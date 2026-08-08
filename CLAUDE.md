@@ -83,3 +83,8 @@ class drives the `sap.ui.define` wrapper generation, so keep it accurate.
 Verified in phase 0: proxy forwards `/cxs/*` to Unomi at :8181 (simpleproxy strips the
 mountPath, so `baseUri` in `ui5.yaml` includes `/cxs`). `GET /cxs/test/ping` returns
 `pong` (200) with `karaf:karaf`, 401 without — this is the login flow's health check.
+
+## Changes
+
+On Every change make a local conventional commit, do not push to remote, 
+do not make a commit on "main" or "dev" branch, just for feature or wip  

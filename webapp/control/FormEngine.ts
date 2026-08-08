@@ -14,15 +14,19 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import Integer from "sap/ui/model/type/Integer";
 import Float from "sap/ui/model/type/Float";
 import Event from "sap/ui/base/Event";
+import { refSelect } from "unomi/ui/control/refSelect";
+import { CatalogKey } from "unomi/ui/service/Catalog";
 
 // Declarative field -> native control. Binds two-way to the "form" model, so the
 // edited item object is the single source of truth (no manual read-back).
 export interface Field {
 	path: string;   // dotted path into the item, e.g. "metadata.name"
 	label: string;
-	type: "text" | "textarea" | "int" | "float" | "switch" | "datetime" | "tokens" | "select" | "help";
+	type: "text" | "textarea" | "int" | "float" | "switch" | "datetime" | "tokens" | "select" | "ref" | "help";
 	readonly?: boolean;
 	options?: { key: string; text: string }[];   // for "select"
+	catalog?: CatalogKey;                          // for "ref" (searchable object picker)
+	multi?: boolean;                               // for "ref" (many ids)
 	html?: string;                                 // for "help" (FormattedText)
 }
 
@@ -57,6 +61,17 @@ function field(f: Field, model: JSONModel): Control {
 		case "select": {
 			const sel = new Select({ selectedKey: bind(f.path), enabled: !ro, width: "100%" });
 			(f.options || []).forEach((o) => sel.addItem(new Item({ key: o.key, text: o.text })));
+			return sel;
+		}
+		case "ref": {
+			// Identity refs (scope) lock on edit → plain read-only input; otherwise a
+			// searchable picker that writes the chosen id(s) straight into the model.
+			if (ro) {
+				return new Input({ value: bind(f.path), editable: false, width: "100%" });
+			}
+			const p = slash(f.path);
+			const sel = refSelect(f.catalog as CatalogKey, model.getProperty(p), f.multi === true, (v) => model.setProperty(p, v));
+			sel.setWidth("100%");
 			return sel;
 		}
 		case "help":

@@ -5,6 +5,7 @@ import SideNavigation from "sap/tnt/SideNavigation";
 import ToolPage from "sap/tnt/ToolPage";
 import Component from "unomi/ui/Component";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import * as Catalog from "unomi/ui/service/Catalog";
 
 // Route name -> side-nav key (detail routes highlight their parent section).
 const NAV_KEY: Record<string, string> = {
@@ -61,6 +62,7 @@ export default class App extends BaseController {
 
 	public onLogout(): void {
 		UnomiClient.clearCredentials();
+		Catalog.invalidate(); // don't leak one session's catalogs into the next
 		this.getRouter().navTo("login");
 	}
 }

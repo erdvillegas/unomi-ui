@@ -4,6 +4,7 @@ import HBox from "sap/m/HBox";
 import Toolbar from "sap/m/Toolbar";
 import ToolbarSpacer from "sap/m/ToolbarSpacer";
 import Select from "sap/m/Select";
+import ComboBox from "sap/m/ComboBox";
 import Item from "sap/ui/core/Item";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
@@ -12,6 +13,14 @@ import Button from "sap/m/Button";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import { refFor } from "unomi/ui/control/refMap";
+import { refSelect, propSelect, PropTarget } from "unomi/ui/control/refSelect";
+
+// Property-name params target a profile/session/event property; derive it from the type
+// (defaults to profile — covers setPropertyAction and most others).
+export const propTarget = (type: string): PropTarget =>
+	type === "sessionPropertyCondition" ? "session" : type === "eventPropertyCondition" ? "event" : "profile";
+export const isPropName = (id: string): boolean => /propertyname$/i.test(id);
 
 // Shared recursive editor for Unomi's typed Condition/Action trees. Both use the
 // same node shape ({ type, parameterValues }) and the same parameter model coming
@@ -61,9 +70,13 @@ function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () 
 }
 
 function typedPanel(node: Node, typeIds: string[], defmap: Record<string, Param[]>, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
-	const sel = new Select({ selectedKey: node.type });
+	// Searchable type picker: 100+ condition/action types, so type-ahead beats a plain
+	// dropdown. Only a real type id (from the list) is accepted, then params reset.
+	const sel = new ComboBox({ selectedKey: node.type, width: "22rem" });
 	typeIds.forEach((t) => sel.addItem(new Item({ key: t, text: t })));
-	sel.attachChange(() => { node.type = sel.getSelectedKey(); node.parameterValues = {}; refresh(); });
+	const apply = (key: string): void => { if (key && key !== node.type && typeIds.indexOf(key) >= 0) { node.type = key; node.parameterValues = {}; refresh(); } };
+	sel.attachSelectionChange((e: Event) => apply(((e.getParameter("selectedItem" as never) as Item)?.getKey()) || ""));
+	sel.attachChange(() => apply(sel.getSelectedKey()));
 	const header = new Toolbar({ content: [new Label({ text: "type" }), sel, new ToolbarSpacer()] });
 	if (onRemove) {
 		header.addContent(new Button({ icon: "sap-icon://decline", tooltip: "Remove", press: onRemove }));
@@ -76,6 +89,7 @@ function typedPanel(node: Node, typeIds: string[], defmap: Record<string, Param[
 function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => void, body: VBox): void {
 	params.forEach((p) => {
 		const nested = p.type.toLowerCase() === "condition"; // "Condition" (cond) or "condition" (action)
+		const refKey = refFor(node.type, p.id); // scope/listIdentifiers/eventType/… → picker
 		if (nested && p.multivalued) {
 			const arr = (node.parameterValues[p.id] ??= []) as Node[];
 			body.addItem(new Label({ text: p.id, design: "Bold" }));
@@ -100,6 +114,12 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 			const cb = new CheckBox({ text: p.id, selected: !!node.parameterValues[p.id] });
 			cb.attachSelect(() => (node.parameterValues[p.id] = cb.getSelected()));
 			body.addItem(cb);
+		} else if (refKey) {
+			body.addItem(new Label({ text: p.id }));
+			body.addItem(refSelect(refKey, node.parameterValues[p.id], p.multivalued, (val) => (node.parameterValues[p.id] = val)));
+		} else if (isPropName(p.id)) {
+			body.addItem(new Label({ text: p.id }));
+			body.addItem(propSelect(propTarget(node.type), node.parameterValues[p.id], (val) => (node.parameterValues[p.id] = val)));
 		} else {
 			const v = node.parameterValues[p.id];
 			const shown = p.multivalued ? (Array.isArray(v) ? v.join(", ") : "") : (v == null ? "" : String(v));

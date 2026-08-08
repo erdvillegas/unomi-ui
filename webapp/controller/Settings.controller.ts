@@ -2,6 +2,7 @@ import BaseController from "unomi/ui/controller/BaseController";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageToast from "sap/m/MessageToast";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import * as Catalog from "unomi/ui/service/Catalog";
 import * as Settings from "unomi/ui/service/Settings";
 
 /**
@@ -22,6 +23,7 @@ export default class SettingsController extends BaseController {
 		const cfg = (this.getView()?.getModel("settings") as JSONModel).getData() as Settings.AppSettings;
 		Settings.save(cfg);
 		UnomiClient.setBaseUrl(cfg.baseUrl);
+		Catalog.invalidate(); // base URL may point at a different Unomi → drop stale catalogs
 		Settings.applyTheme(cfg.theme);
 		Settings.applyLanguage(cfg.language);
 		(this.getOwnerComponent()?.getModel("app") as JSONModel).setData(cfg);

@@ -4,10 +4,14 @@ import {
 	conditionPanel, actionsList, elementPanel, Node
 } from "unomi/ui/control/builders";
 import HBox from "sap/m/HBox";
+import VBox from "sap/m/VBox";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Button from "sap/m/Button";
 import Label from "sap/m/Label";
+import Toolbar from "sap/m/Toolbar";
+import ComboBox from "sap/m/ComboBox";
+import * as Catalog from "unomi/ui/service/Catalog";
 
 QUnit.module("control/builders — helpers");
 
@@ -118,6 +122,53 @@ QUnit.test("conditionPanel renders every parameter type and seeds values", (asse
 	assert.strictEqual((node.parameterValues.sub as Node).type, "matchAllCondition", "nested condition seeded");
 	assert.ok(Array.isArray(node.parameterValues.subs), "multivalued condition seeded to an array");
 	assert.strictEqual(typeof node.parameterValues.props, "object", "properties map seeded");
+});
+
+QUnit.test("a reference param (scope) renders a searchable picker, not a plain Input", (assert) => {
+	const orig = window.fetch;
+	window.fetch = (() => Promise.resolve({ ok: true, status: 200, statusText: "OK", json: () => Promise.resolve([]) } as Response)) as unknown as typeof fetch;
+	Catalog.invalidate();
+	const defs = emptyDefs();
+	defs.condTypes = ["scopedCondition"];
+	defs.cond = { scopedCondition: [{ id: "scope", type: "string", multivalued: false }] };
+	const panel = conditionPanel({ type: "scopedCondition", parameterValues: {} }, defs, () => { /* refresh */ });
+	const body = panel.getContent()[0] as VBox;
+	const controls = body.getItems().map((c) => c.getMetadata().getName());
+	assert.ok(controls.includes("sap.m.ComboBox"), "scope param -> ComboBox picker");
+	assert.notOk(controls.includes("sap.m.Input"), "not a free-text Input");
+	window.fetch = orig;
+	Catalog.invalidate();
+});
+
+QUnit.test("a propertyName param renders a property picker, not a plain Input", (assert) => {
+	const orig = window.fetch;
+	window.fetch = (() => Promise.resolve({ ok: true, status: 200, statusText: "OK", json: () => Promise.resolve({ profiles: [], sessions: [] }) } as Response)) as unknown as typeof fetch;
+	Catalog.invalidate();
+	const defs = emptyDefs();
+	defs.condTypes = ["profilePropertyCondition"];
+	defs.cond = { profilePropertyCondition: [{ id: "propertyName", type: "string", multivalued: false }] };
+	const panel = conditionPanel({ type: "profilePropertyCondition", parameterValues: {} }, defs, () => { /* refresh */ });
+	const body = panel.getContent()[0] as VBox;
+	const controls = body.getItems().map((c) => c.getMetadata().getName());
+	assert.ok(controls.includes("sap.m.ComboBox"), "propertyName -> ComboBox picker");
+	assert.notOk(controls.includes("sap.m.Input"), "not a free-text Input");
+	window.fetch = orig;
+	Catalog.invalidate();
+});
+
+QUnit.test("type picker is a searchable ComboBox that resets params on change", (assert) => {
+	const defs = emptyDefs();
+	defs.condTypes = ["aCond", "bCond"];
+	defs.cond = { aCond: [], bCond: [] };
+	const node: Node = { type: "aCond", parameterValues: { x: 1 } };
+	const panel = conditionPanel(node, defs, () => { /* refresh */ });
+	const header = panel.getHeaderToolbar() as Toolbar;
+	const cb = header.getContent().find((c) => c.isA("sap.m.ComboBox")) as ComboBox;
+	assert.ok(cb, "type control is a ComboBox (searchable)");
+	cb.setSelectedKey("bCond");
+	cb.fireSelectionChange({ selectedItem: cb.getItems()[1] });
+	assert.strictEqual(node.type, "bCond", "type updated from selection");
+	assert.deepEqual(node.parameterValues, {}, "params reset on type change");
 });
 
 QUnit.test("actionsList builds a panel per action plus an add button", (assert) => {
