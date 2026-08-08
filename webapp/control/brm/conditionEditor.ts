@@ -28,6 +28,8 @@ import Event from "sap/ui/base/Event";
 import * as Catalog from "unomi/ui/service/Catalog";
 import type { Opt, PropDef } from "unomi/ui/service/Catalog";
 import { Node, Defs, Param, conditionPanel, emptyCondition } from "unomi/ui/control/builders";
+import { refFor } from "unomi/ui/control/refMap";
+import { refSelect } from "unomi/ui/control/refSelect";
 
 // BRM-style visual editor: AND/OR/NOT groups + "property → operator → value" rows.
 // Rows map to profile/session PropertyCondition; anything else falls back to the
@@ -40,12 +42,6 @@ type CatKey = "segments" | "scorings" | "lists" | "goals" | "eventTypes";
 export interface BrmCtx { defs: Defs; props: Record<Target, PropDef[]>; cat: Record<CatKey, Opt[]>; }
 
 export const emptyCat = (): BrmCtx["cat"] => ({ segments: [], scorings: [], lists: [], goals: [], eventTypes: [] });
-
-// TYPE_META (F3): which param of which type is filled from which catalog. Absent → generic control.
-const PICKERS: Record<string, Record<string, CatKey>> = {
-	goalMatchCondition: { goalId: "goals" },
-	eventTypeCondition: { eventTypeId: "eventTypes" }
-};
 
 const ROW_TYPE: Record<Target, string> = { profile: "profilePropertyCondition", session: "sessionPropertyCondition", event: "eventPropertyCondition" };
 const TARGET_OF: Record<string, Target> = { profilePropertyCondition: "profile", sessionPropertyCondition: "session", eventPropertyCondition: "event" };
@@ -352,14 +348,11 @@ function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: B
 		host.addItem(conditionEditor(pv[p.id] as Node, ctx, refresh, false));
 		return;
 	}
-	// F3: catalog-backed picker (goalId→goals, eventTypeId→eventTypes).
-	const catKey = PICKERS[nodeType]?.[p.id];
-	if (catKey) {
-		const cb = new ComboBox({ selectedKey: (pv[p.id] as string) || "", value: (pv[p.id] as string) || "", width: "16rem" });
-		ctx.cat[catKey].forEach((o) => cb.addItem(new Item({ key: o.id, text: o.name })));
-		cb.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv[p.id] = it.getKey(); } });
-		cb.attachChange(() => (pv[p.id] = cb.getSelectedKey() || cb.getValue()));
-		host.addItem(labeled(label, cb));
+	// Any parameter that references another Unomi object (scope, goalId, campaignId,
+	// listIdentifiers, valueTypeId, …) → searchable picker from the cached Catalog.
+	const refKey = refFor(nodeType, p.id);
+	if (refKey) {
+		host.addItem(labeled(label, refSelect(refKey, pv[p.id], p.multivalued === true, (v) => (pv[p.id] = v))));
 		return;
 	}
 	if (p.type === "comparisonOperator" || p.id === "comparisonOperator" || p.id === "operator") {
