@@ -22,7 +22,7 @@
 		</tnt:header>
 		<tnt:sideContent>
 			<tnt:SideNavigation id="sideNav" itemSelect=".onNavSelect">
-				<tnt:NavigationList>
+				<tnt:NavigationList visible="{nav>/authed}">
 					<tnt:NavigationListItem text="{i18n>module.home}" icon="sap-icon://home" key="home" />
 					<tnt:NavigationListItem text="{i18n>module.profiles}" icon="sap-icon://person-placeholder" key="profiles" />
 					<tnt:NavigationListItem text="{i18n>module.events}" icon="sap-icon://newspaper" key="events" />
@@ -40,9 +40,10 @@
 				</tnt:NavigationList>
 				<tnt:fixedItem>
 					<tnt:NavigationList>
-						<tnt:NavigationListItem text="{i18n>module.settings}" icon="sap-icon://action-settings" key="settings" />
-						<tnt:NavigationListItem text="{i18n>common.logout}" icon="sap-icon://log" key="logout" />
-						<tnt:NavigationListItem text="{i18n>module.info}" icon="sap-icon://information" key="info"/>
+						<tnt:NavigationListItem text="{i18n>module.login}" icon="sap-icon://log" key="login" visible="{= !${nav>/authed} }" />
+						<tnt:NavigationListItem text="{i18n>module.settings}" icon="sap-icon://action-settings" key="settings" visible="{nav>/authed}" />
+						<tnt:NavigationListItem text="{i18n>common.logout}" icon="sap-icon://log" key="logout" visible="{nav>/authed}" />
+						<tnt:NavigationListItem text="{i18n>module.info}" icon="sap-icon://information" key="info" visible="{nav>/authed}" />
 					</tnt:NavigationList>
 				</tnt:fixedItem>
 			</tnt:SideNavigation>

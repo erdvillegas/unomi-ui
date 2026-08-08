@@ -4,10 +4,12 @@
 	xmlns="sap.m"
 	displayBlock="true">
 	<Page title="{i18n>login.title}">
-		<VBox width="22rem" class="sapUiLargeMargin">
-			<Input id="userInput" value="karaf" placeholder="{i18n>login.user}" />
-			<Input id="passInput" value="karaf" type="Password" placeholder="{i18n>login.password}" submit=".onLogin" class="sapUiSmallMarginTop" />
-			<Button text="{i18n>login.connect}" type="Emphasized" press=".onLogin" class="sapUiSmallMarginTop" />
-		</VBox>
+		<FlexBox height="100%" justifyContent="Center" alignItems="Center">
+			<VBox width="22rem" class="sapUiLargeMargin">
+				<Input id="userInput" value="karaf" placeholder="{i18n>login.user}" />
+				<Input id="passInput" value="karaf" type="Password" placeholder="{i18n>login.password}" submit=".onLogin" class="sapUiSmallMarginTop" />
+				<Button text="{i18n>login.connect}" type="Emphasized" press=".onLogin" class="sapUiSmallMarginTop" />
+			</VBox>
+		</FlexBox>
 	</Page>
 </mvc:View>
