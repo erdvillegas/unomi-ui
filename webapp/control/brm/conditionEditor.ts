@@ -294,9 +294,7 @@ function membershipRow(node: Node, opts: Opt[], slot: string, label: string, ref
 	mcb.setSelectedKeys(((pv[slot] as string[]) || []).slice());
 	mcb.attachSelectionChange(() => (pv[slot] = mcb.getSelectedKeys()));
 	const box = new HBox({ wrap: "Wrap", alignItems: "Center", items: [new Label({ text: label, design: "Bold" }).addStyleClass("sapUiTinyMarginEnd"), matchSel, mcb] }).addStyleClass("sapUiTinyMarginBottom");
-	box.addItem(new ToolbarSpacer());
-	box.addItem(advBtn(node, refresh));
-	box.addItem(rmBtn(onRemove));
+	rowTail(box, node, refresh, onRemove);
 	return box;
 }
 
@@ -313,9 +311,7 @@ function scoreRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => 
 	const valInp = new Input({ value: pv.scoreValue == null ? "" : String(pv.scoreValue), type: "Number", width: "8rem", placeholder: "score" });
 	valInp.attachChange(() => (pv.scoreValue = Number(valInp.getValue()) || 0));
 	const box = new HBox({ wrap: "Wrap", alignItems: "Center", items: [new Label({ text: "Score", design: "Bold" }).addStyleClass("sapUiTinyMarginEnd"), planSel, opSel, valInp] }).addStyleClass("sapUiTinyMarginBottom");
-	box.addItem(new ToolbarSpacer());
-	box.addItem(advBtn(node, refresh));
-	box.addItem(rmBtn(onRemove));
+	rowTail(box, node, refresh, onRemove);
 	return box;
 }
 
@@ -341,6 +337,31 @@ function typedFieldsRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: 
 
 function labeled(text: string, ctrl: Control): HBox {
 	return new HBox({ alignItems: "Center", items: [new Label({ text, width: "12rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
+}
+
+// Multi-value token input (in/notIn/between/values). ponytail: the setTimeout defers
+// the read until MultiInput applied the token add/remove — shared here so that
+// deferred-sync footgun lives in exactly one place.
+function tokenInput(initial: unknown[], isInt: boolean, width: string, placeholder: string, commit: (vals: (string | number)[]) => void): MultiInput {
+	const mi = new MultiInput({ width, placeholder });
+	initial.forEach((v) => mi.addToken(new Token({ text: String(v) })));
+	const sync = (): void => commit(mi.getTokens().map((t) => isInt ? Number(t.getText()) : t.getText()));
+	mi.attachTokenUpdate(() => setTimeout(sync, 0));
+	mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
+	return mi;
+}
+
+function dateField(value: string, commit: (v: string) => void): DateTimePicker {
+	const dp = new DateTimePicker({ value: value || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
+	dp.attachChange(() => commit(dp.getValue()));
+	return dp;
+}
+
+// Trailing spacer + advanced + remove buttons shared by every property-style row.
+function rowTail(box: HBox, node: Node, refresh: () => void, onRemove: () => void): void {
+	box.addItem(new ToolbarSpacer());
+	box.addItem(advBtn(node, refresh));
+	box.addItem(rmBtn(onRemove));
 }
 
 function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: BrmCtx, refresh: () => void, host: VBox): void {
@@ -375,19 +396,12 @@ function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: B
 		return;
 	}
 	if (p.multivalued) {
-		const arr = (pv[p.id] ??= []) as any[];
-		const mi = new MultiInput({ width: "22rem" });
-		arr.forEach((v) => mi.addToken(new Token({ text: String(v) })));
-		const sync = () => (pv[p.id] = mi.getTokens().map((t) => p.type === "integer" ? Number(t.getText()) : t.getText()));
-		mi.attachTokenUpdate(() => setTimeout(sync, 0));
-		mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
-		host.addItem(labeled(label, mi));
+		const arr = (pv[p.id] ??= []) as unknown[];
+		host.addItem(labeled(label, tokenInput(arr, p.type === "integer", "22rem", "", (vals) => (pv[p.id] = vals))));
 		return;
 	}
 	if (p.type === "date") {
-		const dp = new DateTimePicker({ value: (pv[p.id] as string) || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
-		dp.attachChange(() => (pv[p.id] = dp.getValue()));
-		host.addItem(labeled(label, dp));
+		host.addItem(labeled(label, dateField(pv[p.id] as string, (v) => (pv[p.id] = v))));
 		return;
 	}
 	const inp = new Input({ value: pv[p.id] == null ? "" : String(pv[p.id]), type: p.type === "integer" ? "Number" : "Text", width: "16rem" });
@@ -439,9 +453,7 @@ function row(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void)
 	if (val) {
 		rowBox.addItem(val);
 	}
-	rowBox.addItem(new ToolbarSpacer());
-	rowBox.addItem(advBtn(node, refresh));
-	rowBox.addItem(rmBtn(onRemove));
+	rowTail(rowBox, node, refresh, onRemove);
 	return rowBox;
 }
 
@@ -491,18 +503,11 @@ function valueField(pv: Record<string, any>, type: string, op: string): Control 
 	const slot = valueSlot(type, multi);
 	VALUE_SLOTS.filter((s) => s !== slot).forEach((s) => delete pv[s]);
 	if (multi) {
-		const arr = (pv[slot] ??= []) as any[];
-		const mi = new MultiInput({ width: "18rem", placeholder: op === "between" ? "min, max" : "values" });
-		arr.forEach((v) => mi.addToken(new Token({ text: String(v) })));
-		const sync = () => (pv[slot] = mi.getTokens().map((t) => type === "integer" ? Number(t.getText()) : t.getText()));
-		mi.attachTokenUpdate(() => setTimeout(sync, 0));
-		mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
-		return mi;
+		const arr = (pv[slot] ??= []) as unknown[];
+		return tokenInput(arr, type === "integer", "18rem", op === "between" ? "min, max" : "values", (vals) => (pv[slot] = vals));
 	}
 	if (type === "date") {
-		const dp = new DateTimePicker({ value: (pv[slot] as string) || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
-		dp.attachChange(() => (pv[slot] = dp.getValue()));
-		return dp;
+		return dateField(pv[slot] as string, (v) => (pv[slot] = v));
 	}
 	const inp = new Input({ value: pv[slot] == null ? "" : String(pv[slot]), type: type === "integer" ? "Number" : "Text", width: "14rem", placeholder: "value" });
 	inp.attachChange(() => (pv[slot] = type === "integer" ? Number(inp.getValue()) : inp.getValue()));
