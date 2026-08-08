@@ -173,6 +173,12 @@ login + navegación + stubs de `/definitions` y `/scopes`) se optó por el test 
 de invalidación, que es la garantía funcional real; el render de los pickers ya está
 cubierto por unit tests.
 
+**Fase 7 — Selector de tipo con búsqueda (extra). ✅** `builders.typedPanel`: el `Select`
+plano del *tipo* de condición/acción (100+ ids) pasa a `ComboBox` con type-ahead; solo
+acepta un id real de la lista y resetea `parameterValues` al cambiar. El menú "+ condition"
+del BRM ya buscaba (`SelectDialog`), sin cambios. Es el catálogo de mayor retorno tras los
+de referencia (ver §8); no toca `Catalog`/`refMap` porque es el *tipo*, no un parámetro.
+
 ---
 
 ## 5. Riesgos y decisiones
@@ -209,5 +215,22 @@ en la Fase 3; las fases 4–5 propagan el mismo selector a condiciones y accione
 | 4 | `2ae36c9` | feat(selectors): refMap-driven pickers in the BRM condition editor |
 | 5 | `1ac8dc2` | feat(selectors): refMap-driven pickers in the technical action editor |
 | 6 | `064a44f` | feat(selectors): invalidate catalog cache on save/delete/logout/base-url |
+| 7 | `bac7988` | feat(selectors): searchable type picker in the technical editor |
 
-Suite final: **70/70 SUCCESS**, `tsc --noEmit` limpio.
+Suite final: **71/71 SUCCESS**, `tsc --noEmit` limpio.
+
+---
+
+## 8. Otros catálogos enlazables (pendientes / opcionales)
+
+Basado en los endpoints de colección reales del OpenAPI. Los de alta frecuencia ya están
+cubiertos (§2). Lo que queda:
+
+| Candidato | Endpoint | Dónde | Valor |
+|---|---|---|---|
+| **Nombres de propiedad** | `/profiles/properties` (+ `/profiles/existingProperties`) | params `propertyName`, `setPropertyName`, `sourcePropertyName` | Medio-alto. Es el caso excluido de `refMap`: necesita target (profile vs session) y forma distinta a `Opt[]`. |
+| **Rules** | `/rules` | solo si algún param referencia un id de regla (poco común) | Bajo — verificar contra el contenedor vivo antes. |
+| **JSON Schemas** | `/jsonSchema` | referencias a esquemas de validación de eventos | Nicho. |
+
+**No enlazables:** `tags` (sin endpoint en 3.x), `importConfiguration`/`exportConfiguration`
+(no los referencia otro objeto), `cluster`/`privacy`/`profiles/count|export` (no son catálogos).
