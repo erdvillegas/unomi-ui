@@ -56,7 +56,7 @@ export const emptyCondition = (): Node => ({ type: "matchAllCondition", paramete
 export function conditionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
 	return typedPanel(node, defs.condTypes, defs.cond, defs, refresh, onRemove);
 }
-export function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
+function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
 	return typedPanel(node, defs.actionTypes, defs.action, defs, refresh, onRemove);
 }
 
