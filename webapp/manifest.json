@@ -17,6 +17,7 @@
     "deviceTypes": { "desktop": true, "tablet": true, "phone": true }
   },
   "sap.ui5": {
+    "contentDensities": {"cozy": true,"compact": false},
     "rootView": {
       "viewName": "unomi.ui.view.App",
       "type": "XML",
@@ -86,7 +87,8 @@
         { "name": "exportConfig", "pattern": "exportConfig", "target": "configIO" },
         { "name": "exportConfigDetail", "pattern": "exportConfig/{itemId}", "target": "exportConfigDetail" },
         { "name": "definitions", "pattern": "definitions", "target": "definitions" },
-        { "name": "settings", "pattern": "settings", "target": "settings" }
+        { "name": "settings", "pattern": "settings", "target": "settings" },
+        { "name": "info", "pattern": "info", "target": "info" }
       ],
       "targets": {
         "login": { "id": "login", "name": "Login" },
@@ -115,7 +117,8 @@
         "importConfigDetail": { "id": "importConfigDetail", "name": "ItemDetail" },
         "exportConfigDetail": { "id": "exportConfigDetail", "name": "ItemDetail" },
         "definitions": { "id": "definitions", "name": "DefinitionCatalog" },
-        "settings": { "id": "settings", "name": "Settings" }
+        "settings": { "id": "settings", "name": "Settings" },
+        "info": { "id": "info", "name": "info" }
       }
     }
   }

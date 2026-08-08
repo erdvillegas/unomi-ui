@@ -21,7 +21,8 @@ const NAV_KEY: Record<string, string> = {
 	importConfig: "importConfig", importConfigDetail: "importConfig",
 	exportConfig: "exportConfig", exportConfigDetail: "exportConfig",
 	definitions: "definitions",
-	settings: "settings"
+	settings: "settings",
+	info: "info"
 };
 
 /**

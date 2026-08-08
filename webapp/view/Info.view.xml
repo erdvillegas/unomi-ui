@@ -1,0 +1,23 @@
+<mvc:View
+	controllerName="unomi.ui.controller.info"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.ui.layout.form"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{i18n>info}">
+		<Panel headerText="{i18n>versionInfo}" class="sapUiResponsiveMargin" width="auto">
+			<f:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
+				<f:content>
+					<Label text="{i18n>appName}" />
+					<Text text="{info>/appName}" />
+					<Label text="{i18n>appVersion}" />
+					<Text text="{info>/appVersion}" />
+					<Label text="{i18n>ui5Version}" />
+					<Text text="{info>/ui5Version}" />
+					<Label text="{i18n>baseUrl}" />
+					<Text text="{info>/baseUrl}" />
+				</f:content>
+			</f:SimpleForm>
+		</Panel>
+	</Page>
+</mvc:View>
