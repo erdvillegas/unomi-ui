@@ -18,6 +18,10 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 // from /definitions/*; only the type catalog differs. ponytail: full re-render of
 // the root on structural change (small hand-built trees), one refresh callback.
 
+// Label + control on one line — shared by the guided source/export editors.
+export const row = (label: string, ctrl: Control): HBox =>
+	new HBox({ alignItems: "Center", items: [new Label({ text: label, width: "10rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
+
 export interface Param { id: string; type: string; multivalued: boolean; }
 export interface Node { type: string; parameterValues: Record<string, any>; }
 export interface Defs {
