@@ -214,6 +214,7 @@ export default class ItemDetail extends BaseController {
 		}
 		try {
 			await UnomiClient.postJson(this.cfg.path, item);
+			Catalog.invalidate(); // a new/edited object may now be pickable elsewhere
 			MessageToast.show("Saved");
 			this.getRouter().navTo(this.cfg.list);
 		} catch (e) {
@@ -234,6 +235,7 @@ export default class ItemDetail extends BaseController {
 	private async doDelete(): Promise<void> {
 		try {
 			await UnomiClient.del(`${this.cfg.path}/${encodeURIComponent(this.itemId)}`);
+			Catalog.invalidate(); // drop the deleted object from cached picker lists
 			MessageToast.show("Deleted");
 			this.getRouter().navTo(this.cfg.list);
 		} catch (e) {
