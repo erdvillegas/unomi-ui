@@ -30,6 +30,18 @@ server:
       afterMiddleware: compression
     - name: ui5-tooling-transpile-middleware
       afterMiddleware: test-resources-rewrite
+      # Instrument for coverage (karma-ui5 reads this middleware). ponytail: also
+      # instruments `ui5 serve` (harmless dev overhead); the production BUILD uses the
+      # transpile *task* below, which has no coverage, so dist/ ships clean.
+      # Gate scoped to the risk-carrying logic (service/model/control). Controllers +
+      # Component are thin wiring covered by OPA journeys, not the unit denominator, so
+      # they're excluded from instrumentation (avoids an OPA-per-pixel chase for 90%).
+      configuration:
+        coverage:
+          exclude:
+            - "**/test/**"
+            - "**/controller/**"
+            - "**/Component.ts"
     # Proxies /cxs -> Unomi, dodging CORS in dev. simpleproxy strips mountPath,
     # so baseUri must include /cxs. ponytail: reverse-proxy handles this in prod.
     - name: ui5-middleware-simpleproxy

@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Test coverage output
+coverage/
+
 # UI5 tooling
 .ui5/
 tmp/
@@ -22,3 +25,6 @@ npm-debug.log*
 .idea/
 .vscode/
 *.swp
+
+# Claude Code — machine-local permission allowlist (skills stay tracked)
+.claude/settings.local.json
