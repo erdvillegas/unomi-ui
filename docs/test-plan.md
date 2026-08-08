@@ -57,16 +57,31 @@ reserved for wiring/routing.
 
 ## 4. Phases (each leaves the suite green; one commit per phase)
 
-1. **Infra** — karma config, Test Starter, `npm test` running with a sanity test.
-   Coverage gate off.
-2. **Services + pure logic** (`UnomiClient`, `Settings`, `sourceBuilder`,
-   `forms`) → ~55–60% cumulative, QUnit only.
-3. **conditionEditor** — pure fns + render with simulated handlers (largest file,
-   ~500 lines; the bulk of the final 10%) → ~75–80%.
-4. **Remaining control builders** (`FormEngine`, `exportPropsBuilder`, `builders`
-   panels) → ~85%.
-5. **OPA5 journeys** for controllers/routing (login gating first) → **≥90%**.
-6. **Enable the gate** `lines: 90` in CI.
+1. **Infra** ✅ — karma config, Test Starter, `npm test` running with a sanity test.
+2. **Services + pure logic** ✅ (`UnomiClient`, `Settings`, `sourceBuilder`, `forms`).
+3. **conditionEditor** ✅ — pure fns + a render pass that fires every control's handler
+   via `findAggregatedObjects` (covers rows, membership/scoring, generic params, groups,
+   advanced-wrap). Took the file from 51% → **92.7%** lines.
+4. **Remaining control builders** ✅ (`FormEngine`, `exportPropsBuilder`, `builders`).
+5. **OPA5 journey** ✅ — one logged-out boot/auth-gating journey.
+6. **Gate enabled** ✅ — `check: { global: { lines: 90 } }` in `karma.conf.js`.
+   Coverage instrumented via `ui5-tooling-transpile` `coverage` option
+   (`babel-plugin-istanbul`) and bridged with `karma-ui5/helper.configureIframeCoverage`.
+
+### Result (as built)
+
+| Scope | Lines |
+|---|---|
+| **Global (loaded files)** | **91.7%** ✅ |
+| Logic (`service` + `model` + `control`) | 93.7% |
+| `service/UnomiClient` | 100% · `service/Catalog` 91.7% · `service/Settings` 100% |
+| `control/conditionEditor` | 92.7% · `builders` 98.2% · `FormEngine`/`refSelect`/`refMap`/`forms` 100% |
+| `sourceBuilder` | 83.2% (the remaining tail) |
+
+78 tests, `npm test` green with the gate on. Instrumentation runs only via the transpile
+*middleware* (dev/karma) — the production BUILD uses the transpile *task* (no coverage),
+so `dist/` ships clean. `coverage/` is git-ignored. Only **lines** is gated (the plan's
+target); branches (77%) / functions (82%) are reported, not enforced.
 
 ## 5. Mocking strategy (one shared approach)
 

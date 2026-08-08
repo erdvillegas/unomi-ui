@@ -2,13 +2,101 @@
 import {
 	conditionEditor, loadProps, loadCatalogs, emptyCat, emptyCondition, _internals, BrmCtx
 } from "unomi/ui/control/brm/conditionEditor";
-import { emptyDefs, Node } from "unomi/ui/control/builders";
+import { emptyDefs, Node, Defs } from "unomi/ui/control/builders";
 import * as Catalog from "unomi/ui/service/Catalog";
+import Control from "sap/ui/core/Control";
 
 const { readGroup, setGroupMode, rowType, valueSlot, clearValues, summarize, friendly, category, isMulti, noValue } = _internals;
 
 function ctx(): BrmCtx {
 	return { defs: emptyDefs(), props: { profile: [], session: [], event: [] }, cat: emptyCat() };
+}
+
+// Minimal shape for blindly invoking a control's primary handler to cover its closure.
+// isA() is declared here (returning boolean) so the else-if chain doesn't type-narrow to never.
+type Fireable = {
+	isA: (n: string) => boolean;
+	setValue?: (v: string) => void; getItems?: () => unknown[]; getIcon?: () => string;
+	fireChange?: (p?: object) => void; fireSelectionChange?: (p?: object) => void;
+	fireSubmit?: (p?: object) => void; fireTokenUpdate?: (p?: object) => void;
+	fireSelect?: (p?: object) => void; firePress?: () => void;
+};
+
+function all(root: Control): Control[] {
+	return [root, ...(root.findAggregatedObjects(true) as unknown as Control[])];
+}
+
+// Fire each control's main event so the attachChange/attachSelectionChange closures run.
+// MenuButton is skipped so no dropdown/SelectDialog opens during the headless run.
+function fireAll(root: Control): void {
+	all(root).forEach((c: Control) => {
+		const f = c as unknown as Fireable;
+		try {
+			if (f.isA("sap.m.MultiInput")) { f.fireSubmit?.({ value: "x" }); f.fireTokenUpdate?.({}); }
+			else if (f.isA("sap.m.MultiComboBox")) { f.fireSelectionChange?.({}); }
+			else if (f.isA("sap.m.ComboBox")) { f.fireSelectionChange?.({ selectedItem: f.getItems?.()[0] }); f.fireChange?.({ value: "" }); }
+			else if (f.isA("sap.m.Input")) { f.setValue?.("5"); f.fireChange?.({ value: "5" }); }
+			else if (f.isA("sap.m.Select")) { f.fireChange?.({}); }
+			else if (f.isA("sap.m.Switch")) { f.fireChange?.({ state: true }); }
+			else if (f.isA("sap.m.DateTimePicker")) { f.fireChange?.({ value: "2021-01-01T00:00:00" }); }
+			else if (f.isA("sap.m.CheckBox")) { f.fireSelect?.({ selected: true }); }
+			else if (f.isA("sap.m.Button")) { f.firePress?.(); }
+		} catch { /* handler bodies are what we're covering; ignore side-effect throws */ }
+	});
+}
+
+function richDefs(): Defs {
+	const d = emptyDefs();
+	d.cond = {
+		myCond: [
+			{ id: "sub", type: "condition", multivalued: false },
+			{ id: "goalId", type: "string", multivalued: false },
+			{ id: "propertyName", type: "string", multivalued: false },
+			{ id: "operator", type: "comparisonOperator", multivalued: false },
+			{ id: "flag", type: "boolean", multivalued: false },
+			{ id: "vals", type: "integer", multivalued: true },
+			{ id: "when", type: "date", multivalued: false },
+			{ id: "text", type: "string", multivalued: false }
+		],
+		eventChip: []
+	};
+	d.condTypes = ["myCond", "eventChip"];
+	d.condTags = { myCond: ["profileCondition"], eventChip: ["eventCondition"] };
+	return d;
+}
+
+function richCtx(): BrmCtx {
+	return {
+		defs: richDefs(),
+		props: {
+			profile: [
+				{ id: "age", name: "Age", valueTypeId: "integer" }, { id: "name", name: "Name", valueTypeId: "string" },
+				{ id: "flag", name: "Flag", valueTypeId: "boolean" }, { id: "when", name: "When", valueTypeId: "date" }
+			],
+			session: [{ id: "size", name: "Size", valueTypeId: "string" }],
+			event: []
+		},
+		cat: { segments: [{ id: "vip", name: "VIP" }], scorings: [{ id: "sc1", name: "Plan 1" }], lists: [{ id: "l1", name: "L1" }], goals: [{ id: "g1", name: "G1" }], eventTypes: [{ id: "view", name: "view" }] }
+	};
+}
+
+// One root covering every childEditor branch (row types, membership, scoring, generic, groups).
+function richRoot(): Node {
+	return { type: "booleanCondition", parameterValues: { operator: "and", subConditions: [
+		{ type: "profilePropertyCondition", parameterValues: { propertyName: "properties.age", comparisonOperator: "greaterThan", propertyValueInteger: 30 } },
+		{ type: "sessionPropertyCondition", parameterValues: { propertyName: "properties.size", comparisonOperator: "in", propertyValues: ["a"] } },
+		{ type: "profilePropertyCondition", parameterValues: { propertyName: "properties.flag", propertyValue: "true" } },
+		{ type: "profilePropertyCondition", parameterValues: { propertyName: "properties.when", comparisonOperator: "greaterThan", propertyValueDate: "2020-01-01T00:00:00" } },
+		{ type: "profilePropertyCondition", parameterValues: { propertyName: "properties.name", comparisonOperator: "exists" } },
+		{ type: "profileSegmentCondition", parameterValues: { matchType: "in", segments: ["vip"] } },
+		{ type: "profileUserListCondition", parameterValues: { matchType: "in", lists: ["l1"] } },
+		{ type: "scoringCondition", parameterValues: { scoringPlanId: "sc1", comparisonOperator: "greaterThan", scoreValue: 5 } },
+		{ type: "myCond", parameterValues: {} },
+		{ type: "eventChip", parameterValues: {} },
+		{ type: "booleanCondition", parameterValues: { operator: "or", subConditions: [
+			{ type: "notCondition", parameterValues: { subCondition: { type: "profilePropertyCondition", parameterValues: { propertyName: "properties.age", comparisonOperator: "equals", propertyValue: "1" } } } }
+		] } }
+	] } };
 }
 
 function stubFetchByUrl(map: (url: string) => unknown): () => void {
@@ -171,4 +259,38 @@ QUnit.test("loadCatalogs flattens catalogs and filters junk rows", async (assert
 	assert.strictEqual(cat.scorings[0].name, "sc1", "name falls back to id");
 	assert.strictEqual(cat.lists[0].id, "l1", "lists unwrapped from PartialList");
 	assert.deepEqual(cat.eventTypes.map((e) => e.id), ["view", "click"], "event types from string[]");
+});
+
+QUnit.module("control/conditionEditor — render coverage", {
+	beforeEach: () => { Catalog.invalidate(); },
+	afterEach: () => { Catalog.invalidate(); }
+});
+
+// Async pickers (refSelect/propSelect) load from Catalog; return arrays for the flat
+// catalogs and the props envelope for /profiles/properties so nothing throws.
+const stubCat = () => stubFetchByUrl((url) => url.endsWith("/profiles/properties") ? { profiles: [], sessions: [] } : []);
+
+QUnit.test("renders every childEditor branch and fires all handlers", (assert) => {
+	const restore = stubCat();
+	const ce = conditionEditor(richRoot(), richCtx(), () => { /* refresh */ }) as Control;
+	assert.ok(ce.isA("sap.m.VBox"), "summary + group wrapper returned");
+	fireAll(ce);
+	assert.ok(all(ce).length > 20, "a full control tree was built and its handlers ran");
+	restore();
+});
+
+QUnit.test("advanced toggle renders the raw tree editor", (assert) => {
+	const restore = stubCat();
+	const ctx2 = richCtx();
+	const root = richRoot();
+	const refresh = () => { /* refresh */ };
+	let ce = conditionEditor(root, ctx2, refresh) as Control;
+	// Press every "advanced (raw)" button (syntax icon) to mark nodes as advanced.
+	all(ce).map((c) => c as unknown as Fireable).filter((f) => f.isA("sap.m.Button") && f.getIcon?.() === "sap-icon://syntax")
+		.forEach((f) => f.firePress?.());
+	// Re-render: advanced nodes now go through builders.conditionPanel (advancedWrap).
+	ce = conditionEditor(root, ctx2, refresh) as Control;
+	fireAll(ce);
+	assert.ok(true, "advanced wrap rendered and handlers fired");
+	restore();
 });

@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Test coverage output
+coverage/
+
 # UI5 tooling
 .ui5/
 tmp/

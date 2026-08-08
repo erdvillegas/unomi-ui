@@ -84,6 +84,40 @@ QUnit.test("postJson posts body; del sends DELETE", async (assert) => {
 	assert.strictEqual(calls[1].init.method, "DELETE", "del DELETE");
 });
 
+QUnit.test("ping returns text; postCsv returns raw text", async (assert) => {
+	stubFetch({ text: "pong" });
+	assert.strictEqual(await UnomiClient.ping(), "pong", "ping text");
+	assert.strictEqual(calls[0].url, "/cxs/test/ping", "ping path");
+	stubFetch({ text: "a,b,c" });
+	assert.strictEqual(await UnomiClient.postCsv("/profiles/export", { q: 1 }), "a,b,c", "csv text");
+	assert.strictEqual(calls[1].init.method, "POST", "postCsv POST");
+});
+
+QUnit.test("postForm sends FormData without a JSON content-type", async (assert) => {
+	stubFetch({ json: {} });
+	const fd = new FormData();
+	fd.append("file", new Blob(["x"]), "f.csv");
+	const res = await UnomiClient.postForm("/importConfiguration/oneshot", fd);
+	assert.ok(res, "returns the response");
+	assert.strictEqual(calls[0].init.method, "POST", "POST");
+	assert.strictEqual(calls[0].init.body, fd, "FormData passed through");
+	assert.strictEqual(header(0, "Content-Type"), null, "no JSON content-type for multipart");
+});
+
+QUnit.test("downloadText triggers a browser download", (assert) => {
+	const origCreate = URL.createObjectURL;
+	const origRevoke = URL.revokeObjectURL;
+	let revoked = false;
+	URL.createObjectURL = () => "blob:x";
+	URL.revokeObjectURL = () => { revoked = true; };
+	const before = document.querySelectorAll("a").length;
+	UnomiClient.downloadText("a,b", "out.csv");
+	assert.strictEqual(document.querySelectorAll("a").length, before, "anchor removed after click");
+	assert.ok(revoked, "object URL revoked");
+	URL.createObjectURL = origCreate;
+	URL.revokeObjectURL = origRevoke;
+});
+
 QUnit.test("non-ok response throws with status text", async (assert) => {
 	stubFetch({ ok: false, status: 401, statusText: "Unauthorized" });
 	try {
