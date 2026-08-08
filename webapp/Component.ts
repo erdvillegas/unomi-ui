@@ -20,6 +20,8 @@ export default class Component extends UIComponent {
 		UnomiClient.setBaseUrl(cfg.baseUrl);
 		Settings.applyTheme(cfg.theme);
 		this.setModel(new JSONModel(cfg), "app");
+		// Shared auth flag (updated in App.onRouteMatched); nav + Home bind to it.
+		this.setModel(new JSONModel({ authed: false }), "session");
 		this.getRouter().initialize();
 	}
 
