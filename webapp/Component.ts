@@ -17,6 +17,7 @@ export default class Component extends UIComponent {
 		super.init();
 		const cfg = Settings.load();
 		UnomiClient.setBaseUrl(cfg.baseUrl);
+		Settings.applyTheme(cfg.theme);
 		this.setModel(new JSONModel(cfg), "app");
 		this.getRouter().initialize();
 	}
