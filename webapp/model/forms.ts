@@ -11,7 +11,7 @@ export function formFields(res: string, isNew: boolean): Field[] {
 		{ path: "metadata.id", label: "ID", type: "text", readonly: !isNew },
 		{ path: "metadata.name", label: "Name", type: "text" },
 		{ path: "metadata.description", label: "Description", type: "textarea" },
-		{ path: "metadata.scope", label: "Scope", type: "text", readonly: !isNew },
+		{ path: "metadata.scope", label: "Scope", type: "ref", catalog: "scopes", readonly: !isNew },
 		{ path: "metadata.tags", label: "Tags", type: "tokens" },
 		{ path: "metadata.enabled", label: "Enabled", type: "switch" }
 	];
@@ -23,19 +23,19 @@ export function formFields(res: string, isNew: boolean): Field[] {
 			{ path: "raiseEventOnlyOnceForSession", label: "Only once per session", type: "switch" }
 		],
 		goals: [
-			{ path: "campaignId", label: "Campaign ID", type: "text" }
+			{ path: "campaignId", label: "Campaign", type: "ref", catalog: "campaigns" }
 		],
 		campaigns: [
 			{ path: "startDate", label: "Start date", type: "datetime" },
 			{ path: "endDate", label: "End date", type: "datetime" },
 			{ path: "cost", label: "Cost", type: "float" },
 			{ path: "currency", label: "Currency", type: "text" },
-			{ path: "primaryGoal", label: "Primary goal", type: "text" },
+			{ path: "primaryGoal", label: "Primary goal", type: "ref", catalog: "goals" },
 			{ path: "timezone", label: "Timezone", type: "text" }
 		],
 		properties: [
-			{ path: "target", label: "Target", type: "text", readonly: !isNew },
-			{ path: "valueTypeId", label: "Value type", type: "text" },
+			{ path: "target", label: "Target", type: "select", options: [{ key: "profiles", text: "profiles" }, { key: "sessions", text: "sessions" }], readonly: !isNew },
+			{ path: "valueTypeId", label: "Value type", type: "ref", catalog: "valueTypes" },
 			{ path: "defaultValue", label: "Default value", type: "text" },
 			{ path: "rank", label: "Rank", type: "float" },
 			{ path: "multivalued", label: "Multivalued", type: "switch" }
