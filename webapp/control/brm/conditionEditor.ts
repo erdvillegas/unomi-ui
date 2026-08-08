@@ -27,9 +27,9 @@ import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as Catalog from "unomi/ui/service/Catalog";
 import type { Opt, PropDef } from "unomi/ui/service/Catalog";
-import { Node, Defs, Param, conditionPanel, emptyCondition } from "unomi/ui/control/builders";
+import { Node, Defs, Param, conditionPanel, emptyCondition, propTarget, isPropName } from "unomi/ui/control/builders";
 import { refFor } from "unomi/ui/control/refMap";
-import { refSelect } from "unomi/ui/control/refSelect";
+import { refSelect, propSelect } from "unomi/ui/control/refSelect";
 
 // BRM-style visual editor: AND/OR/NOT groups + "property → operator → value" rows.
 // Rows map to profile/session PropertyCondition; anything else falls back to the
@@ -353,6 +353,11 @@ function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: B
 	const refKey = refFor(nodeType, p.id);
 	if (refKey) {
 		host.addItem(labeled(label, refSelect(refKey, pv[p.id], p.multivalued === true, (v) => (pv[p.id] = v))));
+		return;
+	}
+	// A propertyName param → property picker for the type's target (defaults to profile).
+	if (isPropName(p.id)) {
+		host.addItem(labeled(label, propSelect(propTarget(nodeType), pv[p.id], (v) => (pv[p.id] = v))));
 		return;
 	}
 	if (p.type === "comparisonOperator" || p.id === "comparisonOperator" || p.id === "operator") {

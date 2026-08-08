@@ -140,6 +140,22 @@ QUnit.test("a reference param (scope) renders a searchable picker, not a plain I
 	Catalog.invalidate();
 });
 
+QUnit.test("a propertyName param renders a property picker, not a plain Input", (assert) => {
+	const orig = window.fetch;
+	window.fetch = (() => Promise.resolve({ ok: true, status: 200, statusText: "OK", json: () => Promise.resolve({ profiles: [], sessions: [] }) } as Response)) as unknown as typeof fetch;
+	Catalog.invalidate();
+	const defs = emptyDefs();
+	defs.condTypes = ["profilePropertyCondition"];
+	defs.cond = { profilePropertyCondition: [{ id: "propertyName", type: "string", multivalued: false }] };
+	const panel = conditionPanel({ type: "profilePropertyCondition", parameterValues: {} }, defs, () => { /* refresh */ });
+	const body = panel.getContent()[0] as VBox;
+	const controls = body.getItems().map((c) => c.getMetadata().getName());
+	assert.ok(controls.includes("sap.m.ComboBox"), "propertyName -> ComboBox picker");
+	assert.notOk(controls.includes("sap.m.Input"), "not a free-text Input");
+	window.fetch = orig;
+	Catalog.invalidate();
+});
+
 QUnit.test("type picker is a searchable ComboBox that resets params on change", (assert) => {
 	const defs = emptyDefs();
 	defs.condTypes = ["aCond", "bCond"];

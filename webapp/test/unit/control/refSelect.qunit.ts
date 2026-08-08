@@ -1,6 +1,6 @@
 /*global QUnit */
 import { refFor } from "unomi/ui/control/refMap";
-import { refSelect } from "unomi/ui/control/refSelect";
+import { refSelect, propSelect } from "unomi/ui/control/refSelect";
 import * as Catalog from "unomi/ui/service/Catalog";
 import ComboBox from "sap/m/ComboBox";
 import MultiComboBox from "sap/m/MultiComboBox";
@@ -63,6 +63,23 @@ QUnit.test("single: free-text id (not in catalog) still commits via change", (as
 	cb.setValue("customScope");
 	cb.fireChange({ value: "customScope" });
 	assert.strictEqual(committed, "customScope", "typed id passes through");
+});
+
+QUnit.test("propSelect: profile props carry the 'properties.' prefix and commit", async (assert) => {
+	origFetch = window.fetch;
+	window.fetch = (() => Promise.resolve({
+		ok: true, status: 200, statusText: "OK",
+		json: () => Promise.resolve({ profiles: [{ valueTypeId: "string", metadata: { id: "email", name: "Email" } }], sessions: [] })
+	} as Response)) as unknown as typeof fetch;
+	Catalog.invalidate();
+	let committed = "";
+	const cb = propSelect("profile", "properties.email", (v) => (committed = v));
+	await tick();
+	assert.strictEqual(cb.getItems().length, 1, "profile prop loaded");
+	assert.strictEqual(cb.getItems()[0].getKey(), "properties.email", "key carries the prefix");
+	assert.strictEqual(cb.getSelectedKey(), "properties.email", "current value preselected");
+	cb.fireSelectionChange({ selectedItem: cb.getItems()[0] });
+	assert.strictEqual(committed, "properties.email", "commit gets the prefixed path");
 });
 
 QUnit.test("multi: commits the selected id array", async (assert) => {

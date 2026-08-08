@@ -14,7 +14,13 @@ import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { refFor } from "unomi/ui/control/refMap";
-import { refSelect } from "unomi/ui/control/refSelect";
+import { refSelect, propSelect, PropTarget } from "unomi/ui/control/refSelect";
+
+// Property-name params target a profile/session/event property; derive it from the type
+// (defaults to profile — covers setPropertyAction and most others).
+export const propTarget = (type: string): PropTarget =>
+	type === "sessionPropertyCondition" ? "session" : type === "eventPropertyCondition" ? "event" : "profile";
+export const isPropName = (id: string): boolean => /propertyname$/i.test(id);
 
 // Shared recursive editor for Unomi's typed Condition/Action trees. Both use the
 // same node shape ({ type, parameterValues }) and the same parameter model coming
@@ -111,6 +117,9 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 		} else if (refKey) {
 			body.addItem(new Label({ text: p.id }));
 			body.addItem(refSelect(refKey, node.parameterValues[p.id], p.multivalued, (val) => (node.parameterValues[p.id] = val)));
+		} else if (isPropName(p.id)) {
+			body.addItem(new Label({ text: p.id }));
+			body.addItem(propSelect(propTarget(node.type), node.parameterValues[p.id], (val) => (node.parameterValues[p.id] = val)));
 		} else {
 			const v = node.parameterValues[p.id];
 			const shown = p.multivalued ? (Array.isArray(v) ? v.join(", ") : "") : (v == null ? "" : String(v));

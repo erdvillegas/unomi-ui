@@ -35,3 +35,29 @@ export function refSelect(key: CatalogKey, value: unknown, multi: boolean, commi
 async function fill(key: CatalogKey, apply: (items: Opt[]) => void): Promise<void> {
 	try { apply(await Catalog.get(key)); } catch { /* offline / not authed: keep free text */ }
 }
+
+export type PropTarget = "profile" | "session" | "event";
+
+/**
+ * Property-name picker. Unlike refSelect these live per target (profile/session/event)
+ * and the stored value carries a `properties.` prefix (profile/session) — mirrored here
+ * from the BRM row logic. Free text is kept so nested/system paths still work.
+ */
+export function propSelect(target: PropTarget, value: unknown, commit: (v: string) => void): ComboBox {
+	const prefix = target === "event" ? "" : "properties.";
+	const cur = (value as string) || "";
+	const cb = new ComboBox({ width: "18rem", selectedKey: cur, value: cur });
+	void fillProps(target, prefix, cb, cur);
+	cb.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { commit(it.getKey()); } });
+	cb.attachChange(() => commit(cb.getSelectedKey() || cb.getValue()));
+	return cb;
+}
+
+async function fillProps(target: PropTarget, prefix: string, cb: ComboBox, cur: string): Promise<void> {
+	try {
+		const props = await Catalog.getProps();
+		props[target].forEach((p) => cb.addItem(new Item({ key: prefix + p.id, text: p.name })));
+		cb.setSelectedKey(cur);
+		if (!cb.getSelectedItem()) { cb.setValue(cur); }
+	} catch { /* free text */ }
+}
