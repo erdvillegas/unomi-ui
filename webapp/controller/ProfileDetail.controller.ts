@@ -71,7 +71,7 @@ export default class ProfileDetail extends BaseController {
 		const data = (this.getView()?.getModel("profile") as JSONModel).getData() as FullProfile;
 		const props = (data.properties ??= {}) as Record<string, any>;
 		const native = (await loadProps()).profile;
-		host.addItem(nativePropsBox(props, native, () => void this.renderProps()));
+		host.addItem(nativePropsBox(props, native));
 		host.addItem(new Label({ text: "Otras propiedades", design: "Bold" }).addStyleClass("sapUiSmallMarginTop"));
 		host.addItem(keyValueBox(props, () => void this.renderProps(), new Set(native.map((p) => p.id))));
 	}

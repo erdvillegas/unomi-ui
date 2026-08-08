@@ -1,0 +1,47 @@
+<mvc:View
+	controllerName="unomi.ui.controller.info"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.ui.layout.form"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{i18n>module.info}">
+		<Panel headerText="{i18n>info.versionInfo}" class="sapUiResponsiveMargin" width="auto">
+			<f:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
+				<f:content>
+					<Label text="{i18n>info.appName}" />
+					<Text text="{info>/appName}" />
+					<Label text="{i18n>info.appVersion}" />
+					<Text text="{info>/appVersion}" />
+					<Label text="{i18n>info.ui5Version}" />
+					<Text text="{info>/ui5Version}" />
+					<Label text="{i18n>info.baseUrl}" />
+					<Text text="{info>/baseUrl}" />
+				</f:content>
+			</f:SimpleForm>
+		</Panel>
+		<Panel headerText="{i18n>info.clusterInfo}" class="sapUiResponsiveMargin" width="auto">
+			<Table items="{info>/nodes}" noDataText="{i18n>common.noData}">
+				<columns>
+					<Column><Text text="{i18n>info.nodeHost}" /></Column>
+					<Column><Text text="{i18n>info.nodeInternal}" /></Column>
+					<Column><Text text="{i18n>info.nodeVersion}" /></Column>
+					<Column hAlign="Center"><Text text="{i18n>info.nodeMaster}" /></Column>
+					<Column hAlign="Center"><Text text="{i18n>info.nodeData}" /></Column>
+					<Column hAlign="End"><Text text="{i18n>info.nodeCpu}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{info>publicHostAddress}" />
+							<Text text="{info>internalHostAddress}" />
+							<Text text="{info>serverInfo/serverVersion}" />
+							<ObjectStatus state="{= ${info>master} ? 'Success' : 'None'}" text="{= ${info>master} ? '✓' : '—'}" />
+							<ObjectStatus state="{= ${info>data} ? 'Success' : 'None'}" text="{= ${info>data} ? '✓' : '—'}" />
+							<Text text="{= (${info>cpuLoad} * 100).toFixed(1) + ' %'}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</Panel>
+	</Page>
+</mvc:View>

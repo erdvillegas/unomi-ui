@@ -37,6 +37,32 @@ As of this writing the repo contains only these docs; the UI5 app is not scaffol
 - Condition editing starts as **raw JSON in a CodeEditor**, not a visual tree builder
   (see plan, phase 3). Marked with a `ponytail:` comment where it lives.
 
+## Design / style (SAP Horizon)
+
+Align UI to the **SAP Horizon** design system (the current Fiori generation).
+`sap.com/design-system` 403s bots and the Fiori guideline pages redirect there, so
+follow these codified conventions instead of re-fetching:
+
+- **Theme**: `sap_horizon` (set in `index.html` bootstrap). It brings the **72** font
+  and Horizon icons automatically — use stock controls so they inherit; don't hardcode
+  fonts/colors. Prefer semantic controls/props (`type="Emphasized"`, `ObjectStatus`
+  states) over inline styling.
+- **Content density**: `Component.getContentDensityClass()` returns `sapUiSizeCompact`
+  on desktop / `sapUiSizeCozy` on touch, applied to the root view in `App.onInit`. New
+  screens inherit it — don't override per-view.
+- **Shell**: `sap.tnt.ToolPage` with `ToolHeader` (hamburger + centered title) and
+  `SideNavigation`; side nav is collapsed when logged out (gated on
+  `UnomiClient.isAuthenticated()`), expanded once authenticated.
+- **Home / landing**: Launchpad look — neutral page background + white `GenericTile`s
+  (icon + header + subheader) in a wrapping `FlexBox`, **not** colored
+  `BlockLayoutCell`s (that's the older Belize demo style). Tiles carry their target
+  route in custom data `app:nav` and navigate via a single `onNav` handler.
+- **Spacing**: use UI5 margin/padding classes (`sapUiSmallMargin`, `sapUiTinyMargin…`),
+  never pixel styles.
+- **BRM editor**: the visual condition/action editor (`control/brm/conditionEditor.ts`)
+  is the standard for every typed `Condition` tree (segments, rules, scoring elements,
+  goals, campaigns); the raw JSON tree is only the per-node "advanced" fallback.
+
 ## CORS
 
 The UI dev server and Unomi run on different ports, so the browser blocks direct calls.

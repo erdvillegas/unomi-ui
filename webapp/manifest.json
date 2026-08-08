@@ -17,6 +17,7 @@
     "deviceTypes": { "desktop": true, "tablet": true, "phone": true }
   },
   "sap.ui5": {
+    "contentDensities": {"cozy": true,"compact": false},
     "rootView": {
       "viewName": "unomi.ui.view.App",
       "type": "XML",
@@ -42,7 +43,7 @@
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
           "bundleName": "unomi.ui.i18n.i18n",
-          "supportedLocales": ["", "en"],
+          "supportedLocales": ["", "en", "es"],
           "fallbackLocale": ""
         }
       }
@@ -59,7 +60,8 @@
         "async": true
       },
       "routes": [
-        { "name": "login", "pattern": "", "target": "login" },
+        { "name": "home", "pattern": "", "target": "home" },
+        { "name": "login", "pattern": "login", "target": "login" },
         { "name": "profiles", "pattern": "profiles", "target": "profiles" },
         { "name": "profileDetail", "pattern": "profiles/{profileId}", "target": "profileDetail" },
         { "name": "events", "pattern": "events", "target": "events" },
@@ -85,10 +87,12 @@
         { "name": "exportConfig", "pattern": "exportConfig", "target": "configIO" },
         { "name": "exportConfigDetail", "pattern": "exportConfig/{itemId}", "target": "exportConfigDetail" },
         { "name": "definitions", "pattern": "definitions", "target": "definitions" },
-        { "name": "settings", "pattern": "settings", "target": "settings" }
+        { "name": "settings", "pattern": "settings", "target": "settings" },
+        { "name": "info", "pattern": "info", "target": "info" }
       ],
       "targets": {
         "login": { "id": "login", "name": "Login" },
+        "home": { "id": "home", "name": "Home" },
         "profiles": { "id": "profiles", "name": "ProfileList" },
         "profileDetail": { "id": "profileDetail", "name": "ProfileDetail" },
         "events": { "id": "events", "name": "EventList" },
@@ -113,7 +117,8 @@
         "importConfigDetail": { "id": "importConfigDetail", "name": "ItemDetail" },
         "exportConfigDetail": { "id": "exportConfigDetail", "name": "ItemDetail" },
         "definitions": { "id": "definitions", "name": "DefinitionCatalog" },
-        "settings": { "id": "settings", "name": "Settings" }
+        "settings": { "id": "settings", "name": "Settings" },
+        "info": { "id": "info", "name": "info" }
       }
     }
   }

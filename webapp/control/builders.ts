@@ -18,6 +18,10 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 // from /definitions/*; only the type catalog differs. ponytail: full re-render of
 // the root on structural change (small hand-built trees), one refresh callback.
 
+// Label + control on one line — shared by the guided source/export editors.
+export const row = (label: string, ctrl: Control): HBox =>
+	new HBox({ alignItems: "Center", items: [new Label({ text: label, width: "10rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
+
 export interface Param { id: string; type: string; multivalued: boolean; }
 export interface Node { type: string; parameterValues: Record<string, any>; }
 export interface Defs {
@@ -52,7 +56,7 @@ export const emptyCondition = (): Node => ({ type: "matchAllCondition", paramete
 export function conditionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
 	return typedPanel(node, defs.condTypes, defs.cond, defs, refresh, onRemove);
 }
-export function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
+function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
 	return typedPanel(node, defs.actionTypes, defs.action, defs, refresh, onRemove);
 }
 
@@ -114,7 +118,7 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 // the profile's `properties` map by id. Boolean → CheckBox, integer → number Input,
 // everything else → text Input. Missing values render empty so the user can fill them.
 export interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
-export function nativePropsBox(map: Record<string, any>, defs: NativeProp[], refresh: () => void): VBox {
+export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): VBox {
 	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
 	defs.forEach((d) => {
 		const label = new Label({ text: d.name || d.id, width: "35%", tooltip: d.id });

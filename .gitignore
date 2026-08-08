@@ -6,6 +6,7 @@ dist/
 
 # UI5 tooling
 .ui5/
+tmp/
 
 # Env / secrets
 .env

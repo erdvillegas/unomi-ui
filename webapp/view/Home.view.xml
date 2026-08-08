@@ -1,0 +1,41 @@
+<mvc:View
+	controllerName="unomi.ui.controller.Home"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+	<Page showHeader="false" backgroundDesign="List" class="sapUiContentPadding">
+		<VBox class="sapUiMediumMargin">
+			<Title text="{app>/appName}" level="H1" titleStyle="H1" />
+			<Text text="{i18n>home.subtitle}" class="sapUiTinyMarginTop" />
+
+			<!-- Sin sesión: sólo un aviso + acceso, ningún control de administración. -->
+			<MessageStrip visible="{= !${session>/authed} }" type="Information" showIcon="true"
+				text="{i18n>home.loggedOutHint}" class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
+			<Button visible="{= !${session>/authed} }" text="{i18n>login.connect}" type="Emphasized"
+				icon="sap-icon://log" press=".onLogin" width="12rem" />
+
+			<!-- Con sesión: grupo de tiles estilo Launchpad (Horizon). -->
+			<FlexBox visible="{session>/authed}" wrap="Wrap" class="sapUiMediumMarginTop">
+				<GenericTile header="{i18n>module.profiles}" subheader="{i18n>home.profiles}" press=".onNav" app:nav="profiles" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://person-placeholder" /></content></TileContent></tileContent>
+				</GenericTile>
+				<GenericTile header="{i18n>module.events}" subheader="{i18n>home.events}" press=".onNav" app:nav="events" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://newspaper" /></content></TileContent></tileContent>
+				</GenericTile>
+				<GenericTile header="{i18n>module.segments}" subheader="{i18n>home.segments}" press=".onNav" app:nav="segments" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://group" /></content></TileContent></tileContent>
+				</GenericTile>
+				<GenericTile header="{i18n>module.scoring}" subheader="{i18n>home.scoring}" press=".onNav" app:nav="scoring" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://target-group" /></content></TileContent></tileContent>
+				</GenericTile>
+				<GenericTile header="{i18n>module.campaigns}" subheader="{i18n>home.campaigns}" press=".onNav" app:nav="campaigns" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://marketing-campaign" /></content></TileContent></tileContent>
+				</GenericTile>
+				<GenericTile header="{i18n>io.title}" subheader="{i18n>home.configIO}" press=".onNav" app:nav="importConfig" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://upload" /></content></TileContent></tileContent>
+				</GenericTile>
+			</FlexBox>
+		</VBox>
+	</Page>
+</mvc:View>

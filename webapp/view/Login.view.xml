@@ -3,11 +3,13 @@
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns="sap.m"
 	displayBlock="true">
-	<Page title="{i18n>loginTitle}">
-		<VBox width="22rem" class="sapUiLargeMargin">
-			<Input id="userInput" value="karaf" placeholder="{i18n>user}" />
-			<Input id="passInput" value="karaf" type="Password" placeholder="{i18n>password}" submit=".onLogin" class="sapUiSmallMarginTop" />
-			<Button text="{i18n>connect}" type="Emphasized" press=".onLogin" class="sapUiSmallMarginTop" />
-		</VBox>
+	<Page title="{i18n>login.title}">
+		<FlexBox height="100%" justifyContent="Center" alignItems="Center">
+			<VBox width="22rem" class="sapUiLargeMargin">
+				<Input id="userInput" value="karaf" placeholder="{i18n>login.user}" />
+				<Input id="passInput" value="karaf" type="Password" placeholder="{i18n>login.password}" submit=".onLogin" class="sapUiSmallMarginTop" />
+				<Button text="{i18n>login.connect}" type="Emphasized" press=".onLogin" class="sapUiSmallMarginTop" />
+			</VBox>
+		</FlexBox>
 	</Page>
 </mvc:View>

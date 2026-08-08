@@ -1,11 +1,15 @@
 import BaseController from "unomi/ui/controller/BaseController";
 import Event from "sap/ui/base/Event";
+import JSONModel from "sap/ui/model/json/JSONModel";
 import SideNavigation from "sap/tnt/SideNavigation";
 import ToolPage from "sap/tnt/ToolPage";
+import Component from "unomi/ui/Component";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 
 // Route name -> side-nav key (detail routes highlight their parent section).
 const NAV_KEY: Record<string, string> = {
+	login: "login",
+	home: "home",
 	profiles: "profiles", profileDetail: "profiles",
 	events: "events", eventDetail: "events",
 	segments: "segments", segmentDetail: "segments",
@@ -19,7 +23,8 @@ const NAV_KEY: Record<string, string> = {
 	importConfig: "importConfig", importConfigDetail: "importConfig",
 	exportConfig: "exportConfig", exportConfigDetail: "exportConfig",
 	definitions: "definitions",
-	settings: "settings"
+	settings: "settings",
+	info: "info"
 };
 
 /**
@@ -28,13 +33,15 @@ const NAV_KEY: Record<string, string> = {
 export default class App extends BaseController {
 
 	public onInit(): void {
+		this.getView()?.addStyleClass((this.getOwnerComponent() as Component).getContentDensityClass());
 		this.getRouter().attachRouteMatched(this.onRouteMatched, this);
 	}
 
 	private onRouteMatched(event: Event): void {
 		const name = event.getParameter("name" as never) as string;
-		const isLogin = name === "login";
-		(this.byId("toolPage") as ToolPage).setSideExpanded(!isLogin);
+		// Logged out → nav shows only the Login entry (item visibility bound to session>/authed).
+		(this.getOwnerComponent()?.getModel("session") as JSONModel).setProperty("/authed", UnomiClient.isAuthenticated());
+		(this.byId("toolPage") as ToolPage).setSideExpanded(name !== "login");
 		(this.byId("sideNav") as SideNavigation).setSelectedKey(NAV_KEY[name] ?? "");
 	}
 
