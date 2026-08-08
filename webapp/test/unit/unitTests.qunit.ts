@@ -7,4 +7,5 @@ import "unomi/ui/test/unit/control/conditionEditor.qunit";
 import "unomi/ui/test/unit/control/builders.qunit";
 import "unomi/ui/test/unit/control/formEngine.qunit";
 import "unomi/ui/test/unit/control/guidedEditors.qunit";
+import "unomi/ui/test/unit/control/refSelect.qunit";
 import "unomi/ui/test/unit/model/forms.qunit";
