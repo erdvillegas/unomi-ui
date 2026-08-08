@@ -13,6 +13,12 @@ framework:
     - name: sap.tnt
     - name: themelib_sap_horizon
 builder:
+  # Keep the test suite out of the production bundle: tests are a dev-only tool
+  # (they run via `ui5 serve` + the test-resources-rewrite middleware, which is
+  # not part of a build). This stops dist/test/** from shipping to prod.
+  resources:
+    excludes:
+      - "/test/**"
   customTasks:
     - name: ui5-tooling-transpile-task
       afterTask: replaceVersion
