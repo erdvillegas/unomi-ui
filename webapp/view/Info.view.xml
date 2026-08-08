@@ -4,30 +4,30 @@
 	xmlns:f="sap.ui.layout.form"
 	xmlns="sap.m"
 	displayBlock="true">
-	<Page title="{i18n>info}">
-		<Panel headerText="{i18n>versionInfo}" class="sapUiResponsiveMargin" width="auto">
+	<Page title="{i18n>module.info}">
+		<Panel headerText="{i18n>info.versionInfo}" class="sapUiResponsiveMargin" width="auto">
 			<f:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
 				<f:content>
-					<Label text="{i18n>appName}" />
+					<Label text="{i18n>info.appName}" />
 					<Text text="{info>/appName}" />
-					<Label text="{i18n>appVersion}" />
+					<Label text="{i18n>info.appVersion}" />
 					<Text text="{info>/appVersion}" />
-					<Label text="{i18n>ui5Version}" />
+					<Label text="{i18n>info.ui5Version}" />
 					<Text text="{info>/ui5Version}" />
-					<Label text="{i18n>baseUrl}" />
+					<Label text="{i18n>info.baseUrl}" />
 					<Text text="{info>/baseUrl}" />
 				</f:content>
 			</f:SimpleForm>
 		</Panel>
-		<Panel headerText="{i18n>clusterInfo}" class="sapUiResponsiveMargin" width="auto">
-			<Table items="{info>/nodes}" noDataText="{i18n>noData}">
+		<Panel headerText="{i18n>info.clusterInfo}" class="sapUiResponsiveMargin" width="auto">
+			<Table items="{info>/nodes}" noDataText="{i18n>common.noData}">
 				<columns>
-					<Column><Text text="{i18n>nodeHost}" /></Column>
-					<Column><Text text="{i18n>nodeInternal}" /></Column>
-					<Column><Text text="{i18n>nodeVersion}" /></Column>
-					<Column hAlign="Center"><Text text="{i18n>nodeMaster}" /></Column>
-					<Column hAlign="Center"><Text text="{i18n>nodeData}" /></Column>
-					<Column hAlign="End"><Text text="{i18n>nodeCpu}" /></Column>
+					<Column><Text text="{i18n>info.nodeHost}" /></Column>
+					<Column><Text text="{i18n>info.nodeInternal}" /></Column>
+					<Column><Text text="{i18n>info.nodeVersion}" /></Column>
+					<Column hAlign="Center"><Text text="{i18n>info.nodeMaster}" /></Column>
+					<Column hAlign="Center"><Text text="{i18n>info.nodeData}" /></Column>
+					<Column hAlign="End"><Text text="{i18n>info.nodeCpu}" /></Column>
 				</columns>
 				<items>
 					<ColumnListItem>
