@@ -19,5 +19,29 @@
 				</f:content>
 			</f:SimpleForm>
 		</Panel>
+		<Panel headerText="{i18n>clusterInfo}" class="sapUiResponsiveMargin" width="auto">
+			<Table items="{info>/nodes}" noDataText="{i18n>noData}">
+				<columns>
+					<Column><Text text="{i18n>nodeHost}" /></Column>
+					<Column><Text text="{i18n>nodeInternal}" /></Column>
+					<Column><Text text="{i18n>nodeVersion}" /></Column>
+					<Column hAlign="Center"><Text text="{i18n>nodeMaster}" /></Column>
+					<Column hAlign="Center"><Text text="{i18n>nodeData}" /></Column>
+					<Column hAlign="End"><Text text="{i18n>nodeCpu}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{info>publicHostAddress}" />
+							<Text text="{info>internalHostAddress}" />
+							<Text text="{info>serverInfo/serverVersion}" />
+							<ObjectStatus state="{= ${info>master} ? 'Success' : 'None'}" text="{= ${info>master} ? '✓' : '—'}" />
+							<ObjectStatus state="{= ${info>data} ? 'Success' : 'None'}" text="{= ${info>data} ? '✓' : '—'}" />
+							<Text text="{= (${info>cpuLoad} * 100).toFixed(1) + ' %'}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</Panel>
 	</Page>
 </mvc:View>
