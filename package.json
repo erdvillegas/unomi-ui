@@ -6,11 +6,18 @@
   "scripts": {
     "start": "ui5 serve --port 8090 --open index.html",
     "build": "ui5 build --clean-dest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "karma start --single-run",
+    "test:watch": "karma start"
   },
   "devDependencies": {
     "@openui5/types": "^1.120.0",
+    "@types/qunit": "^2.19.0",
     "@ui5/cli": "^4.0.0",
+    "karma": "^6.4.0",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.0",
+    "karma-ui5": "^4.0.0",
     "typescript": "^5.5.0",
     "ui5-middleware-simpleproxy": "^3.5.0",
     "ui5-tooling-transpile": "^3.0.0"
