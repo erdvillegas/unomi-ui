@@ -22,6 +22,7 @@ export default class SettingsController extends BaseController {
 		const cfg = (this.getView()?.getModel("settings") as JSONModel).getData() as Settings.AppSettings;
 		Settings.save(cfg);
 		UnomiClient.setBaseUrl(cfg.baseUrl);
+		Settings.applyTheme(cfg.theme);
 		(this.getOwnerComponent()?.getModel("app") as JSONModel).setData(cfg);
 		MessageToast.show("Saved");
 	}
