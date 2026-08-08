@@ -114,7 +114,7 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 // the profile's `properties` map by id. Boolean → CheckBox, integer → number Input,
 // everything else → text Input. Missing values render empty so the user can fill them.
 export interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
-export function nativePropsBox(map: Record<string, any>, defs: NativeProp[], refresh: () => void): VBox {
+export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): VBox {
 	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
 	defs.forEach((d) => {
 		const label = new Label({ text: d.name || d.id, width: "35%", tooltip: d.id });
