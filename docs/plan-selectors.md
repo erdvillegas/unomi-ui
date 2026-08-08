@@ -179,6 +179,14 @@ acepta un id real de la lista y resetea `parameterValues` al cambiar. El menú "
 del BRM ya buscaba (`SelectDialog`), sin cambios. Es el catálogo de mayor retorno tras los
 de referencia (ver §8); no toca `Catalog`/`refMap` porque es el *tipo*, no un parámetro.
 
+**Fase 8 — Picker de nombres de propiedad. ✅** `propSelect` (en `refSelect.ts`): carga las
+propiedades del target desde `Catalog.getProps()` y aplica el prefijo `properties.`
+(profile/session) igual que las filas del BRM, dejando texto libre para rutas anidadas/de
+sistema. Enganchado en el editor técnico (`builders.renderParams`) y en el render genérico
+de params del BRM (`renderParam`), con el target derivado del tipo del nodo (default
+profile). Las filas de propiedad especializadas del BRM (`row()`) no cambian. Cierra el caso
+que se había excluido de `refMap` a propósito.
+
 ---
 
 ## 5. Riesgos y decisiones
@@ -216,8 +224,9 @@ en la Fase 3; las fases 4–5 propagan el mismo selector a condiciones y accione
 | 5 | `1ac8dc2` | feat(selectors): refMap-driven pickers in the technical action editor |
 | 6 | `064a44f` | feat(selectors): invalidate catalog cache on save/delete/logout/base-url |
 | 7 | `bac7988` | feat(selectors): searchable type picker in the technical editor |
+| 8 | `7100518` | feat(selectors): property-name picker for propertyName params |
 
-Suite final: **71/71 SUCCESS**, `tsc --noEmit` limpio.
+Suite final: **73/73 SUCCESS**, `tsc --noEmit` limpio.
 
 ---
 
@@ -228,9 +237,10 @@ cubiertos (§2). Lo que queda:
 
 | Candidato | Endpoint | Dónde | Valor |
 |---|---|---|---|
-| **Nombres de propiedad** | `/profiles/properties` (+ `/profiles/existingProperties`) | params `propertyName`, `setPropertyName`, `sourcePropertyName` | Medio-alto. Es el caso excluido de `refMap`: necesita target (profile vs session) y forma distinta a `Opt[]`. |
+| ~~Nombres de propiedad~~ | `/profiles/properties` | params `*PropertyName` | ✅ **Hecho en Fase 8** (`propSelect`). |
 | **Rules** | `/rules` | solo si algún param referencia un id de regla (poco común) | Bajo — verificar contra el contenedor vivo antes. |
 | **JSON Schemas** | `/jsonSchema` | referencias a esquemas de validación de eventos | Nicho. |
+| **existingProperties** | `/profiles/existingProperties` | enriquecer el picker de propiedad con las realmente presentes en datos | Bajo — mejora incremental sobre `propSelect`. |
 
 **No enlazables:** `tags` (sin endpoint en 3.x), `importConfiguration`/`exportConfiguration`
 (no los referencia otro objeto), `cluster`/`privacy`/`profiles/count|export` (no son catálogos).
