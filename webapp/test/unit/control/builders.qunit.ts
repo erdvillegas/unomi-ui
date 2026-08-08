@@ -9,6 +9,8 @@ import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Button from "sap/m/Button";
 import Label from "sap/m/Label";
+import Toolbar from "sap/m/Toolbar";
+import ComboBox from "sap/m/ComboBox";
 import * as Catalog from "unomi/ui/service/Catalog";
 
 QUnit.module("control/builders — helpers");
@@ -136,6 +138,21 @@ QUnit.test("a reference param (scope) renders a searchable picker, not a plain I
 	assert.notOk(controls.includes("sap.m.Input"), "not a free-text Input");
 	window.fetch = orig;
 	Catalog.invalidate();
+});
+
+QUnit.test("type picker is a searchable ComboBox that resets params on change", (assert) => {
+	const defs = emptyDefs();
+	defs.condTypes = ["aCond", "bCond"];
+	defs.cond = { aCond: [], bCond: [] };
+	const node: Node = { type: "aCond", parameterValues: { x: 1 } };
+	const panel = conditionPanel(node, defs, () => { /* refresh */ });
+	const header = panel.getHeaderToolbar() as Toolbar;
+	const cb = header.getContent().find((c) => c.isA("sap.m.ComboBox")) as ComboBox;
+	assert.ok(cb, "type control is a ComboBox (searchable)");
+	cb.setSelectedKey("bCond");
+	cb.fireSelectionChange({ selectedItem: cb.getItems()[1] });
+	assert.strictEqual(node.type, "bCond", "type updated from selection");
+	assert.deepEqual(node.parameterValues, {}, "params reset on type change");
 });
 
 QUnit.test("actionsList builds a panel per action plus an add button", (assert) => {

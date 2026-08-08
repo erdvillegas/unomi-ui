@@ -4,6 +4,7 @@ import HBox from "sap/m/HBox";
 import Toolbar from "sap/m/Toolbar";
 import ToolbarSpacer from "sap/m/ToolbarSpacer";
 import Select from "sap/m/Select";
+import ComboBox from "sap/m/ComboBox";
 import Item from "sap/ui/core/Item";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
@@ -63,9 +64,13 @@ function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () 
 }
 
 function typedPanel(node: Node, typeIds: string[], defmap: Record<string, Param[]>, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
-	const sel = new Select({ selectedKey: node.type });
+	// Searchable type picker: 100+ condition/action types, so type-ahead beats a plain
+	// dropdown. Only a real type id (from the list) is accepted, then params reset.
+	const sel = new ComboBox({ selectedKey: node.type, width: "22rem" });
 	typeIds.forEach((t) => sel.addItem(new Item({ key: t, text: t })));
-	sel.attachChange(() => { node.type = sel.getSelectedKey(); node.parameterValues = {}; refresh(); });
+	const apply = (key: string): void => { if (key && key !== node.type && typeIds.indexOf(key) >= 0) { node.type = key; node.parameterValues = {}; refresh(); } };
+	sel.attachSelectionChange((e: Event) => apply(((e.getParameter("selectedItem" as never) as Item)?.getKey()) || ""));
+	sel.attachChange(() => apply(sel.getSelectedKey()));
 	const header = new Toolbar({ content: [new Label({ text: "type" }), sel, new ToolbarSpacer()] });
 	if (onRemove) {
 		header.addContent(new Button({ icon: "sap-icon://decline", tooltip: "Remove", press: onRemove }));
