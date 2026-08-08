@@ -12,6 +12,8 @@ import Button from "sap/m/Button";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import { refFor } from "unomi/ui/control/refMap";
+import { refSelect } from "unomi/ui/control/refSelect";
 
 // Shared recursive editor for Unomi's typed Condition/Action trees. Both use the
 // same node shape ({ type, parameterValues }) and the same parameter model coming
@@ -76,6 +78,7 @@ function typedPanel(node: Node, typeIds: string[], defmap: Record<string, Param[
 function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => void, body: VBox): void {
 	params.forEach((p) => {
 		const nested = p.type.toLowerCase() === "condition"; // "Condition" (cond) or "condition" (action)
+		const refKey = refFor(node.type, p.id); // scope/listIdentifiers/eventType/… → picker
 		if (nested && p.multivalued) {
 			const arr = (node.parameterValues[p.id] ??= []) as Node[];
 			body.addItem(new Label({ text: p.id, design: "Bold" }));
@@ -100,6 +103,9 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 			const cb = new CheckBox({ text: p.id, selected: !!node.parameterValues[p.id] });
 			cb.attachSelect(() => (node.parameterValues[p.id] = cb.getSelected()));
 			body.addItem(cb);
+		} else if (refKey) {
+			body.addItem(new Label({ text: p.id }));
+			body.addItem(refSelect(refKey, node.parameterValues[p.id], p.multivalued, (val) => (node.parameterValues[p.id] = val)));
 		} else {
 			const v = node.parameterValues[p.id];
 			const shown = p.multivalued ? (Array.isArray(v) ? v.join(", ") : "") : (v == null ? "" : String(v));
