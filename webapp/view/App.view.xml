@@ -42,6 +42,7 @@
 					<tnt:NavigationList>
 						<tnt:NavigationListItem text="{i18n>settings}" icon="sap-icon://action-settings" key="settings" />
 						<tnt:NavigationListItem text="{i18n>logout}" icon="sap-icon://log" key="logout" />
+						<tnt:NavigationListItem text="{i18n>info}" icon="sap-icon://information" key="info"/>
 					</tnt:NavigationList>
 				</tnt:fixedItem>
 			</tnt:SideNavigation>
