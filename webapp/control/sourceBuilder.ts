@@ -7,6 +7,7 @@ import Select from "sap/m/Select";
 import Item from "sap/ui/core/Item";
 import Text from "sap/m/Text";
 import Control from "sap/ui/core/Control";
+import { row } from "unomi/ui/control/builders";
 
 // Guided editor for a recurrent import `properties.source` (a Camel file/ftp URI).
 // The user picks from fixed options (protocol, match mode, delay unit) and fills
@@ -82,9 +83,6 @@ export function parseSource(url: string): SourceParts {
 	if (params.has("move")) { p.move = params.get("move") as string; }
 	return p;
 }
-
-const row = (label: string, ctrl: Control): HBox =>
-	new HBox({ alignItems: "Center", items: [new Label({ text: label, width: "10rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
 
 // `props` is the config's `properties` object; we read/write `props.source`.
 // `refresh` fully re-renders the panel (used when a choice changes which fields show).

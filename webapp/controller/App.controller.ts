@@ -34,14 +34,13 @@ export default class App extends BaseController {
 
 	public onInit(): void {
 		this.getView()?.addStyleClass((this.getOwnerComponent() as Component).getContentDensityClass());
-		this.getView()?.setModel(new JSONModel({ authed: false }), "nav");
 		this.getRouter().attachRouteMatched(this.onRouteMatched, this);
 	}
 
 	private onRouteMatched(event: Event): void {
 		const name = event.getParameter("name" as never) as string;
-		// Logged out → nav shows only the Login entry (item visibility bound to nav>/authed).
-		(this.getView()?.getModel("nav") as JSONModel).setProperty("/authed", UnomiClient.isAuthenticated());
+		// Logged out → nav shows only the Login entry (item visibility bound to session>/authed).
+		(this.getOwnerComponent()?.getModel("session") as JSONModel).setProperty("/authed", UnomiClient.isAuthenticated());
 		(this.byId("toolPage") as ToolPage).setSideExpanded(name !== "login");
 		(this.byId("sideNav") as SideNavigation).setSelectedKey(NAV_KEY[name] ?? "");
 	}

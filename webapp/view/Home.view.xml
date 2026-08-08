@@ -10,13 +10,13 @@
 			<Text text="{i18n>home.subtitle}" class="sapUiTinyMarginTop" />
 
 			<!-- Sin sesión: sólo un aviso + acceso, ningún control de administración. -->
-			<MessageStrip visible="{= !${home>/authed} }" type="Information" showIcon="true"
+			<MessageStrip visible="{= !${session>/authed} }" type="Information" showIcon="true"
 				text="{i18n>home.loggedOutHint}" class="sapUiMediumMarginTop sapUiSmallMarginBottom" />
-			<Button visible="{= !${home>/authed} }" text="{i18n>login.connect}" type="Emphasized"
+			<Button visible="{= !${session>/authed} }" text="{i18n>login.connect}" type="Emphasized"
 				icon="sap-icon://log" press=".onLogin" width="12rem" />
 
 			<!-- Con sesión: grupo de tiles estilo Launchpad (Horizon). -->
-			<FlexBox visible="{home>/authed}" wrap="Wrap" class="sapUiMediumMarginTop">
+			<FlexBox visible="{session>/authed}" wrap="Wrap" class="sapUiMediumMarginTop">
 				<GenericTile header="{i18n>module.profiles}" subheader="{i18n>home.profiles}" press=".onNav" app:nav="profiles" class="sapUiTinyMargin" width="15rem">
 					<tileContent><TileContent><content><ImageContent src="sap-icon://person-placeholder" /></content></TileContent></tileContent>
 				</GenericTile>
