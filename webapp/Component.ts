@@ -14,8 +14,9 @@ export default class Component extends UIComponent {
 	};
 
 	public init(): void {
-		super.init();
 		const cfg = Settings.load();
+		Settings.applyLanguage(cfg.language); // before super.init(): manifest i18n model reads it
+		super.init();
 		UnomiClient.setBaseUrl(cfg.baseUrl);
 		Settings.applyTheme(cfg.theme);
 		this.setModel(new JSONModel(cfg), "app");

@@ -4,6 +4,7 @@
  */
 
 import Theming from "sap/ui/core/Theming";
+import Localization from "sap/base/i18n/Localization";
 
 const KEY = "unomi-ui-settings";
 
@@ -11,9 +12,10 @@ export interface AppSettings {
 	appName: string;
 	baseUrl: string;
 	theme: string;
+	language: string; // "" = follow browser
 }
 
-const DEFAULTS: AppSettings = { appName: "Unomi UI", baseUrl: "/cxs", theme: "sap_horizon" };
+const DEFAULTS: AppSettings = { appName: "Unomi UI", baseUrl: "/cxs", theme: "sap_horizon", language: "" };
 
 export function load(): AppSettings {
 	try {
@@ -29,4 +31,10 @@ export function save(s: AppSettings): void {
 
 export function applyTheme(theme: string): void {
 	Theming.setTheme(theme || DEFAULTS.theme);
+}
+
+// ponytail: only sets an explicit language; "" leaves the browser default untouched
+// (switching back to auto needs a reload — acceptable for a settings change).
+export function applyLanguage(language: string): void {
+	if (language) { Localization.setLanguage(language); }
 }

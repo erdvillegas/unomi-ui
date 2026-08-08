@@ -9,53 +9,53 @@
 		navButtonPress=".onNavBack"
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
-		<Panel headerText="{i18n>properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+		<Panel headerText="{i18n>module.properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
 			<VBox id="propsHost" />
 		</Panel>
 
-		<Panel headerText="{i18n>aliases}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+		<Panel headerText="{i18n>profile.aliases}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
 			<headerToolbar>
 				<Toolbar>
-					<Title text="{i18n>aliases}" />
+					<Title text="{i18n>profile.aliases}" />
 					<ToolbarSpacer />
-					<Input id="aliasInput" placeholder="{i18n>aliasPlaceholder}" width="14rem" />
-					<Button text="{i18n>add}" icon="sap-icon://add" press=".onAddAlias" />
+					<Input id="aliasInput" placeholder="{i18n>profile.aliasPlaceholder}" width="14rem" />
+					<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddAlias" />
 				</Toolbar>
 			</headerToolbar>
-			<List items="{detail>/aliases}" mode="Delete" delete=".onRemoveAlias" noDataText="{i18n>noData}">
+			<List items="{detail>/aliases}" mode="Delete" delete=".onRemoveAlias" noDataText="{i18n>common.noData}">
 				<StandardListItem title="{detail>itemId}" />
 			</List>
 		</Panel>
 
-		<Panel headerText="{i18n>privacy}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+		<Panel headerText="{i18n>profile.privacy}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
 			<VBox class="sapUiSmallMargin">
 				<HBox alignItems="Center" class="sapUiTinyMarginBottom">
 					<Switch state="{detail>/anonBrowsing}" change=".onToggleAnonBrowsing" />
-					<Label text="{i18n>anonBrowsing}" class="sapUiSmallMarginBegin" />
+					<Label text="{i18n>profile.anonBrowsing}" class="sapUiSmallMarginBegin" />
 				</HBox>
 				<HBox>
-					<Button text="{i18n>anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" class="sapUiTinyMarginEnd" />
-					<Button text="{i18n>deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" />
+					<Button text="{i18n>profile.anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" class="sapUiTinyMarginEnd" />
+					<Button text="{i18n>profile.deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" />
 				</HBox>
 			</VBox>
 		</Panel>
 
-		<Panel headerText="{i18n>segments}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<List items="{detail>/segments}" noDataText="{i18n>noData}">
+		<Panel headerText="{i18n>module.segments}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<List items="{detail>/segments}" noDataText="{i18n>common.noData}">
 				<StandardListItem title="{detail>name}" description="{detail>id}" />
 			</List>
 		</Panel>
 
-		<Panel headerText="{i18n>sessions}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+		<Panel headerText="{i18n>profile.sessions}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
 			<Table
 				items="{detail>/sessions}"
 				mode="SingleSelectMaster"
 				itemPress=".onSessionPress"
-				noDataText="{i18n>noData}">
+				noDataText="{i18n>common.noData}">
 				<columns>
-					<Column><Text text="{i18n>colId}" /></Column>
-					<Column><Text text="{i18n>colTimestamp}" /></Column>
-					<Column><Text text="{i18n>colDuration}" /></Column>
+					<Column><Text text="{i18n>col.id}" /></Column>
+					<Column><Text text="{i18n>col.timestamp}" /></Column>
+					<Column><Text text="{i18n>col.duration}" /></Column>
 				</columns>
 				<items>
 					<ColumnListItem type="Active">
@@ -69,12 +69,12 @@
 			</Table>
 		</Panel>
 
-		<Panel headerText="{i18n>events}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<Table items="{detail>/events}" noDataText="{i18n>selectSession}">
+		<Panel headerText="{i18n>module.events}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<Table items="{detail>/events}" noDataText="{i18n>query.selectSession}">
 				<columns>
-					<Column><Text text="{i18n>colType}" /></Column>
-					<Column><Text text="{i18n>colScope}" /></Column>
-					<Column><Text text="{i18n>colTimestamp}" /></Column>
+					<Column><Text text="{i18n>col.type}" /></Column>
+					<Column><Text text="{i18n>col.scope}" /></Column>
+					<Column><Text text="{i18n>col.timestamp}" /></Column>
 				</columns>
 				<items>
 					<ColumnListItem>
@@ -90,7 +90,7 @@
 		<footer>
 			<Toolbar>
 				<ToolbarSpacer />
-				<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
+				<Button text="{i18n>common.save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
 			</Toolbar>
 		</footer>
 	</Page>
