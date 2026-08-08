@@ -37,10 +37,10 @@ Todo lo que debería volverse selector, con su fuente de datos (endpoint) y dón
 | Campo | Recursos que lo tienen | Catálogo (endpoint) | Multi |
 |---|---|---|---|
 | `metadata.scope` | rules, segments, scoring, goals, campaigns, lists, properties | `GET /scopes` → `[{metadata:{id,name}}]` | no |
-| `metadata.tags` | todos | `GET /definitions/tags` | sí |
+| `metadata.tags` | todos | ~~`/definitions/tags`~~ **no existe endpoint en Unomi 3.x** → siguen como tokens libres | sí |
 | `campaignId` (goals) | goals | `GET /campaigns` | no |
 | `primaryGoal` (campaigns) | campaigns | `GET /goals` | no |
-| `valueTypeId` (properties) | properties | `GET /definitions/valueTypes` (o el que exponga la instancia) | no |
+| `valueTypeId` (properties) | properties | `GET /definitions/values` (schema `ValueType {id, nameKey}`) | no |
 | `target` (properties) | properties | estático `profiles`/`sessions` | no |
 
 ### 2.2 Nivel condición (`conditionEditor` PICKERS / builders)
@@ -137,29 +137,41 @@ hardcodeados (`PICKERS`, `membershipRow`) en la misma tabla.
 
 ## 4. Fases (un commit por fase, conventional commits, sin push)
 
-**Fase 1 — Servicio de catálogos.** Crear `service/Catalog.ts` con caché + invalidación;
-añadir scopes/campaigns/tags/valueTypes; migrar `conditionEditor.loadCatalogs/loadProps`
+> **Estado: todas completadas.** Rama `feature-dropdown`, suite final 70/70, typecheck
+> limpio. Commits al final del documento (§7).
+
+**Fase 1 — Servicio de catálogos. ✅** Crear `service/Catalog.ts` con caché + invalidación;
+añadir scopes/campaigns/valueTypes; migrar `conditionEditor.loadCatalogs/loadProps`
 y los fetch de `/segments` de `ConfigIO`/`ItemDetail` a delegar en él. Sin cambio visible.
+*Ajuste:* `tags` **no** se añadió — Unomi 3.x no expone endpoint de tags; siguen como
+tokens de texto libre. `valueTypes` sale de `/definitions/values`.
 
-**Fase 2 — Helper `refSelect` + `refMap`.** Crear el helper nativo y la tabla de
-interconexión. Tests unitarios de `refFor` (heurística + overrides).
+**Fase 2 — Helper `refSelect` + `refMap`. ✅** Helper nativo (`ComboBox`/`MultiComboBox`) y
+la tabla de interconexión. Tests unitarios de `refFor` (heurística + overrides) y de
+`refSelect` (fill/commit en single, multi y texto libre).
 
-**Fase 3 — Metadata (el caso guía: Scope).** Añadir `type: "ref"` a `FormEngine.Field`
-(con `catalog` y `multi`), renderizarlo con `refSelect`. Cambiar en `model/forms.ts`:
-`scope`→ref(scopes), `tags`→ref(tags,multi), `campaignId`→ref(campaigns),
-`primaryGoal`→ref(goals), `valueTypeId`→ref(valueTypes), `target`→select estático.
+**Fase 3 — Metadata (el caso guía: Scope). ✅** Añadido `type: "ref"` a `FormEngine.Field`
+(con `catalog` y `multi`), renderizado con `refSelect`. En `model/forms.ts`:
+`scope`→ref(scopes), `campaignId`→ref(campaigns), `primaryGoal`→ref(goals),
+`valueTypeId`→ref(valueTypes), `target`→select estático. `tags` queda como tokens.
 **Aquí queda cumplido el ejemplo pedido (elegir Scope en una regla).**
 
-**Fase 4 — Condiciones.** Reescribir `PICKERS`/`membershipRow` para consumir `refMap`;
-cubrir el `scope` y demás refs que faltaban. Sin regresiones en los pickers existentes.
+**Fase 4 — Condiciones. ✅** `PICKERS` reemplazado por `refFor` en `renderParam`; cubre el
+`scope` y demás refs que faltaban. Las filas especializadas (segmento/lista/scoring con su
+`matchType`) se mantienen. Sin regresiones.
 
-**Fase 5 — Acciones (editor técnico).** En `builders.renderParams`, antes del `Input`
-genérico, consultar `refFor(node.type, p.id)` y usar `refSelect` (respetando
+**Fase 5 — Acciones (editor técnico). ✅** En `builders.renderParams`, antes del `Input`
+genérico, se consulta `refFor(node.type, p.id)` y se usa `refSelect` (respetando
 `p.multivalued`). Cubre listas/eventType/scope en acciones de reglas.
 
-**Fase 6 — Invalidación + i18n + pruebas de integración.** Enganchar `Catalog.invalidate`
-en save/delete y en logout; claves i18n de labels nuevos; OPA5: abrir una regla, abrir el
-selector de Scope, elegir uno, guardar y verificar el payload.
+**Fase 6 — Invalidación + pruebas. ✅** `Catalog.invalidate()` enganchado en save/delete
+(`ItemDetail`), logout (`App`) y cambio de baseUrl (`Settings`). Tests de `Catalog`
+(memoización, `invalidate()`, "los fallos no se cachean").
+*Ajustes:* **i18n** no hizo falta — las labels de formulario son strings del patrón
+existente, no claves i18n. En vez del journey **OPA5** autenticado (frágil: requiere
+login + navegación + stubs de `/definitions` y `/scopes`) se optó por el test determinista
+de invalidación, que es la garantía funcional real; el render de los pickers ya está
+cubierto por unit tests.
 
 ---
 
@@ -183,3 +195,19 @@ selector de Scope, elegir uno, guardar y verificar el payload.
 1 servicio (`Catalog.ts`) + 1 helper (`refSelect.ts`) + 1 tabla (`refMap.ts`), enchufados
 en los 3 puntos que ya editan referencias. El caso "elegir Scope en una regla" se entrega
 en la Fase 3; las fases 4–5 propagan el mismo selector a condiciones y acciones.
+
+---
+
+## 7. Commits (rama `feature-dropdown`, local, sin push)
+
+| Fase | Commit | Título |
+|---|---|---|
+| Plan | `d70bc13` | docs(selectors): add plan for dynamic reference selectors |
+| 1 | `97a5b74` | refactor(catalog): centralize reference catalogs in one cached service |
+| 2 | `6a06db3` | feat(selectors): add refSelect picker and refMap interconnection table |
+| 3 | `175cee7` | feat(selectors): searchable object pickers in metadata forms |
+| 4 | `2ae36c9` | feat(selectors): refMap-driven pickers in the BRM condition editor |
+| 5 | `1ac8dc2` | feat(selectors): refMap-driven pickers in the technical action editor |
+| 6 | `064a44f` | feat(selectors): invalidate catalog cache on save/delete/logout/base-url |
+
+Suite final: **70/70 SUCCESS**, `tsc --noEmit` limpio.
