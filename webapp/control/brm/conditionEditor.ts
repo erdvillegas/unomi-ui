@@ -25,15 +25,16 @@ import FilterOperator from "sap/ui/model/FilterOperator";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
-import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import * as Catalog from "unomi/ui/service/Catalog";
+import type { Opt, PropDef } from "unomi/ui/service/Catalog";
 import { Node, Defs, Param, conditionPanel, emptyCondition } from "unomi/ui/control/builders";
 
 // BRM-style visual editor: AND/OR/NOT groups + "property → operator → value" rows.
 // Rows map to profile/session PropertyCondition; anything else falls back to the
 // technical tree (builders.ts) without data loss.
 
-export interface PropDef { id: string; name: string; valueTypeId: string | null; }
-export interface Opt { id: string; name: string; }
+// Catalog types owned by service/Catalog; re-exported so existing importers keep working.
+export type { Opt, PropDef } from "unomi/ui/service/Catalog";
 type Target = "profile" | "session" | "event";
 type CatKey = "segments" | "scorings" | "lists" | "goals" | "eventTypes";
 export interface BrmCtx { defs: Defs; props: Record<Target, PropDef[]>; cat: Record<CatKey, Opt[]>; }
@@ -94,37 +95,16 @@ const DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss";
 const isMulti = (op: string) => ["in", "notIn", "between", "all", "hasSomeOf", "hasNoneOf"].includes(op);
 const noValue = (op: string) => op === "exists" || op === "missing";
 
-let propsCache: BrmCtx["props"] | null = null;
-export async function loadProps(): Promise<BrmCtx["props"]> {
-	if (propsCache) {
-		return propsCache;
-	}
-	const raw = await UnomiClient.getJson<Record<string, { valueTypeId?: string; metadata: { id: string; name?: string } }[]>>("/profiles/properties");
-	const map = (arr?: { valueTypeId?: string; metadata: { id: string; name?: string } }[]): PropDef[] =>
-		(arr || []).filter((p) => p && p.metadata && p.metadata.id).map((p) => ({ id: p.metadata.id, name: p.metadata.name || p.metadata.id, valueTypeId: p.valueTypeId || null }));
-	// Event properties have no catalog endpoint → free-text picker (empty list).
-	propsCache = { profile: map(raw.profiles), session: map(raw.sessions), event: [] };
-	return propsCache;
+// Both delegate to service/Catalog (single cache); shapes/normalization live there.
+export function loadProps(): Promise<BrmCtx["props"]> {
+	return Catalog.getProps();
 }
 
-// Segment / scoring / list catalogs for the picker-based condition rows.
-let catCache: BrmCtx["cat"] | null = null;
 export async function loadCatalogs(): Promise<BrmCtx["cat"]> {
-	if (catCache) {
-		return catCache;
-	}
-	const [segs, scos, lists, goals, evts] = await Promise.all([
-		UnomiClient.getJson<{ id: string; name?: string }[]>("/segments"),
-		UnomiClient.getJson<{ id: string; name?: string }[]>("/scoring"),
-		UnomiClient.getJson<{ list: { id: string; name?: string }[] }>("/lists"),
-		UnomiClient.getJson<{ id: string; name?: string }[]>("/goals"),
-		UnomiClient.getJson<string[]>("/events/types")
+	const [segments, scorings, lists, goals, eventTypes] = await Promise.all([
+		Catalog.get("segments"), Catalog.get("scorings"), Catalog.get("lists"), Catalog.get("goals"), Catalog.get("eventTypes")
 	]);
-	// ponytail: filter nulls/id-less — junk catalog rows (id="") crash the picker map.
-	const flat = (a: { id: string; name?: string }[]): Opt[] => (a || []).filter((x) => x && x.id).map((x) => ({ id: x.id, name: x.name || x.id }));
-	// /events/types is a plain string[]; goals are metadata objects.
-	catCache = { segments: flat(segs), scorings: flat(scos), lists: flat(lists.list || []), goals: flat(goals), eventTypes: (evts || []).map((e) => ({ id: e, name: e })) };
-	return catCache;
+	return { segments, scorings, lists, goals, eventTypes };
 }
 
 export function conditionEditor(root: Node, ctx: BrmCtx, refresh: () => void, showSummary = true): Control {

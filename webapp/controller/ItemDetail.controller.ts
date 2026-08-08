@@ -7,13 +7,13 @@ import VBox from "sap/m/VBox";
 import Panel from "sap/m/Panel";
 import Button from "sap/m/Button";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import * as Catalog from "unomi/ui/service/Catalog";
 import { buildForm } from "unomi/ui/control/FormEngine";
 import { formFields } from "unomi/ui/model/forms";
 import { loadDefs, conditionPanel, actionsList, elementPanel, emptyCondition, emptyDefs, Defs, Node } from "unomi/ui/control/builders";
 import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef } from "unomi/ui/control/brm/conditionEditor";
 import { sourceBuilder } from "unomi/ui/control/sourceBuilder";
 import { exportPropsBuilder } from "unomi/ui/control/exportPropsBuilder";
-import { Metadata } from "unomi/ui/model/types";
 
 const meta = { id: "", name: "", scope: "systemscope", enabled: true };
 const RES: Record<string, { path: string; list: string; stats: boolean; template: object }> = {
@@ -176,7 +176,7 @@ export default class ItemDetail extends BaseController {
 		host.destroyItems();
 		let segments: { id: string; name: string }[] = [];
 		try {
-			segments = (await UnomiClient.getJson<Metadata[]>("/segments")).map((s) => ({ id: s.id, name: s.name || s.id }));
+			segments = await Catalog.get("segments");
 		} catch (e) {
 			MessageToast.show(`Segments failed: ${(e as Error).message}`);
 		}

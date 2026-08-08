@@ -5,7 +5,7 @@ import Event from "sap/ui/base/Event";
 import ListItemBase from "sap/m/ListItemBase";
 import FileUploader from "sap/ui/unified/FileUploader";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
-import { Metadata } from "unomi/ui/model/types";
+import * as Catalog from "unomi/ui/service/Catalog";
 
 interface Cfg { itemId: string; name?: string; active?: boolean; }
 
@@ -39,11 +39,11 @@ export default class ConfigIO extends BaseController {
 		model.setProperty("/busy", true);
 		try {
 			const [segments, exp, imp] = await Promise.all([
-				UnomiClient.getJson<Metadata[]>("/segments"),
+				Catalog.get("segments"),
 				UnomiClient.getJson<Cfg[]>("/exportConfiguration"),
 				UnomiClient.getJson<Cfg[]>("/importConfiguration")
 			]);
-			model.setProperty("/segments", [{ id: "", name: "(all profiles)" }, ...segments.map((s) => ({ id: s.id, name: s.name || s.id }))]);
+			model.setProperty("/segments", [{ id: "", name: "(all profiles)" }, ...segments]);
 			model.setProperty("/exportConfigs", exp);
 			model.setProperty("/importConfigs", imp);
 		} catch (e) {
