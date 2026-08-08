@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "noEmit": true,
     "lib": ["ES2022", "DOM"],
-    "types": ["@openui5/types"],
+    "types": ["@openui5/types", "qunit"],
     "baseUrl": "./",
     "paths": {
       "unomi/ui/*": ["webapp/*"]
