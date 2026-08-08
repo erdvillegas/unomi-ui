@@ -20,6 +20,9 @@ export default {
 	tests: {
 		"unit/unitTests": {
 			title: "Unit tests for unomi.ui"
+		},
+		"integration/opaTests": {
+			title: "Integration (OPA5) tests for unomi.ui"
 		}
 	}
 };
