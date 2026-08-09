@@ -162,11 +162,12 @@ export function keyValueBox(map: Record<string, any>, refresh: () => void, exclu
 	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
 	Object.keys(map).filter((k) => !exclude?.has(k)).forEach((k) => {
 		const cur = map[k];
-		const key = new Input({ value: k, width: "35%" });
-		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), width: "50%" });
+		const key = new Input({ value: k, width: "30%" });
+		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), width: "60%" });
 		key.attachChange(() => { const nk = key.getValue(); if (nk !== k) { map[nk] = map[k]; delete map[k]; refresh(); } });
 		val.attachChange(() => (map[key.getValue()] = parseValue(val.getValue())));
-		box.addItem(new HBox({ items: [key, val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } })] }).addStyleClass("sapUiTinyMarginBottom"));
+		// Full-width row so the key/value fields use the available width (not cramped).
+		box.addItem(new HBox({ width: "100%", wrap: "Wrap", alignItems: "Center", items: [key, val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } })] }).addStyleClass("sapUiTinyMarginBottom"));
 	});
 	box.addItem(new Button({ text: "+", icon: "sap-icon://add", press: () => { let i = 1; while (("key" + i) in map) { i++; } map["key" + i] = ""; refresh(); } }));
 	return box;
