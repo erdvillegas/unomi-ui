@@ -5,6 +5,7 @@ import Toolbar from "sap/m/Toolbar";
 import ToolbarSpacer from "sap/m/ToolbarSpacer";
 import Select from "sap/m/Select";
 import ComboBox from "sap/m/ComboBox";
+import SimpleForm from "sap/ui/layout/form/SimpleForm";
 import Item from "sap/ui/core/Item";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
@@ -134,28 +135,27 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 // Free key/value map editor (action `properties` param, profile properties, ...).
 // ponytail: value coercion via JSON.parse preserves numbers/booleans/objects
 // (nbOfVisits stays a number); a bare word that fails to parse stays a string.
-// Labeled inputs for Unomi's known/native profile property definitions, bound to
-// the profile's `properties` map by id. Boolean → CheckBox, integer → number Input,
-// everything else → text Input. Missing values render empty so the user can fill them.
+// Labeled inputs for Unomi's known/native profile property definitions, bound to the
+// profile's `properties` map by id. Boolean → CheckBox, integer → number Input, else
+// text Input; missing values render empty so the user can fill them. Laid out with a
+// responsive 2-column form (Horizon) so fields use the width instead of a cramped column.
 export interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
-export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): VBox {
-	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
+export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): SimpleForm {
+	const content: Control[] = [];
 	defs.forEach((d) => {
-		const label = new Label({ text: d.name || d.id, width: "35%", tooltip: d.id });
-		let field: Control;
+		content.push(new Label({ text: d.name || d.id, tooltip: d.id }));
 		if (d.valueTypeId === "boolean") {
 			const cb = new CheckBox({ selected: !!map[d.id] });
 			cb.attachSelect(() => (map[d.id] = cb.getSelected()));
-			field = cb;
+			content.push(cb);
 		} else {
 			const isInt = d.valueTypeId === "integer";
-			const inp = new Input({ value: map[d.id] == null ? "" : String(map[d.id]), type: isInt ? "Number" : "Text", width: "60%" });
+			const inp = new Input({ value: map[d.id] == null ? "" : String(map[d.id]), type: isInt ? "Number" : "Text" });
 			inp.attachChange(() => { const v = inp.getValue(); if (v === "") { delete map[d.id]; } else { map[d.id] = isInt ? Number(v) : v; } });
-			field = inp;
+			content.push(inp);
 		}
-		box.addItem(new HBox({ items: [label, field] }).addStyleClass("sapUiTinyMarginBottom"));
 	});
-	return box;
+	return new SimpleForm({ editable: true, layout: "ResponsiveGridLayout", labelSpanXL: 4, labelSpanL: 4, labelSpanM: 4, labelSpanS: 12, columnsXL: 2, columnsL: 2, columnsM: 1, content });
 }
 
 export function keyValueBox(map: Record<string, any>, refresh: () => void, exclude?: Set<string>): VBox {
