@@ -159,7 +159,7 @@ export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): Si
 }
 
 export function keyValueBox(map: Record<string, any>, refresh: () => void, exclude?: Set<string>): VBox {
-	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
+	const box = new VBox({ width: "100%" }).addStyleClass("sapUiSmallMarginBegin");
 	Object.keys(map).filter((k) => !exclude?.has(k)).forEach((k) => {
 		const cur = map[k];
 		const key = new Input({ value: k, width: "30%" });
