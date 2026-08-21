@@ -11,6 +11,7 @@ import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Label from "sap/m/Label";
 import Button from "sap/m/Button";
+import FlexItemData from "sap/m/FlexItemData";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
@@ -162,12 +163,12 @@ export function keyValueBox(map: Record<string, any>, refresh: () => void, exclu
 	const box = new VBox({ width: "100%" }).addStyleClass("sapUiSmallMarginBegin");
 	Object.keys(map).filter((k) => !exclude?.has(k)).forEach((k) => {
 		const cur = map[k];
-		const key = new Input({ value: k, width: "30%" });
-		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), width: "60%" });
+		const key = new Input({ value: k, width: "14rem" });
+		// The value field grows to fill the row; the key stays a fixed, readable width.
+		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), layoutData: new FlexItemData({ growFactor: 1 }) });
 		key.attachChange(() => { const nk = key.getValue(); if (nk !== k) { map[nk] = map[k]; delete map[k]; refresh(); } });
 		val.attachChange(() => (map[key.getValue()] = parseValue(val.getValue())));
-		// Full-width row so the key/value fields use the available width (not cramped).
-		box.addItem(new HBox({ width: "100%", wrap: "Wrap", alignItems: "Center", items: [key, val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } })] }).addStyleClass("sapUiTinyMarginBottom"));
+		box.addItem(new HBox({ width: "100%", alignItems: "Center", items: [key.addStyleClass("sapUiTinyMarginEnd"), val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } }).addStyleClass("sapUiTinyMarginBegin")] }).addStyleClass("sapUiTinyMarginBottom"));
 	});
 	box.addItem(new Button({ text: "+", icon: "sap-icon://add", press: () => { let i = 1; while (("key" + i) in map) { i++; } map["key" + i] = ""; refresh(); } }));
 	return box;
