@@ -86,6 +86,15 @@ QUnit.test("postJson posts body; del sends DELETE", async (assert) => {
 	assert.strictEqual(calls[1].init.method, "DELETE", "del DELETE");
 });
 
+QUnit.test("post parses JSON, and tolerates an empty body", async (assert) => {
+	stubFetch({ text: JSON.stringify({ male: 3, female: 2 }) });
+	const map = await UnomiClient.post<Record<string, number>>("/query/profile/properties.gender", { aggregate: {}, condition: {} });
+	assert.deepEqual(map, { male: 3, female: 2 }, "aggregation map parsed");
+	stubFetch({ text: "" });
+	const empty = await UnomiClient.post("/query/profile/count", {});
+	assert.strictEqual(empty, null, "empty body → null instead of a JSON parse crash");
+});
+
 QUnit.test("ping returns text; postCsv returns raw text", async (assert) => {
 	stubFetch({ text: "pong" });
 	assert.strictEqual(await UnomiClient.ping(), "pong", "ping text");

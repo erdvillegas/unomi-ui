@@ -79,10 +79,12 @@ export async function postJson(path: string, body: object): Promise<void> {
 	await request(path, { method: "POST", body: JSON.stringify(body) });
 }
 
-/** POST a JSON body and parse the JSON response (count → number, aggregation → map). */
-export async function post<T>(path: string, body: object): Promise<T> {
+/** POST a JSON body and parse the JSON response (count → number, aggregation → map).
+ * Tolerates an empty body (Unomi returns 204/empty when a query matches nothing). */
+export async function post<T>(path: string, body: object): Promise<T | null> {
 	const res = await request(path, { method: "POST", body: JSON.stringify(body) });
-	return (await res.json()) as T;
+	const text = await res.text();
+	return text ? (JSON.parse(text) as T) : null;
 }
 
 /** DELETE a resource. Response body (if any) is ignored. */

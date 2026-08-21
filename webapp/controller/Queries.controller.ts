@@ -96,7 +96,7 @@ export default class Queries extends BaseController {
 		try {
 			if (op === "count") {
 				const n = await UnomiClient.post<number>(`/query/${type}/count`, this.condition);
-				m.setProperty("/count", n);
+				m.setProperty("/count", n ?? 0);
 				m.setProperty("/isCount", true);
 				m.setProperty("/rows", []);
 			} else if (op === "aggregation") {
@@ -129,7 +129,7 @@ export default class Queries extends BaseController {
 		}
 	}
 
-	private toRows(map: Record<string, number>): { key: string; value: number }[] {
-		return Object.keys(map).map((k) => ({ key: k, value: map[k] }));
+	private toRows(map: Record<string, number> | null): { key: string; value: number }[] {
+		return map ? Object.keys(map).map((k) => ({ key: k, value: map[k] })) : [];
 	}
 }
