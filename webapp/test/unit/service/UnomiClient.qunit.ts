@@ -40,8 +40,10 @@ QUnit.test("credentials lifecycle", (assert) => {
 	assert.notOk(UnomiClient.isAuthenticated(), "starts unauthenticated");
 	UnomiClient.setCredentials("karaf", "karaf");
 	assert.ok(UnomiClient.isAuthenticated(), "authenticated after setCredentials");
+	assert.strictEqual(sessionStorage.getItem("unomi.auth"), "Basic " + btoa("karaf:karaf"), "persisted to sessionStorage for reload survival");
 	UnomiClient.clearCredentials();
 	assert.notOk(UnomiClient.isAuthenticated(), "cleared");
+	assert.strictEqual(sessionStorage.getItem("unomi.auth"), null, "sessionStorage cleared on logout");
 });
 
 QUnit.test("getJson: default base, Basic header, parsed body", async (assert) => {
