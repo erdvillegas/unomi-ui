@@ -1,0 +1,76 @@
+<mvc:View
+	controllerName="unomi.ui.controller.Queries"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m"
+	displayBlock="true">
+	<Page title="{i18n>module.queries}" busy="{q>/busy}" busyIndicatorDelay="0">
+		<Panel headerText="{i18n>queries.query}" class="sapUiResponsiveMargin" width="auto">
+			<VBox class="sapUiSmallMargin">
+				<HBox alignItems="Center" wrap="Wrap" class="sapUiTinyMarginBottom">
+					<Label text="{i18n>queries.itemType}" width="8rem" />
+					<Select selectedKey="{q>/type}" width="12rem" class="sapUiTinyMarginEnd">
+						<core:Item key="profile" text="{i18n>module.profiles}" />
+						<core:Item key="session" text="{i18n>queries.sessions}" />
+						<core:Item key="event" text="{i18n>module.events}" />
+					</Select>
+					<Label text="{i18n>queries.operation}" width="8rem" />
+					<Select selectedKey="{q>/operation}" width="14rem">
+						<core:Item key="count" text="{i18n>queries.count}" />
+						<core:Item key="aggregation" text="{i18n>queries.aggregation}" />
+						<core:Item key="metrics" text="{i18n>queries.metrics}" />
+					</Select>
+				</HBox>
+
+				<HBox alignItems="Center" class="sapUiTinyMarginBottom" visible="{= ${q>/operation} !== 'count' }">
+					<Label text="{i18n>queries.property}" width="8rem" />
+					<Input value="{q>/property}" placeholder="properties.nationality" width="20rem" />
+				</HBox>
+
+				<VBox visible="{= ${q>/operation} === 'metrics' }" class="sapUiTinyMarginBottom">
+					<Label text="{i18n>queries.metrics}" />
+					<HBox wrap="Wrap">
+						<CheckBox text="sum" selected="{q>/metrics/sum}" />
+						<CheckBox text="avg" selected="{q>/metrics/avg}" />
+						<CheckBox text="min" selected="{q>/metrics/min}" />
+						<CheckBox text="max" selected="{q>/metrics/max}" />
+						<CheckBox text="cardinalidad" selected="{q>/metrics/card}" />
+					</HBox>
+				</VBox>
+
+				<VBox id="aggHost" width="100%" visible="{= ${q>/operation} === 'aggregation' }" />
+			</VBox>
+		</Panel>
+
+		<Panel headerText="{i18n>queries.filter}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<VBox id="conditionHost" width="100%" class="sapUiSmallMargin" />
+		</Panel>
+
+		<Panel headerText="{i18n>queries.result}" class="sapUiResponsiveMargin" width="auto" visible="{q>/showResult}">
+			<VBox class="sapUiSmallMargin">
+				<ObjectNumber number="{q>/count}" emphasized="true" visible="{q>/isCount}" class="sapUiSmallMarginBottom" />
+				<Table items="{q>/rows}" visible="{= !${q>/isCount} }" noDataText="{i18n>common.noData}">
+					<columns>
+						<Column><Text text="{i18n>queries.bucket}" /></Column>
+						<Column hAlign="End"><Text text="{i18n>queries.value}" /></Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<Text text="{q>key}" />
+								<ObjectNumber number="{q>value}" />
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</Panel>
+
+		<footer>
+			<Toolbar>
+				<ToolbarSpacer />
+				<Button text="{i18n>queries.run}" type="Emphasized" icon="sap-icon://search" press=".onRun" />
+			</Toolbar>
+		</footer>
+	</Page>
+</mvc:View>

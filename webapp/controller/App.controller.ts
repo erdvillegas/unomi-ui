@@ -23,6 +23,7 @@ const NAV_KEY: Record<string, string> = {
 	properties: "properties", propertyDetail: "properties",
 	importConfig: "importConfig", importConfigDetail: "importConfig",
 	exportConfig: "exportConfig", exportConfigDetail: "exportConfig",
+	queries: "queries",
 	definitions: "definitions",
 	settings: "settings",
 	info: "info"

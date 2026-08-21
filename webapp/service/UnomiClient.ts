@@ -79,6 +79,12 @@ export async function postJson(path: string, body: object): Promise<void> {
 	await request(path, { method: "POST", body: JSON.stringify(body) });
 }
 
+/** POST a JSON body and parse the JSON response (count → number, aggregation → map). */
+export async function post<T>(path: string, body: object): Promise<T> {
+	const res = await request(path, { method: "POST", body: JSON.stringify(body) });
+	return (await res.json()) as T;
+}
+
 /** DELETE a resource. Response body (if any) is ignored. */
 export async function del(path: string): Promise<void> {
 	await request(path, { method: "DELETE" });
