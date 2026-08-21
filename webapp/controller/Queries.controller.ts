@@ -6,6 +6,7 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { loadDefs, emptyDefs, Defs, Node } from "unomi/ui/control/builders";
 import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef, emptyCondition } from "unomi/ui/control/brm/conditionEditor";
 import { aggregateBox, emptyAggregate, Aggregate } from "unomi/ui/control/brm/aggregateBuilder";
+import { propSelect, PropTarget } from "unomi/ui/control/refSelect";
 
 // Metric key -> whether it's selected by default. Joined with "/" into the metrics path.
 const METRICS = ["sum", "avg", "min", "max", "card"] as const;
@@ -53,6 +54,21 @@ export default class Queries extends BaseController {
 		}
 		this.renderCondition();
 		this.renderAggregate();
+		this.renderProperty();
+	}
+
+	// Property picker fed from the catalog for the selected item type (profile/session/event).
+	private renderProperty(): void {
+		const host = this.byId("propertyHost") as VBox;
+		host.destroyItems();
+		const m = this.getView()?.getModel("q") as JSONModel;
+		const target = m.getProperty("/type") as PropTarget;
+		host.addItem(propSelect(target, m.getProperty("/property"), (v) => m.setProperty("/property", v)));
+	}
+
+	// Item type drives which catalog of properties applies, so reload the picker.
+	public onTypeChange(): void {
+		this.renderProperty();
 	}
 
 	private renderCondition(): void {

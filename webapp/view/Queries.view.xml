@@ -9,7 +9,7 @@
 			<VBox class="sapUiSmallMargin">
 				<HBox alignItems="Center" wrap="Wrap" class="sapUiTinyMarginBottom">
 					<Label text="{i18n>queries.itemType}" width="8rem" />
-					<Select selectedKey="{q>/type}" width="12rem" class="sapUiTinyMarginEnd">
+					<Select selectedKey="{q>/type}" change=".onTypeChange" width="12rem" class="sapUiTinyMarginEnd">
 						<core:Item key="profile" text="{i18n>module.profiles}" />
 						<core:Item key="session" text="{i18n>queries.sessions}" />
 						<core:Item key="event" text="{i18n>module.events}" />
@@ -24,7 +24,7 @@
 
 				<HBox alignItems="Center" class="sapUiTinyMarginBottom" visible="{= ${q>/operation} !== 'count' }">
 					<Label text="{i18n>queries.property}" width="8rem" />
-					<Input value="{q>/property}" placeholder="properties.nationality" width="20rem" />
+					<VBox id="propertyHost" />
 				</HBox>
 
 				<VBox visible="{= ${q>/operation} === 'metrics' }" class="sapUiTinyMarginBottom">
