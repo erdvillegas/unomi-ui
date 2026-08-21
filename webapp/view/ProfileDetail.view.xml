@@ -10,7 +10,7 @@
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
 		<Panel headerText="{i18n>module.properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<VBox id="propsHost" />
+			<VBox id="propsHost" width="100%" />
 		</Panel>
 
 		<Panel headerText="{i18n>profile.aliases}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">

@@ -32,26 +32,27 @@ QUnit.module("control/builders — nativePropsBox");
 
 QUnit.test("boolean/int/text fields read and write the map", (assert) => {
 	const map: Record<string, unknown> = { active: true, count: 5, name: "x" };
-	const box = nativePropsBox(map, [
+	const form = nativePropsBox(map, [
 		{ id: "active", name: "Active", valueTypeId: "boolean" },
 		{ id: "count", name: "Count", valueTypeId: "integer" },
 		{ id: "name", name: "Name", valueTypeId: "string" }
 	]);
-	const rows = box.getItems() as HBox[];
-	assert.strictEqual(rows.length, 3, "one row per prop");
+	// Responsive form: content is a flat [Label, field, Label, field, ...] list.
+	const content = form.getContent();
+	assert.strictEqual(content.length, 6, "label + field per prop");
 
-	const cb = rows[0].getItems()[1] as CheckBox;
+	const cb = content[1] as CheckBox;
 	assert.ok(cb.isA("sap.m.CheckBox"), "boolean -> CheckBox");
 	cb.setSelected(false);
 	cb.fireSelect();
 	assert.strictEqual(map.active, false, "checkbox writes map");
 
-	const intInp = rows[1].getItems()[1] as Input;
+	const intInp = content[3] as Input;
 	intInp.setValue("42");
 	intInp.fireChange();
 	assert.strictEqual(map.count, 42, "integer coerced to number");
 
-	const nameInp = rows[2].getItems()[1] as Input;
+	const nameInp = content[5] as Input;
 	nameInp.setValue("");
 	nameInp.fireChange();
 	assert.notOk("name" in map, "empty value deletes the key");
