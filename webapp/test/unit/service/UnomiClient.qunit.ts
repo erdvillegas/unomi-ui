@@ -1,0 +1,146 @@
+/*global QUnit */
+import * as UnomiClient from "unomi/ui/service/UnomiClient";
+
+// fetch is stubbed by swapping the global; every request is recorded so we can
+// assert URL, method, headers and body without a live Unomi.
+let calls: { url: string; init: RequestInit }[] = [];
+const origFetch = window.fetch;
+
+function stubFetch(res: { ok?: boolean; status?: number; statusText?: string; json?: unknown; text?: string }): void {
+	window.fetch = ((url: string, init: RequestInit = {}) => {
+		calls.push({ url, init });
+		return Promise.resolve({
+			ok: res.ok ?? true,
+			status: res.status ?? 200,
+			statusText: res.statusText ?? "OK",
+			json: () => Promise.resolve(res.json),
+			text: () => Promise.resolve(res.text ?? "")
+		} as Response);
+	}) as unknown as typeof fetch;
+}
+
+function header(i: number, name: string): string | null {
+	return (calls[i].init.headers as Headers).get(name);
+}
+
+QUnit.module("service/UnomiClient", {
+	beforeEach() {
+		calls = [];
+		UnomiClient.setBaseUrl("");
+		UnomiClient.clearCredentials();
+	},
+	afterEach() {
+		window.fetch = origFetch;
+		UnomiClient.setBaseUrl("");
+		UnomiClient.clearCredentials();
+	}
+});
+
+QUnit.test("credentials lifecycle", (assert) => {
+	assert.notOk(UnomiClient.isAuthenticated(), "starts unauthenticated");
+	UnomiClient.setCredentials("karaf", "karaf");
+	assert.ok(UnomiClient.isAuthenticated(), "authenticated after setCredentials");
+	assert.strictEqual(sessionStorage.getItem("unomi.auth"), "Basic " + btoa("karaf:karaf"), "persisted to sessionStorage for reload survival");
+	UnomiClient.clearCredentials();
+	assert.notOk(UnomiClient.isAuthenticated(), "cleared");
+	assert.strictEqual(sessionStorage.getItem("unomi.auth"), null, "sessionStorage cleared on logout");
+});
+
+QUnit.test("getJson: default base, Basic header, parsed body", async (assert) => {
+	stubFetch({ json: { hello: "world" } });
+	UnomiClient.setCredentials("karaf", "karaf");
+	const out = await UnomiClient.getJson<{ hello: string }>("/x");
+	assert.strictEqual(out.hello, "world", "parsed JSON");
+	assert.strictEqual(calls[0].url, "/cxs/x", "default base + path");
+	assert.strictEqual(header(0, "Authorization"), "Basic " + btoa("karaf:karaf"), "Basic auth header");
+});
+
+QUnit.test("getJson: 204 No Content → null instead of a JSON parse crash", async (assert) => {
+	stubFetch({ status: 204 });
+	const out = await UnomiClient.getJson<object | null>("/rules/updateConsent/statistics");
+	assert.strictEqual(out, null, "empty 204 body yields null, not a thrown DOMException");
+});
+
+QUnit.test("no auth header when unauthenticated", async (assert) => {
+	stubFetch({ json: {} });
+	await UnomiClient.getJson("/x");
+	assert.strictEqual(header(0, "Authorization"), null, "no Authorization header");
+});
+
+QUnit.test("setBaseUrl overrides base; empty falls back to /cxs", async (assert) => {
+	stubFetch({ json: {} });
+	UnomiClient.setBaseUrl("http://h:8181/cxs");
+	await UnomiClient.getJson("/test/ping");
+	assert.strictEqual(calls[0].url, "http://h:8181/cxs/test/ping", "explicit base used");
+});
+
+QUnit.test("queryList: POST with JSON body, content-type, PartialList", async (assert) => {
+	stubFetch({ json: { list: [1, 2], totalSize: 2, offset: 0, pageSize: 10 } });
+	const pl = await UnomiClient.queryList<number>("/profiles/search", { text: "x" });
+	assert.strictEqual(pl.totalSize, 2, "envelope returned");
+	assert.strictEqual(calls[0].init.method, "POST", "POST");
+	assert.strictEqual(calls[0].init.body, JSON.stringify({ text: "x" }), "serialized body");
+	assert.strictEqual(header(0, "Content-Type"), "application/json", "json content-type");
+});
+
+QUnit.test("postJson posts body; del sends DELETE", async (assert) => {
+	stubFetch({ json: {} });
+	await UnomiClient.postJson("/x", { a: 1 });
+	assert.strictEqual(calls[0].init.method, "POST", "postJson POST");
+	assert.strictEqual(calls[0].init.body, JSON.stringify({ a: 1 }), "postJson body");
+	await UnomiClient.del("/x/1");
+	assert.strictEqual(calls[1].init.method, "DELETE", "del DELETE");
+});
+
+QUnit.test("post parses JSON, and tolerates an empty body", async (assert) => {
+	stubFetch({ text: JSON.stringify({ male: 3, female: 2 }) });
+	const map = await UnomiClient.post<Record<string, number>>("/query/profile/properties.gender", { aggregate: {}, condition: {} });
+	assert.deepEqual(map, { male: 3, female: 2 }, "aggregation map parsed");
+	stubFetch({ text: "" });
+	const empty = await UnomiClient.post("/query/profile/count", {});
+	assert.strictEqual(empty, null, "empty body → null instead of a JSON parse crash");
+});
+
+QUnit.test("ping returns text; postCsv returns raw text", async (assert) => {
+	stubFetch({ text: "pong" });
+	assert.strictEqual(await UnomiClient.ping(), "pong", "ping text");
+	assert.strictEqual(calls[0].url, "/cxs/test/ping", "ping path");
+	stubFetch({ text: "a,b,c" });
+	assert.strictEqual(await UnomiClient.postCsv("/profiles/export", { q: 1 }), "a,b,c", "csv text");
+	assert.strictEqual(calls[1].init.method, "POST", "postCsv POST");
+});
+
+QUnit.test("postForm sends FormData without a JSON content-type", async (assert) => {
+	stubFetch({ json: {} });
+	const fd = new FormData();
+	fd.append("file", new Blob(["x"]), "f.csv");
+	const res = await UnomiClient.postForm("/importConfiguration/oneshot", fd);
+	assert.ok(res, "returns the response");
+	assert.strictEqual(calls[0].init.method, "POST", "POST");
+	assert.strictEqual(calls[0].init.body, fd, "FormData passed through");
+	assert.strictEqual(header(0, "Content-Type"), null, "no JSON content-type for multipart");
+});
+
+QUnit.test("downloadText triggers a browser download", (assert) => {
+	const origCreate = URL.createObjectURL;
+	const origRevoke = URL.revokeObjectURL;
+	let revoked = false;
+	URL.createObjectURL = () => "blob:x";
+	URL.revokeObjectURL = () => { revoked = true; };
+	const before = document.querySelectorAll("a").length;
+	UnomiClient.downloadText("a,b", "out.csv");
+	assert.strictEqual(document.querySelectorAll("a").length, before, "anchor removed after click");
+	assert.ok(revoked, "object URL revoked");
+	URL.createObjectURL = origCreate;
+	URL.revokeObjectURL = origRevoke;
+});
+
+QUnit.test("non-ok response throws with status text", async (assert) => {
+	stubFetch({ ok: false, status: 401, statusText: "Unauthorized" });
+	try {
+		await UnomiClient.getJson("/x");
+		assert.ok(false, "expected getJson to throw");
+	} catch (e) {
+		assert.strictEqual((e as Error).message, "401 Unauthorized", "throws status");
+	}
+});

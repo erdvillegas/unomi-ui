@@ -7,22 +7,22 @@
 	<Page title="Profiles ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
 		<subHeader>
 			<Toolbar>
-				<SearchField placeholder="{i18n>search}" search=".onSearch" width="100%" />
+				<SearchField placeholder="{i18n>query.search}" search=".onSearch" width="100%" />
 			</Toolbar>
 		</subHeader>
-		<Panel headerText="{i18n>queryBuilder}" expandable="true" expanded="false" class="sapUiResponsiveMargin" width="auto">
+		<Panel headerText="{i18n>query.builder}" expandable="true" expanded="false" class="sapUiResponsiveMargin" width="auto">
 			<VBox>
 				<VBox id="queryHost" />
 				<Toolbar>
 					<Select id="savedQueries" items="{query>/saved}" width="12rem">
 						<core:Item key="{query>}" text="{query>}" />
 					</Select>
-					<Button text="{i18n>loadQuery}" icon="sap-icon://open-folder" press=".onLoadQuery" />
-					<Button text="{i18n>delete}" icon="sap-icon://delete" press=".onDeleteQuery" />
+					<Button text="{i18n>query.load}" icon="sap-icon://open-folder" press=".onLoadQuery" />
+					<Button text="{i18n>common.delete}" icon="sap-icon://delete" press=".onDeleteQuery" />
 					<ToolbarSpacer />
-					<Input id="queryName" placeholder="{i18n>queryName}" width="12rem" />
-					<Button text="{i18n>save}" icon="sap-icon://save" press=".onSaveQuery" />
-					<Button text="{i18n>runQuery}" type="Emphasized" icon="sap-icon://search" press=".onRunQuery" />
+					<Input id="queryName" placeholder="{i18n>query.name}" width="12rem" />
+					<Button text="{i18n>common.save}" icon="sap-icon://save" press=".onSaveQuery" />
+					<Button text="{i18n>query.run}" type="Emphasized" icon="sap-icon://search" press=".onRunQuery" />
 				</Toolbar>
 			</VBox>
 		</Panel>
@@ -31,11 +31,11 @@
 			items="{list>/profiles}"
 			mode="SingleSelectMaster"
 			itemPress=".onProfilePress"
-			noDataText="{i18n>noData}">
+			noDataText="{i18n>common.noData}">
 			<columns>
-				<Column><Text text="{i18n>colId}" /></Column>
-				<Column><Text text="{i18n>colEmail}" /></Column>
-				<Column><Text text="{i18n>colScope}" /></Column>
+				<Column><Text text="{i18n>col.id}" /></Column>
+				<Column><Text text="{i18n>col.email}" /></Column>
+				<Column><Text text="{i18n>col.scope}" /></Column>
 			</columns>
 			<items>
 				<ColumnListItem type="Navigation">
@@ -50,7 +50,7 @@
 		<footer>
 			<Toolbar>
 				<ToolbarSpacer />
-				<Button text="{i18n>loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
+				<Button text="{i18n>common.loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
 			</Toolbar>
 		</footer>
 	</Page>

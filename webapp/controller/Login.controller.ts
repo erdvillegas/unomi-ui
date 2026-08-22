@@ -14,7 +14,7 @@ export default class Login extends BaseController {
 		UnomiClient.setCredentials(user, pass);
 		try {
 			await UnomiClient.ping();
-			this.getRouter().navTo("profiles");
+			this.getRouter().navTo("home");
 		} catch (e) {
 			UnomiClient.clearCredentials();
 			MessageToast.show(`Connection failed: ${(e as Error).message}`);

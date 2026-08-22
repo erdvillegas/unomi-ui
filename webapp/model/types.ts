@@ -4,16 +4,13 @@ export interface Profile {
 	itemId: string;
 	scope?: string;
 	properties?: Record<string, unknown>;
-	systemProperties?: Record<string, unknown>;
 	segments?: string[];
-	scores?: Record<string, number>;
 }
 
 export interface Session {
 	itemId: string;
 	scope?: string;
 	timeStamp?: string;
-	lastEventDate?: string;
 	duration?: number;
 	size?: number;
 }

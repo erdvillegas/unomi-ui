@@ -7,10 +7,13 @@ import VBox from "sap/m/VBox";
 import Panel from "sap/m/Panel";
 import Button from "sap/m/Button";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import * as Catalog from "unomi/ui/service/Catalog";
 import { buildForm } from "unomi/ui/control/FormEngine";
 import { formFields } from "unomi/ui/model/forms";
 import { loadDefs, conditionPanel, actionsList, elementPanel, emptyCondition, emptyDefs, Defs, Node } from "unomi/ui/control/builders";
 import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef } from "unomi/ui/control/brm/conditionEditor";
+import { sourceBuilder } from "unomi/ui/control/sourceBuilder";
+import { exportPropsBuilder } from "unomi/ui/control/exportPropsBuilder";
 
 const meta = { id: "", name: "", scope: "systemscope", enabled: true };
 const RES: Record<string, { path: string; list: string; stats: boolean; template: object }> = {
@@ -70,6 +73,7 @@ export default class ItemDetail extends BaseController {
 		(this.byId("nestedHost") as VBox).destroyItems();
 		this.refreshJson();
 		if (isNew) {
+			this.renderConfigExtras();
 			void this.initNested();
 		} else {
 			void this.load();
@@ -82,12 +86,13 @@ export default class ItemDetail extends BaseController {
 			const item = await UnomiClient.getJson<object>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}`);
 			(this.getView()?.getModel("form") as JSONModel).setData(item);
 			this.renderForm(false);
+			this.renderConfigExtras();
 			const it = item as { metadata?: { name?: string }; name?: string };
 			detail.setProperty("/name", it.metadata?.name ?? it.name ?? this.itemId);
 			await this.initNested();
 			if (this.cfg.stats) {
 				const stats = await UnomiClient.getJson<object>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}/statistics`);
-				detail.setProperty("/stats", JSON.stringify(stats, null, 2));
+				detail.setProperty("/stats", stats ? JSON.stringify(stats, null, 2) : "");
 			}
 		} catch (e) {
 			MessageToast.show(`Load failed: ${(e as Error).message}`);
@@ -146,6 +151,39 @@ export default class ItemDetail extends BaseController {
 		this.refreshJson();
 	}
 
+	// Guided property editors for import/export configs, rendered into nestedHost.
+	private renderConfigExtras(): void {
+		if (this.cfg.list === "importConfig") { this.renderSource(); }
+		else if (this.cfg.list === "exportConfig") { void this.renderExportProps(); }
+	}
+
+	private configProps(): Record<string, unknown> {
+		const data = (this.getView()?.getModel("form") as JSONModel).getData() as Record<string, any>;
+		return (data.properties ??= {}) as Record<string, unknown>;
+	}
+
+	// Guided `properties.source` editor for recurrent imports.
+	private renderSource(): void {
+		const host = this.byId("nestedHost") as VBox;
+		host.destroyItems();
+		host.addItem(sourceBuilder(this.configProps(), () => { this.renderSource(); this.refreshJson(); }));
+		this.refreshJson();
+	}
+
+	// Guided segment/period editor for export configs (segments from the live catalog).
+	private async renderExportProps(): Promise<void> {
+		const host = this.byId("nestedHost") as VBox;
+		host.destroyItems();
+		let segments: { id: string; name: string }[] = [];
+		try {
+			segments = await Catalog.get("segments");
+		} catch (e) {
+			MessageToast.show(`Segments failed: ${(e as Error).message}`);
+		}
+		host.addItem(exportPropsBuilder(this.configProps(), segments));
+		this.refreshJson();
+	}
+
 	/** Mirror the live form model into the Advanced-JSON textarea (source of truth = model). */
 	public refreshJson(): void {
 		const data = (this.getView()?.getModel("form") as JSONModel).getData() as object;
@@ -159,6 +197,7 @@ export default class ItemDetail extends BaseController {
 			(this.getView()?.getModel("form") as JSONModel).setData(parsed);
 			this.renderForm(detail.getProperty("/isNew") as boolean);
 			this.renderNested();
+			this.renderConfigExtras();
 			MessageToast.show("JSON applied");
 		} catch (e) {
 			MessageToast.show(`Invalid JSON: ${(e as Error).message}`);
@@ -175,6 +214,7 @@ export default class ItemDetail extends BaseController {
 		}
 		try {
 			await UnomiClient.postJson(this.cfg.path, item);
+			Catalog.invalidate(); // a new/edited object may now be pickable elsewhere
 			MessageToast.show("Saved");
 			this.getRouter().navTo(this.cfg.list);
 		} catch (e) {
@@ -195,6 +235,7 @@ export default class ItemDetail extends BaseController {
 	private async doDelete(): Promise<void> {
 		try {
 			await UnomiClient.del(`${this.cfg.path}/${encodeURIComponent(this.itemId)}`);
+			Catalog.invalidate(); // drop the deleted object from cached picker lists
 			MessageToast.show("Deleted");
 			this.getRouter().navTo(this.cfg.list);
 		} catch (e) {

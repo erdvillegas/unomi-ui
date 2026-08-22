@@ -10,14 +10,14 @@
 		navButtonPress=".onNavBack"
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
-		<Panel headerText="{i18n>eventDetail}" class="sapUiResponsiveMargin" width="auto">
+		<Panel headerText="{i18n>event.detail}" class="sapUiResponsiveMargin" width="auto">
 			<form:SimpleForm editable="false" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
-				<Label text="{i18n>colId}" /><Text text="{detail>/e/itemId}" />
-				<Label text="{i18n>colType}" /><Text text="{detail>/e/eventType}" />
-				<Label text="{i18n>colScope}" /><Text text="{detail>/e/scope}" />
-				<Label text="{i18n>colProfile}" /><Text text="{detail>/e/profileId}" />
-				<Label text="{i18n>colSession}" /><Text text="{detail>/e/sessionId}" />
-				<Label text="{i18n>colTimestamp}" /><Text text="{detail>/e/timeStamp}" />
+				<Label text="{i18n>col.id}" /><Text text="{detail>/e/itemId}" />
+				<Label text="{i18n>col.type}" /><Text text="{detail>/e/eventType}" />
+				<Label text="{i18n>col.scope}" /><Text text="{detail>/e/scope}" />
+				<Label text="{i18n>col.profile}" /><Text text="{detail>/e/profileId}" />
+				<Label text="{i18n>col.session}" /><Text text="{detail>/e/sessionId}" />
+				<Label text="{i18n>col.timestamp}" /><Text text="{detail>/e/timeStamp}" />
 			</form:SimpleForm>
 		</Panel>
 		<Panel headerText="JSON" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">

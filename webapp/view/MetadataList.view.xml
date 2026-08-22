@@ -5,17 +5,17 @@
 	displayBlock="true">
 	<Page title="{list>/title} ({list>/items/length})" busy="{list>/busy}" busyIndicatorDelay="0">
 		<headerContent>
-			<Button text="{i18n>newItem}" icon="sap-icon://add" type="Emphasized" press=".onNew" />
+			<Button text="{i18n>common.new}" icon="sap-icon://add" type="Emphasized" press=".onNew" />
 		</headerContent>
 		<Table
 			items="{list>/items}"
 			mode="SingleSelectMaster"
 			itemPress=".onPress"
-			noDataText="{i18n>noData}">
+			noDataText="{i18n>common.noData}">
 			<columns>
-				<Column><Text text="{i18n>colName}" /></Column>
-				<Column><Text text="{i18n>colId}" /></Column>
-				<Column hAlign="Center"><Text text="{i18n>colEnabled}" /></Column>
+				<Column><Text text="{i18n>col.name}" /></Column>
+				<Column><Text text="{i18n>col.id}" /></Column>
+				<Column hAlign="Center"><Text text="{i18n>col.enabled}" /></Column>
 			</columns>
 			<items>
 				<ColumnListItem type="Navigation">

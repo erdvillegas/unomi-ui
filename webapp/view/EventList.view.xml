@@ -4,29 +4,29 @@
 	xmlns:core="sap.ui.core"
 	xmlns="sap.m"
 	displayBlock="true">
-	<Page title="{i18n>events} ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
+	<Page title="{i18n>module.events} ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
 		<subHeader>
 			<Toolbar>
-				<Label text="{i18n>colType}" />
+				<Label text="{i18n>col.type}" />
 				<Select items="{list>/types}" selectedKey="{list>/f/eventType}" width="12rem">
 					<core:Item key="{list>key}" text="{list>text}" />
 				</Select>
-				<Input value="{list>/f/scope}" placeholder="{i18n>colScope}" width="9rem" submit=".onSearch" />
-				<Input value="{list>/f/profileId}" placeholder="{i18n>colProfile}" width="14rem" submit=".onSearch" />
+				<Input value="{list>/f/scope}" placeholder="{i18n>col.scope}" width="9rem" submit=".onSearch" />
+				<Input value="{list>/f/profileId}" placeholder="{i18n>col.profile}" width="14rem" submit=".onSearch" />
 				<ToolbarSpacer />
-				<Button text="{i18n>runQuery}" type="Emphasized" icon="sap-icon://search" press=".onSearch" />
+				<Button text="{i18n>query.run}" type="Emphasized" icon="sap-icon://search" press=".onSearch" />
 			</Toolbar>
 		</subHeader>
 		<Table
 			items="{list>/events}"
 			mode="SingleSelectMaster"
 			itemPress=".onEventPress"
-			noDataText="{i18n>noData}">
+			noDataText="{i18n>common.noData}">
 			<columns>
-				<Column><Text text="{i18n>colType}" /></Column>
-				<Column><Text text="{i18n>colScope}" /></Column>
-				<Column><Text text="{i18n>colProfile}" /></Column>
-				<Column><Text text="{i18n>colTimestamp}" /></Column>
+				<Column><Text text="{i18n>col.type}" /></Column>
+				<Column><Text text="{i18n>col.scope}" /></Column>
+				<Column><Text text="{i18n>col.profile}" /></Column>
+				<Column><Text text="{i18n>col.timestamp}" /></Column>
 			</columns>
 			<items>
 				<ColumnListItem type="Navigation">
@@ -42,7 +42,7 @@
 		<footer>
 			<Toolbar>
 				<ToolbarSpacer />
-				<Button text="{i18n>loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
+				<Button text="{i18n>common.loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
 			</Toolbar>
 		</footer>
 	</Page>

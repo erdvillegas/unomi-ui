@@ -1,0 +1,177 @@
+<mvc:View
+	controllerName="unomi.ui.controller.DataProtection"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	displayBlock="true">
+	<Page title="{i18n>dp.title}" busy="{dp>/busy}" busyIndicatorDelay="0" class="sapUiContentPadding">
+		<IconTabBar id="dpTabs" expandable="false" class="sapUiResponsiveContentPadding">
+			<items>
+				<!-- Auditoría de consentimientos cross-profile -->
+				<IconTabFilter text="{i18n>dp.audit}" icon="sap-icon://official-service" key="audit">
+					<HBox wrap="Wrap" class="sapUiSmallMarginBottom" alignItems="Center">
+						<VBox class="sapUiMediumMarginEnd"><ObjectNumber number="{dp>/counts/total}" unit="{i18n>dp.consents}" /><Label text="{i18n>dp.totalConsents}" /></VBox>
+						<VBox class="sapUiMediumMarginEnd"><ObjectNumber number="{dp>/counts/granted}" state="Success" /><Label text="{i18n>consent.granted}" /></VBox>
+						<VBox class="sapUiMediumMarginEnd"><ObjectNumber number="{dp>/counts/denied}" state="Error" /><Label text="{i18n>consent.denied}" /></VBox>
+						<VBox class="sapUiMediumMarginEnd"><ObjectNumber number="{dp>/counts/revoked}" state="Warning" /><Label text="{i18n>consent.revoked}" /></VBox>
+						<VBox><ObjectNumber number="{dp>/counts/profiles}" /><Label text="{i18n>dp.profilesAffected}" /></VBox>
+					</HBox>
+
+					<Toolbar>
+						<Label text="{i18n>consent.status}" />
+						<Select selectedKey="{dp>/fStatus}" change=".onFilterChange" width="9rem">
+							<core:Item key="" text="{i18n>dp.all}" />
+							<core:Item key="GRANTED" text="{i18n>consent.granted}" />
+							<core:Item key="DENIED" text="{i18n>consent.denied}" />
+							<core:Item key="REVOKED" text="{i18n>consent.revoked}" />
+						</Select>
+						<Label text="{i18n>col.scope}" class="sapUiSmallMarginBegin" />
+						<ComboBox selectedKey="{dp>/fScope}" selectionChange=".onFilterChange" change=".onFilterChange" width="12rem" placeholder="{i18n>dp.all}" items="{dp>/scopes}">
+							<core:Item key="{dp>id}" text="{dp>name}" />
+						</ComboBox>
+						<ToolbarSpacer />
+						<Button icon="sap-icon://refresh" tooltip="{i18n>dp.refresh}" press=".onRefreshAudit" />
+					</Toolbar>
+					<Table items="{dp>/consents}" noDataText="{i18n>common.noData}" growing="true" growingThreshold="50">
+						<columns>
+							<Column><Text text="{i18n>col.profile}" /></Column>
+							<Column><Text text="{i18n>consent.type}" /></Column>
+							<Column><Text text="{i18n>col.scope}" /></Column>
+							<Column><Text text="{i18n>consent.status}" /></Column>
+							<Column><Text text="{i18n>consent.statusDate}" /></Column>
+							<Column><Text text="{i18n>consent.revokeDate}" /></Column>
+							<Column hAlign="End"><Text text="" /></Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Text text="{dp>profileId}" />
+									<Text text="{dp>typeIdentifier}" />
+									<Text text="{dp>scope}" />
+									<ObjectStatus text="{dp>status}" state="{dp>state}" />
+									<Text text="{dp>statusDate}" />
+									<Text text="{dp>revokeDate}" />
+									<Button icon="sap-icon://key-user-settings" type="Transparent" tooltip="{i18n>dp.forgetThis}" press=".onForgetFromAudit" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+
+					<Panel headerText="{i18n>dp.scopes}" expandable="true" expanded="false" class="sapUiSmallMarginTop">
+						<Table items="{dp>/scopeCounts}" noDataText="{i18n>common.noData}">
+							<columns>
+								<Column><Text text="{i18n>col.scope}" /></Column>
+								<Column hAlign="End"><Text text="{i18n>dp.consents}" /></Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Text text="{dp>scope}" />
+										<ObjectNumber number="{dp>count}" />
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</Panel>
+				</IconTabFilter>
+
+				<!-- Derecho al olvido: elegir perfil de una lista, luego actuar -->
+				<IconTabFilter text="{i18n>dp.forget}" icon="sap-icon://key-user-settings" key="forget">
+					<HBox wrap="Wrap">
+						<!-- Selector de perfil -->
+						<VBox class="sapUiSmallMarginEnd" width="30rem">
+							<SearchField search=".onForgetSearch" placeholder="{i18n>dp.searchProfiles}" width="100%" class="sapUiSmallMarginBottom" />
+							<Table items="{dp>/forgetProfiles}" mode="MultiSelect" selectionChange=".onSelectionChange" noDataText="{i18n>common.noData}" growing="true" growingThreshold="25">
+								<columns>
+									<Column><Text text="{i18n>col.id}" /></Column>
+									<Column><Text text="{i18n>col.email}" /></Column>
+									<Column><Text text="{i18n>col.name}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem selected="{dp>selected}">
+										<cells>
+											<Text text="{dp>itemId}" />
+											<Text text="{dp>email}" />
+											<Text text="{dp>name}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+							<CheckBox selected="{dp>/selectAllMatching}" select=".onToggleSelectAll"
+								visible="{= ${dp>/forgetTotal} &gt; 0 }"
+								text="{= ${i18n>dp.selectAllMatching} + ' (' + ${dp>/forgetTotal} + ')' }" />
+						</VBox>
+
+						<!-- Acciones sobre el perfil seleccionado -->
+						<VBox width="34rem">
+							<MessageStrip visible="{= !${dp>/hasSelection} }" text="{i18n>dp.selectFirst}" type="Information" showIcon="true" />
+							<VBox visible="{dp>/hasSelection}">
+								<Title text="{= ${dp>/selectedCount} + ' ' + ${i18n>dp.selectedCount} }" level="H5" class="sapUiTinyMarginBottom" />
+								<MessageStrip text="{dp>/selectedLabel}" type="Warning" showIcon="true" class="sapUiSmallMarginBottom" />
+
+								<Panel headerText="{i18n>profile.anonymize}" class="sapUiTinyMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+											<Label text="{i18n>col.scope}" width="6rem" />
+											<Select selectedKey="{dp>/anonScope}" items="{dp>/scopes}" width="14rem">
+												<core:Item key="{dp>id}" text="{dp>name}" />
+											</Select>
+										</HBox>
+										<Button text="{i18n>profile.anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" width="16rem" />
+									</VBox>
+								</Panel>
+
+								<Panel headerText="{i18n>dp.deleteProperty}" class="sapUiTinyMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<Input value="{dp>/propName}" placeholder="{i18n>dp.propertyPlaceholder}" class="sapUiTinyMarginBottom" width="20rem" />
+										<Button text="{i18n>dp.deleteProperty}" icon="sap-icon://delete" press=".onDeleteProperty" width="16rem" />
+									</VBox>
+								</Panel>
+
+								<Panel headerText="{i18n>profile.deleteData}" class="sapUiTinyMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<MessageStrip text="{i18n>dp.deleteWarn}" type="Error" showIcon="true" class="sapUiTinyMarginBottom" />
+										<Button text="{i18n>profile.deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" width="16rem" />
+									</VBox>
+								</Panel>
+							</VBox>
+						</VBox>
+					</HBox>
+				</IconTabFilter>
+
+				<!-- Políticas de privacidad (por-perfil; Unomi no tiene políticas globales) -->
+				<IconTabFilter text="{i18n>dp.policies}" icon="sap-icon://shield" key="policies">
+					<VBox class="sapUiSmallMargin" width="45rem">
+						<MessageStrip text="{i18n>dp.policiesNote}" type="Information" showIcon="true" class="sapUiSmallMarginBottom" />
+						<HBox alignItems="End" class="sapUiSmallMarginBottom">
+							<VBox><Label text="{i18n>dp.profileId}" /><Input value="{dp>/profileId}" placeholder="{i18n>dp.profileIdPlaceholder}" width="18rem" /></VBox>
+							<Button text="{i18n>dp.loadPrivacy}" icon="sap-icon://refresh" press=".onLoadPrivacy" class="sapUiSmallMarginBegin" />
+						</HBox>
+
+						<VBox visible="{dp>/privacy/loaded}">
+							<HBox alignItems="Center" class="sapUiSmallMarginBottom">
+								<Switch state="{dp>/privacy/anonBrowsing}" change=".onToggleAnonBrowsing" />
+								<Label text="{i18n>profile.anonBrowsing}" class="sapUiSmallMarginBegin" />
+							</HBox>
+							<Label text="{i18n>dp.eventFilters}" design="Bold" />
+							<Table items="{dp>/privacy/filters}" noDataText="{i18n>dp.noFilters}">
+								<columns>
+									<Column><Text text="{i18n>col.id}" /></Column>
+									<Column><Text text="{i18n>col.type}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{dp>id}" />
+											<Text text="{dp>eventType}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</VBox>
+					</VBox>
+				</IconTabFilter>
+			</items>
+		</IconTabBar>
+	</Page>
+</mvc:View>

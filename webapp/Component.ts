@@ -1,5 +1,6 @@
 import UIComponent from "sap/ui/core/UIComponent";
 import JSONModel from "sap/ui/model/json/JSONModel";
+import Device from "sap/ui/Device";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import * as Settings from "unomi/ui/service/Settings";
 
@@ -13,10 +14,19 @@ export default class Component extends UIComponent {
 	};
 
 	public init(): void {
-		super.init();
 		const cfg = Settings.load();
+		Settings.applyLanguage(cfg.language); // before super.init(): manifest i18n model reads it
+		super.init();
 		UnomiClient.setBaseUrl(cfg.baseUrl);
+		Settings.applyTheme(cfg.theme);
 		this.setModel(new JSONModel(cfg), "app");
+		// Shared auth flag (updated in App.onRouteMatched); nav + Home bind to it.
+		this.setModel(new JSONModel({ authed: false }), "session");
 		this.getRouter().initialize();
+	}
+
+	// Fiori content density: compact on desktop (denser tables/forms), cozy on touch.
+	public getContentDensityClass(): string {
+		return Device.support.touch ? "sapUiSizeCozy" : "sapUiSizeCompact";
 	}
 }

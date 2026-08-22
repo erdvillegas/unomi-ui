@@ -4,19 +4,34 @@ import HBox from "sap/m/HBox";
 import Toolbar from "sap/m/Toolbar";
 import ToolbarSpacer from "sap/m/ToolbarSpacer";
 import Select from "sap/m/Select";
+import ComboBox from "sap/m/ComboBox";
+import SimpleForm from "sap/ui/layout/form/SimpleForm";
 import Item from "sap/ui/core/Item";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Label from "sap/m/Label";
 import Button from "sap/m/Button";
+import FlexItemData from "sap/m/FlexItemData";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import { refFor } from "unomi/ui/control/refMap";
+import { refSelect, propSelect, PropTarget } from "unomi/ui/control/refSelect";
+
+// Property-name params target a profile/session/event property; derive it from the type
+// (defaults to profile — covers setPropertyAction and most others).
+export const propTarget = (type: string): PropTarget =>
+	type === "sessionPropertyCondition" ? "session" : type === "eventPropertyCondition" ? "event" : "profile";
+export const isPropName = (id: string): boolean => /propertyname$/i.test(id);
 
 // Shared recursive editor for Unomi's typed Condition/Action trees. Both use the
 // same node shape ({ type, parameterValues }) and the same parameter model coming
 // from /definitions/*; only the type catalog differs. ponytail: full re-render of
 // the root on structural change (small hand-built trees), one refresh callback.
+
+// Label + control on one line — shared by the guided source/export editors.
+export const row = (label: string, ctrl: Control): HBox =>
+	new HBox({ alignItems: "Center", items: [new Label({ text: label, width: "10rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
 
 export interface Param { id: string; type: string; multivalued: boolean; }
 export interface Node { type: string; parameterValues: Record<string, any>; }
@@ -52,14 +67,18 @@ export const emptyCondition = (): Node => ({ type: "matchAllCondition", paramete
 export function conditionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
 	return typedPanel(node, defs.condTypes, defs.cond, defs, refresh, onRemove);
 }
-export function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
+function actionPanel(node: Node, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
 	return typedPanel(node, defs.actionTypes, defs.action, defs, refresh, onRemove);
 }
 
 function typedPanel(node: Node, typeIds: string[], defmap: Record<string, Param[]>, defs: Defs, refresh: () => void, onRemove?: () => void): Panel {
-	const sel = new Select({ selectedKey: node.type });
+	// Searchable type picker: 100+ condition/action types, so type-ahead beats a plain
+	// dropdown. Only a real type id (from the list) is accepted, then params reset.
+	const sel = new ComboBox({ selectedKey: node.type, width: "22rem" });
 	typeIds.forEach((t) => sel.addItem(new Item({ key: t, text: t })));
-	sel.attachChange(() => { node.type = sel.getSelectedKey(); node.parameterValues = {}; refresh(); });
+	const apply = (key: string): void => { if (key && key !== node.type && typeIds.indexOf(key) >= 0) { node.type = key; node.parameterValues = {}; refresh(); } };
+	sel.attachSelectionChange((e: Event) => apply(((e.getParameter("selectedItem" as never) as Item)?.getKey()) || ""));
+	sel.attachChange(() => apply(sel.getSelectedKey()));
 	const header = new Toolbar({ content: [new Label({ text: "type" }), sel, new ToolbarSpacer()] });
 	if (onRemove) {
 		header.addContent(new Button({ icon: "sap-icon://decline", tooltip: "Remove", press: onRemove }));
@@ -72,6 +91,7 @@ function typedPanel(node: Node, typeIds: string[], defmap: Record<string, Param[
 function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => void, body: VBox): void {
 	params.forEach((p) => {
 		const nested = p.type.toLowerCase() === "condition"; // "Condition" (cond) or "condition" (action)
+		const refKey = refFor(node.type, p.id); // scope/listIdentifiers/eventType/… → picker
 		if (nested && p.multivalued) {
 			const arr = (node.parameterValues[p.id] ??= []) as Node[];
 			body.addItem(new Label({ text: p.id, design: "Bold" }));
@@ -96,6 +116,12 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 			const cb = new CheckBox({ text: p.id, selected: !!node.parameterValues[p.id] });
 			cb.attachSelect(() => (node.parameterValues[p.id] = cb.getSelected()));
 			body.addItem(cb);
+		} else if (refKey) {
+			body.addItem(new Label({ text: p.id }));
+			body.addItem(refSelect(refKey, node.parameterValues[p.id], p.multivalued, (val) => (node.parameterValues[p.id] = val)));
+		} else if (isPropName(p.id)) {
+			body.addItem(new Label({ text: p.id }));
+			body.addItem(propSelect(propTarget(node.type), node.parameterValues[p.id], (val) => (node.parameterValues[p.id] = val)));
 		} else {
 			const v = node.parameterValues[p.id];
 			const shown = p.multivalued ? (Array.isArray(v) ? v.join(", ") : "") : (v == null ? "" : String(v));
@@ -110,39 +136,39 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 // Free key/value map editor (action `properties` param, profile properties, ...).
 // ponytail: value coercion via JSON.parse preserves numbers/booleans/objects
 // (nbOfVisits stays a number); a bare word that fails to parse stays a string.
-// Labeled inputs for Unomi's known/native profile property definitions, bound to
-// the profile's `properties` map by id. Boolean → CheckBox, integer → number Input,
-// everything else → text Input. Missing values render empty so the user can fill them.
-export interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
-export function nativePropsBox(map: Record<string, any>, defs: NativeProp[], refresh: () => void): VBox {
-	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
+// Labeled inputs for Unomi's known/native profile property definitions, bound to the
+// profile's `properties` map by id. Boolean → CheckBox, integer → number Input, else
+// text Input; missing values render empty so the user can fill them. Laid out with a
+// responsive 2-column form (Horizon) so fields use the width instead of a cramped column.
+interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
+export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): SimpleForm {
+	const content: Control[] = [];
 	defs.forEach((d) => {
-		const label = new Label({ text: d.name || d.id, width: "35%", tooltip: d.id });
-		let field: Control;
+		content.push(new Label({ text: d.name || d.id, tooltip: d.id }));
 		if (d.valueTypeId === "boolean") {
 			const cb = new CheckBox({ selected: !!map[d.id] });
 			cb.attachSelect(() => (map[d.id] = cb.getSelected()));
-			field = cb;
+			content.push(cb);
 		} else {
 			const isInt = d.valueTypeId === "integer";
-			const inp = new Input({ value: map[d.id] == null ? "" : String(map[d.id]), type: isInt ? "Number" : "Text", width: "60%" });
+			const inp = new Input({ value: map[d.id] == null ? "" : String(map[d.id]), type: isInt ? "Number" : "Text" });
 			inp.attachChange(() => { const v = inp.getValue(); if (v === "") { delete map[d.id]; } else { map[d.id] = isInt ? Number(v) : v; } });
-			field = inp;
+			content.push(inp);
 		}
-		box.addItem(new HBox({ items: [label, field] }).addStyleClass("sapUiTinyMarginBottom"));
 	});
-	return box;
+	return new SimpleForm({ editable: true, layout: "ResponsiveGridLayout", labelSpanXL: 4, labelSpanL: 4, labelSpanM: 4, labelSpanS: 12, columnsXL: 2, columnsL: 2, columnsM: 1, content });
 }
 
 export function keyValueBox(map: Record<string, any>, refresh: () => void, exclude?: Set<string>): VBox {
-	const box = new VBox().addStyleClass("sapUiSmallMarginBegin");
+	const box = new VBox({ width: "100%" }).addStyleClass("sapUiSmallMarginBegin");
 	Object.keys(map).filter((k) => !exclude?.has(k)).forEach((k) => {
 		const cur = map[k];
-		const key = new Input({ value: k, width: "35%" });
-		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), width: "50%" });
+		const key = new Input({ value: k, width: "14rem" });
+		// The value field grows to fill the row; the key stays a fixed, readable width.
+		const val = new Input({ value: typeof cur === "object" ? JSON.stringify(cur) : String(cur ?? ""), layoutData: new FlexItemData({ growFactor: 1 }) });
 		key.attachChange(() => { const nk = key.getValue(); if (nk !== k) { map[nk] = map[k]; delete map[k]; refresh(); } });
 		val.attachChange(() => (map[key.getValue()] = parseValue(val.getValue())));
-		box.addItem(new HBox({ items: [key, val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } })] }).addStyleClass("sapUiTinyMarginBottom"));
+		box.addItem(new HBox({ width: "100%", alignItems: "Center", items: [key.addStyleClass("sapUiTinyMarginEnd"), val, new Button({ icon: "sap-icon://decline", press: () => { delete map[k]; refresh(); } }).addStyleClass("sapUiTinyMarginBegin")] }).addStyleClass("sapUiTinyMarginBottom"));
 	});
 	box.addItem(new Button({ text: "+", icon: "sap-icon://add", press: () => { let i = 1; while (("key" + i) in map) { i++; } map["key" + i] = ""; refresh(); } }));
 	return box;

@@ -2,21 +2,35 @@
 	controllerName="unomi.ui.controller.Settings"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:f="sap.ui.layout.form"
+	xmlns:core="sap.ui.core"
 	xmlns="sap.m"
 	displayBlock="true">
-	<Page title="{i18n>settings}">
+	<Page title="{i18n>module.settings}">
 		<f:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="3" labelSpanL="3" labelSpanM="3">
 			<f:content>
-				<Label text="{i18n>appName}" />
+				<Label text="{i18n>info.appName}" />
 				<Input value="{settings>/appName}" />
-				<Label text="{i18n>baseUrl}" />
+				<Label text="{i18n>info.baseUrl}" />
 				<Input value="{settings>/baseUrl}" placeholder="/cxs" />
+				<Label text="{i18n>settings.language}" />
+				<Select selectedKey="{settings>/language}">
+					<core:Item key="" text="{i18n>settings.langAuto}" />
+					<core:Item key="es" text="Español" />
+					<core:Item key="en" text="English" />
+				</Select>
+				<Label text="{i18n>info.theme}" />
+				<Select selectedKey="{settings>/theme}">
+					<core:Item key="sap_horizon" text="Morning Horizon (claro)" />
+					<core:Item key="sap_horizon_dark" text="Evening Horizon (oscuro)" />
+					<core:Item key="sap_horizon_hcb" text="Alto contraste negro" />
+					<core:Item key="sap_horizon_hcw" text="Alto contraste blanco" />
+				</Select>
 			</f:content>
 		</f:SimpleForm>
 		<footer>
 			<Toolbar>
 				<ToolbarSpacer />
-				<Button text="{i18n>save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
+				<Button text="{i18n>common.save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
 			</Toolbar>
 		</footer>
 	</Page>

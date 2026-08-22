@@ -25,26 +25,23 @@ import FilterOperator from "sap/ui/model/FilterOperator";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Control from "sap/ui/core/Control";
 import Event from "sap/ui/base/Event";
-import * as UnomiClient from "unomi/ui/service/UnomiClient";
-import { Node, Defs, Param, conditionPanel, emptyCondition } from "unomi/ui/control/builders";
+import * as Catalog from "unomi/ui/service/Catalog";
+import type { Opt, PropDef } from "unomi/ui/service/Catalog";
+import { Node, Defs, Param, conditionPanel, emptyCondition, propTarget, isPropName } from "unomi/ui/control/builders";
+import { refFor } from "unomi/ui/control/refMap";
+import { refSelect, propSelect } from "unomi/ui/control/refSelect";
 
 // BRM-style visual editor: AND/OR/NOT groups + "property → operator → value" rows.
 // Rows map to profile/session PropertyCondition; anything else falls back to the
 // technical tree (builders.ts) without data loss.
 
-export interface PropDef { id: string; name: string; valueTypeId: string | null; }
-export interface Opt { id: string; name: string; }
+// Catalog types owned by service/Catalog; re-exported so existing importers keep working.
+export type { Opt, PropDef } from "unomi/ui/service/Catalog";
 type Target = "profile" | "session" | "event";
 type CatKey = "segments" | "scorings" | "lists" | "goals" | "eventTypes";
 export interface BrmCtx { defs: Defs; props: Record<Target, PropDef[]>; cat: Record<CatKey, Opt[]>; }
 
 export const emptyCat = (): BrmCtx["cat"] => ({ segments: [], scorings: [], lists: [], goals: [], eventTypes: [] });
-
-// TYPE_META (F3): which param of which type is filled from which catalog. Absent → generic control.
-const PICKERS: Record<string, Record<string, CatKey>> = {
-	goalMatchCondition: { goalId: "goals" },
-	eventTypeCondition: { eventTypeId: "eventTypes" }
-};
 
 const ROW_TYPE: Record<Target, string> = { profile: "profilePropertyCondition", session: "sessionPropertyCondition", event: "eventPropertyCondition" };
 const TARGET_OF: Record<string, Target> = { profilePropertyCondition: "profile", sessionPropertyCondition: "session", eventPropertyCondition: "event" };
@@ -94,37 +91,30 @@ const DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss";
 const isMulti = (op: string) => ["in", "notIn", "between", "all", "hasSomeOf", "hasNoneOf"].includes(op);
 const noValue = (op: string) => op === "exists" || op === "missing";
 
-let propsCache: BrmCtx["props"] | null = null;
-export async function loadProps(): Promise<BrmCtx["props"]> {
-	if (propsCache) {
-		return propsCache;
-	}
-	const raw = await UnomiClient.getJson<Record<string, { valueTypeId?: string; metadata: { id: string; name?: string } }[]>>("/profiles/properties");
-	const map = (arr?: { valueTypeId?: string; metadata: { id: string; name?: string } }[]): PropDef[] =>
-		(arr || []).filter((p) => p && p.metadata && p.metadata.id).map((p) => ({ id: p.metadata.id, name: p.metadata.name || p.metadata.id, valueTypeId: p.valueTypeId || null }));
-	// Event properties have no catalog endpoint → free-text picker (empty list).
-	propsCache = { profile: map(raw.profiles), session: map(raw.sessions), event: [] };
-	return propsCache;
+// One-liner typed <Select>: opts are [key, text] pairs, onChange gets the new key.
+function select(selectedKey: string, opts: [string, string][], width: string, onChange: (key: string) => void): Select {
+	const sel = new Select({ selectedKey, width });
+	opts.forEach(([k, t]) => sel.addItem(new Item({ key: k, text: t })));
+	sel.attachChange(() => onChange(sel.getSelectedKey()));
+	return sel;
+}
+// Operator keys -> [key, human label] pairs for the operator selects.
+const opPairs = (keys: string[]): [string, string][] => keys.map((o) => [o, OP_LABEL[o] || o] as [string, string]);
+const MODES: [string, string][] = [["all", "ALL of"], ["any", "ANY of"], ["none", "NONE of"]];
+const TARGETS: [string, string][] = [["profile", "Profile"], ["session", "Session"], ["event", "Event"]];
+const TYPE_KEYS: [string, string][] = [["string", "string"], ["integer", "integer"], ["date", "date"], ["boolean", "boolean"]];
+const SCORE_OPS = ["equals", "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo"];
+
+// Both delegate to service/Catalog (single cache); shapes/normalization live there.
+export function loadProps(): Promise<BrmCtx["props"]> {
+	return Catalog.getProps();
 }
 
-// Segment / scoring / list catalogs for the picker-based condition rows.
-let catCache: BrmCtx["cat"] | null = null;
 export async function loadCatalogs(): Promise<BrmCtx["cat"]> {
-	if (catCache) {
-		return catCache;
-	}
-	const [segs, scos, lists, goals, evts] = await Promise.all([
-		UnomiClient.getJson<{ id: string; name?: string }[]>("/segments"),
-		UnomiClient.getJson<{ id: string; name?: string }[]>("/scoring"),
-		UnomiClient.getJson<{ list: { id: string; name?: string }[] }>("/lists"),
-		UnomiClient.getJson<{ id: string; name?: string }[]>("/goals"),
-		UnomiClient.getJson<string[]>("/events/types")
+	const [segments, scorings, lists, goals, eventTypes] = await Promise.all([
+		Catalog.get("segments"), Catalog.get("scorings"), Catalog.get("lists"), Catalog.get("goals"), Catalog.get("eventTypes")
 	]);
-	// ponytail: filter nulls/id-less — junk catalog rows (id="") crash the picker map.
-	const flat = (a: { id: string; name?: string }[]): Opt[] => (a || []).filter((x) => x && x.id).map((x) => ({ id: x.id, name: x.name || x.id }));
-	// /events/types is a plain string[]; goals are metadata objects.
-	catCache = { segments: flat(segs), scorings: flat(scos), lists: flat(lists.list || []), goals: flat(goals), eventTypes: (evts || []).map((e) => ({ id: e, name: e })) };
-	return catCache;
+	return { segments, scorings, lists, goals, eventTypes };
 }
 
 export function conditionEditor(root: Node, ctx: BrmCtx, refresh: () => void, showSummary = true): Control {
@@ -230,11 +220,7 @@ function filterDialog(e: Event): void {
 function group(node: Node, ctx: BrmCtx, refresh: () => void, onRemove?: () => void): Control {
 	const g = readGroup(node);
 
-	const modeSel = new Select({ selectedKey: g.mode, width: "8rem" });
-	modeSel.addItem(new Item({ key: "all", text: "ALL of" }));
-	modeSel.addItem(new Item({ key: "any", text: "ANY of" }));
-	modeSel.addItem(new Item({ key: "none", text: "NONE of" }));
-	modeSel.attachChange(() => { setGroupMode(node, modeSel.getSelectedKey(), g.subs); refresh(); });
+	const modeSel = select(g.mode, MODES, "8rem", (k) => { setGroupMode(node, k, g.subs); refresh(); });
 
 	const add = (child: Node): void => {
 		if (node.type === "matchAllCondition") { setGroupMode(node, g.mode, []); }
@@ -286,17 +272,13 @@ function childEditor(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () 
 // "Profile is in segment/list [X, Y]" with a multi-select picker from the catalog.
 function membershipRow(node: Node, opts: Opt[], slot: string, label: string, refresh: () => void, onRemove: () => void): Control {
 	const pv = node.parameterValues;
-	const matchSel = new Select({ selectedKey: (pv.matchType as string) || "in", width: "10rem" });
-	MATCH_TYPES.forEach(([k, t]) => matchSel.addItem(new Item({ key: k, text: t })));
-	matchSel.attachChange(() => (pv.matchType = matchSel.getSelectedKey()));
+	const matchSel = select((pv.matchType as string) || "in", MATCH_TYPES, "10rem", (k) => (pv.matchType = k));
 	const mcb = new MultiComboBox({ width: "24rem", placeholder: label.toLowerCase() + "s" });
 	opts.forEach((o) => mcb.addItem(new Item({ key: o.id, text: o.name })));
 	mcb.setSelectedKeys(((pv[slot] as string[]) || []).slice());
 	mcb.attachSelectionChange(() => (pv[slot] = mcb.getSelectedKeys()));
 	const box = new HBox({ wrap: "Wrap", alignItems: "Center", items: [new Label({ text: label, design: "Bold" }).addStyleClass("sapUiTinyMarginEnd"), matchSel, mcb] }).addStyleClass("sapUiTinyMarginBottom");
-	box.addItem(new ToolbarSpacer());
-	box.addItem(advBtn(node, refresh));
-	box.addItem(rmBtn(onRemove));
+	rowTail(box, node, refresh, onRemove);
 	return box;
 }
 
@@ -307,15 +289,11 @@ function scoreRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => 
 	ctx.cat.scorings.forEach((s) => planSel.addItem(new Item({ key: s.id, text: s.name })));
 	planSel.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv.scoringPlanId = it.getKey(); } });
 	planSel.attachChange(() => (pv.scoringPlanId = planSel.getSelectedKey() || planSel.getValue()));
-	const opSel = new Select({ selectedKey: (pv.comparisonOperator as string) || "greaterThanOrEqualTo", width: "9rem" });
-	["equals", "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo"].forEach((o) => opSel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
-	opSel.attachChange(() => (pv.comparisonOperator = opSel.getSelectedKey()));
+	const opSel = select((pv.comparisonOperator as string) || "greaterThanOrEqualTo", opPairs(SCORE_OPS), "9rem", (k) => (pv.comparisonOperator = k));
 	const valInp = new Input({ value: pv.scoreValue == null ? "" : String(pv.scoreValue), type: "Number", width: "8rem", placeholder: "score" });
 	valInp.attachChange(() => (pv.scoreValue = Number(valInp.getValue()) || 0));
 	const box = new HBox({ wrap: "Wrap", alignItems: "Center", items: [new Label({ text: "Score", design: "Bold" }).addStyleClass("sapUiTinyMarginEnd"), planSel, opSel, valInp] }).addStyleClass("sapUiTinyMarginBottom");
-	box.addItem(new ToolbarSpacer());
-	box.addItem(advBtn(node, refresh));
-	box.addItem(rmBtn(onRemove));
+	rowTail(box, node, refresh, onRemove);
 	return box;
 }
 
@@ -343,6 +321,31 @@ function labeled(text: string, ctrl: Control): HBox {
 	return new HBox({ alignItems: "Center", items: [new Label({ text, width: "12rem" }), ctrl] }).addStyleClass("sapUiTinyMarginBottom");
 }
 
+// Multi-value token input (in/notIn/between/values). ponytail: the setTimeout defers
+// the read until MultiInput applied the token add/remove — shared here so that
+// deferred-sync footgun lives in exactly one place.
+function tokenInput(initial: unknown[], isInt: boolean, width: string, placeholder: string, commit: (vals: (string | number)[]) => void): MultiInput {
+	const mi = new MultiInput({ width, placeholder });
+	initial.forEach((v) => mi.addToken(new Token({ text: String(v) })));
+	const sync = (): void => commit(mi.getTokens().map((t) => isInt ? Number(t.getText()) : t.getText()));
+	mi.attachTokenUpdate(() => setTimeout(sync, 0));
+	mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
+	return mi;
+}
+
+function dateField(value: string, commit: (v: string) => void): DateTimePicker {
+	const dp = new DateTimePicker({ value: value || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
+	dp.attachChange(() => commit(dp.getValue()));
+	return dp;
+}
+
+// Trailing spacer + advanced + remove buttons shared by every property-style row.
+function rowTail(box: HBox, node: Node, refresh: () => void, onRemove: () => void): void {
+	box.addItem(new ToolbarSpacer());
+	box.addItem(advBtn(node, refresh));
+	box.addItem(rmBtn(onRemove));
+}
+
 function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: BrmCtx, refresh: () => void, host: VBox): void {
 	const label = friendly(p.id);
 	if (p.type.toLowerCase() === "condition") {
@@ -351,21 +354,20 @@ function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: B
 		host.addItem(conditionEditor(pv[p.id] as Node, ctx, refresh, false));
 		return;
 	}
-	// F3: catalog-backed picker (goalId→goals, eventTypeId→eventTypes).
-	const catKey = PICKERS[nodeType]?.[p.id];
-	if (catKey) {
-		const cb = new ComboBox({ selectedKey: (pv[p.id] as string) || "", value: (pv[p.id] as string) || "", width: "16rem" });
-		ctx.cat[catKey].forEach((o) => cb.addItem(new Item({ key: o.id, text: o.name })));
-		cb.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv[p.id] = it.getKey(); } });
-		cb.attachChange(() => (pv[p.id] = cb.getSelectedKey() || cb.getValue()));
-		host.addItem(labeled(label, cb));
+	// Any parameter that references another Unomi object (scope, goalId, campaignId,
+	// listIdentifiers, valueTypeId, …) → searchable picker from the cached Catalog.
+	const refKey = refFor(nodeType, p.id);
+	if (refKey) {
+		host.addItem(labeled(label, refSelect(refKey, pv[p.id], p.multivalued === true, (v) => (pv[p.id] = v))));
+		return;
+	}
+	// A propertyName param → property picker for the type's target (defaults to profile).
+	if (isPropName(p.id)) {
+		host.addItem(labeled(label, propSelect(propTarget(nodeType), pv[p.id], (v) => (pv[p.id] = v))));
 		return;
 	}
 	if (p.type === "comparisonOperator" || p.id === "comparisonOperator" || p.id === "operator") {
-		const sel = new Select({ selectedKey: (pv[p.id] as string) || "", width: "12rem" });
-		BROAD_OPS.forEach((o) => sel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
-		sel.attachChange(() => (pv[p.id] = sel.getSelectedKey()));
-		host.addItem(labeled(label, sel));
+		host.addItem(labeled(label, select((pv[p.id] as string) || "", opPairs(BROAD_OPS), "12rem", (k) => (pv[p.id] = k))));
 		return;
 	}
 	if (p.type === "boolean") {
@@ -375,19 +377,12 @@ function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: B
 		return;
 	}
 	if (p.multivalued) {
-		const arr = (pv[p.id] ??= []) as any[];
-		const mi = new MultiInput({ width: "22rem" });
-		arr.forEach((v) => mi.addToken(new Token({ text: String(v) })));
-		const sync = () => (pv[p.id] = mi.getTokens().map((t) => p.type === "integer" ? Number(t.getText()) : t.getText()));
-		mi.attachTokenUpdate(() => setTimeout(sync, 0));
-		mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
-		host.addItem(labeled(label, mi));
+		const arr = (pv[p.id] ??= []) as unknown[];
+		host.addItem(labeled(label, tokenInput(arr, p.type === "integer", "22rem", "", (vals) => (pv[p.id] = vals))));
 		return;
 	}
 	if (p.type === "date") {
-		const dp = new DateTimePicker({ value: (pv[p.id] as string) || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
-		dp.attachChange(() => (pv[p.id] = dp.getValue()));
-		host.addItem(labeled(label, dp));
+		host.addItem(labeled(label, dateField(pv[p.id] as string, (v) => (pv[p.id] = v))));
 		return;
 	}
 	const inp = new Input({ value: pv[p.id] == null ? "" : String(pv[p.id]), type: p.type === "integer" ? "Number" : "Text", width: "16rem" });
@@ -408,11 +403,7 @@ function row(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void)
 	const type = rowType(pv, propDef);
 	const op = (pv.comparisonOperator as string) || "";
 
-	const targetSel = new Select({ selectedKey: target, width: "6.5rem" });
-	targetSel.addItem(new Item({ key: "profile", text: "Profile" }));
-	targetSel.addItem(new Item({ key: "session", text: "Session" }));
-	targetSel.addItem(new Item({ key: "event", text: "Event" }));
-	targetSel.attachChange(() => { node.type = ROW_TYPE[targetSel.getSelectedKey() as Target]; refresh(); });
+	const targetSel = select(target, TARGETS, "6.5rem", (k) => { node.type = ROW_TYPE[k as Target]; refresh(); });
 
 	// Picker shows the catalog id/name; the stored propertyName carries the `properties.` path.
 	const picker = new ComboBox({ selectedKey: propDef ? pickerKey : "", value: propDef ? "" : propName, placeholder: "property", width: "14rem" });
@@ -420,28 +411,21 @@ function row(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void)
 	picker.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv.propertyName = prefix + it.getKey(); refresh(); } });
 	picker.attachChange(() => { const k = picker.getSelectedKey(); pv.propertyName = k ? prefix + k : picker.getValue(); refresh(); });
 
-	const typeSel = new Select({ selectedKey: type, width: "6rem" });
-	["string", "integer", "date", "boolean"].forEach((t) => typeSel.addItem(new Item({ key: t, text: t })));
-	typeSel.attachChange(() => {
-		const nt = typeSel.getSelectedKey();
+	const typeSel = select(type, TYPE_KEYS, "6rem", (nt) => {
 		const multi = isMulti(op);
 		clearValues(pv);
 		if (nt === "boolean") { pv.propertyValue = "false"; } else { pv[valueSlot(nt, multi)] = multi ? [] : (nt === "integer" ? 0 : ""); }
 		refresh();
 	});
 
-	const opSel = new Select({ selectedKey: op, width: "9rem" });
-	(OPS[type] || OPS.string).forEach((o) => opSel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
-	opSel.attachChange(() => { pv.comparisonOperator = opSel.getSelectedKey(); refresh(); });
+	const opSel = select(op, opPairs(OPS[type] || OPS.string), "9rem", (k) => { pv.comparisonOperator = k; refresh(); });
 
 	const rowBox = new HBox({ wrap: "Wrap", alignItems: "Center", items: [targetSel, picker, typeSel, opSel] }).addStyleClass("sapUiTinyMarginBottom");
 	const val = valueField(pv, type, op);
 	if (val) {
 		rowBox.addItem(val);
 	}
-	rowBox.addItem(new ToolbarSpacer());
-	rowBox.addItem(advBtn(node, refresh));
-	rowBox.addItem(rmBtn(onRemove));
+	rowTail(rowBox, node, refresh, onRemove);
 	return rowBox;
 }
 
@@ -491,18 +475,11 @@ function valueField(pv: Record<string, any>, type: string, op: string): Control 
 	const slot = valueSlot(type, multi);
 	VALUE_SLOTS.filter((s) => s !== slot).forEach((s) => delete pv[s]);
 	if (multi) {
-		const arr = (pv[slot] ??= []) as any[];
-		const mi = new MultiInput({ width: "18rem", placeholder: op === "between" ? "min, max" : "values" });
-		arr.forEach((v) => mi.addToken(new Token({ text: String(v) })));
-		const sync = () => (pv[slot] = mi.getTokens().map((t) => type === "integer" ? Number(t.getText()) : t.getText()));
-		mi.attachTokenUpdate(() => setTimeout(sync, 0));
-		mi.attachSubmit((e: Event) => { const v = e.getParameter("value" as never) as string; if (v) { mi.addToken(new Token({ text: v })); mi.setValue(""); sync(); } });
-		return mi;
+		const arr = (pv[slot] ??= []) as unknown[];
+		return tokenInput(arr, type === "integer", "18rem", op === "between" ? "min, max" : "values", (vals) => (pv[slot] = vals));
 	}
 	if (type === "date") {
-		const dp = new DateTimePicker({ value: (pv[slot] as string) || "", valueFormat: DATE_FMT, displayFormat: "yyyy-MM-dd HH:mm", width: "16rem" });
-		dp.attachChange(() => (pv[slot] = dp.getValue()));
-		return dp;
+		return dateField(pv[slot] as string, (v) => (pv[slot] = v));
 	}
 	const inp = new Input({ value: pv[slot] == null ? "" : String(pv[slot]), type: type === "integer" ? "Number" : "Text", width: "14rem", placeholder: "value" });
 	inp.attachChange(() => (pv[slot] = type === "integer" ? Number(inp.getValue()) : inp.getValue()));
@@ -510,3 +487,7 @@ function valueField(pv: Record<string, any>, type: string, op: string): Control 
 }
 
 export { emptyCondition };
+
+// Test-only seam: the pure tree-shape / formatting helpers, exported so unit tests
+// can exercise the tricky Unomi condition semantics without driving the UI tree.
+export const _internals = { readGroup, setGroupMode, rowType, valueSlot, clearValues, summarize, friendly, category, isMulti, noValue };

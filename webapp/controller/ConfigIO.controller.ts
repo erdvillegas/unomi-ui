@@ -5,7 +5,7 @@ import Event from "sap/ui/base/Event";
 import ListItemBase from "sap/m/ListItemBase";
 import FileUploader from "sap/ui/unified/FileUploader";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
-import { Metadata } from "unomi/ui/model/types";
+import * as Catalog from "unomi/ui/service/Catalog";
 
 interface Cfg { itemId: string; name?: string; active?: boolean; }
 
@@ -39,11 +39,11 @@ export default class ConfigIO extends BaseController {
 		model.setProperty("/busy", true);
 		try {
 			const [segments, exp, imp] = await Promise.all([
-				UnomiClient.getJson<Metadata[]>("/segments"),
+				Catalog.get("segments"),
 				UnomiClient.getJson<Cfg[]>("/exportConfiguration"),
 				UnomiClient.getJson<Cfg[]>("/importConfiguration")
 			]);
-			model.setProperty("/segments", [{ id: "", name: "(all profiles)" }, ...segments.map((s) => ({ id: s.id, name: s.name || s.id }))]);
+			model.setProperty("/segments", [{ id: "", name: "(all profiles)" }, ...segments]);
 			model.setProperty("/exportConfigs", exp);
 			model.setProperty("/importConfigs", imp);
 		} catch (e) {
@@ -100,6 +100,73 @@ export default class ConfigIO extends BaseController {
 
 	public onNewImport(): void {
 		this.getRouter().navTo("importConfigDetail", { itemId: "new" });
+	}
+
+	// Perfiles de configuración de ejemplo (basados en la doc de Unomi).
+	// mapping: <propiedad Unomi> -> <índice de columna CSV>; propertiesToOverwrite null = todas.
+	private sampleImport(over: Record<string, unknown>): Record<string, unknown> {
+		return {
+			itemType: "importConfig",
+			properties: { mapping: { email: 0, firstName: 1, lastName: 2 } },
+			columnSeparator: ",", lineSeparator: "\n", multiValueSeparator: ";", multiValueDelimiter: "[]",
+			mergingProperty: "email", overwriteExistingProfiles: true, propertiesToOverwrite: null,
+			hasHeader: true, hasDeleteColumn: false, active: true, executions: [], ...over
+		};
+	}
+
+	public onCreateSampleImport(): void {
+		void this.createSample("/importConfiguration", this.sampleImport({
+			itemId: "sample-import-config", name: "Import Config Sample", configType: "oneshot",
+			description: "Ejemplo one-shot: importa perfiles desde un CSV con columnas email, firstName, lastName."
+		}));
+	}
+
+	public onCreateSampleRecurrent(): void {
+		// ponytail: active=false para no arrancar el polling FTP/archivo en dev; enciéndelo al probar.
+		void this.createSample("/importConfiguration", this.sampleImport({
+			itemId: "sample-import-recurrent", name: "Import Config Sample (recurrent)", configType: "recurrent",
+			description: "Ejemplo recurrent: sondea un origen y lo importa periódicamente.",
+			active: false,
+			properties: {
+				source: "file:///tmp/?fileName=profiles.csv&move=.done&consumer.delay=20000",
+				mapping: { email: 0, firstName: 1, lastName: 2 }
+			}
+		}));
+	}
+
+	// Export samples. mapping va al revés que import: <índice de columna> -> <propiedad Unomi>.
+	private sampleExport(over: Record<string, unknown>): Record<string, unknown> {
+		return {
+			itemType: "exportConfig",
+			properties: { segment: "clientes-garcia", mapping: { "0": "firstName", "1": "lastName", "2": "email" } },
+			columnSeparator: ",", lineSeparator: "\n", multiValueSeparator: ";", multiValueDelimiter: "[]",
+			active: true, executions: [], ...over
+		};
+	}
+
+	public onCreateSampleExport(): void {
+		void this.createSample("/exportConfiguration", this.sampleExport({
+			itemId: "sample-export-config", name: "Export configuration sample", configType: "oneshot",
+			description: "Ejemplo one-shot: exporta los perfiles de un segmento a CSV."
+		}));
+	}
+
+	public onCreateSampleExportRecurrent(): void {
+		void this.createSample("/exportConfiguration", this.sampleExport({
+			itemId: "sample-export-recurrent", name: "Export configuration sample (recurrent)", configType: "recurrent",
+			description: "Ejemplo recurrent: exporta un segmento cada cierto periodo.",
+			properties: { period: "2m30s", segment: "clientes-garcia", mapping: { "0": "firstName", "1": "lastName", "2": "email" } }
+		}));
+	}
+
+	private async createSample(path: string, sample: Record<string, unknown>): Promise<void> {
+		try {
+			await UnomiClient.postJson(path, sample);
+			MessageToast.show("Configuración de ejemplo creada");
+			await this.load();
+		} catch (e) {
+			MessageToast.show(`No se pudo crear: ${(e as Error).message}`);
+		}
 	}
 
 	public onExportPress(event: Event): void {
