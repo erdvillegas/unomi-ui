@@ -5,6 +5,8 @@ import MessageBox from "sap/m/MessageBox";
 import Event from "sap/ui/base/Event";
 import Input from "sap/m/Input";
 import Select from "sap/m/Select";
+import Button from "sap/m/Button";
+import IconTabBar from "sap/m/IconTabBar";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import { PartialList } from "unomi/ui/service/UnomiClient";
 import * as Catalog from "unomi/ui/service/Catalog";
@@ -18,7 +20,7 @@ import { Opt } from "unomi/ui/service/Catalog";
 interface Consent { typeIdentifier: string; scope: string; status: string; statusDate?: string; revokeDate?: string | null; }
 interface AProfile { itemId: string; consents?: Record<string, Consent>; properties?: Record<string, unknown>; }
 interface ConsentRow extends Consent { profileId: string; state: string; }
-interface ForgetRow { itemId: string; email: string; name: string; }
+interface ForgetRow { itemId: string; email: string; name: string; selected: boolean; }
 
 const FORGET_PAGE = 25;
 
@@ -42,7 +44,8 @@ export default class DataProtection extends BaseController {
 			counts: { total: 0, granted: 0, denied: 0, revoked: 0, profiles: 0 },
 			fStatus: "", fScope: "",
 			forgetProfiles: [] as ForgetRow[], forgetText: "",
-			profileId: "", selectedLabel: "", hasSelection: false, anonScope: "systemscope", propName: "",
+			selectedCount: 0, selectedLabel: "", hasSelection: false, anonScope: "systemscope", propName: "",
+			profileId: "", // single-target field kept for the Policies tab
 			privacy: { loaded: false, anonBrowsing: false, filters: [] as object[] },
 			busy: false
 		}), "dp");
@@ -127,19 +130,22 @@ export default class DataProtection extends BaseController {
 		void this.loadAudit();
 	}
 
-	// ---- Right to be forgotten -----------------------------------------------
-	// Pick the target from a searchable profile list (shows who you're erasing),
-	// instead of typing an opaque id blind into a destructive action.
+	// ---- Right to be forgotten (bulk over a searchable profile list) ---------
+	// Pick one or many targets from a list that shows who you're erasing, instead
+	// of typing opaque ids blind into a destructive action.
+	private toForgetRow(p: AProfile): ForgetRow {
+		const pr = (p.properties || {}) as Record<string, unknown>;
+		return { itemId: p.itemId, email: (pr.email as string) || "",
+			name: [pr.firstName, pr.lastName].filter(Boolean).join(" "), selected: false };
+	}
+
 	private async loadForgetProfiles(text: string): Promise<void> {
+		this.model().setProperty("/forgetText", text);
 		try {
 			const res = await UnomiClient.queryList<AProfile>("/profiles/search",
 				{ text: text || null, offset: 0, limit: FORGET_PAGE, condition: { type: "matchAllCondition", parameterValues: {} } });
-			const rows: ForgetRow[] = res.list.map((p) => {
-				const pr = (p.properties || {}) as Record<string, unknown>;
-				const name = [pr.firstName, pr.lastName].filter(Boolean).join(" ");
-				return { itemId: p.itemId, email: (pr.email as string) || "", name };
-			});
-			this.model().setProperty("/forgetProfiles", rows);
+			this.model().setProperty("/forgetProfiles", res.list.map((p) => this.toForgetRow(p)));
+			this.recomputeSelection();
 		} catch (e) {
 			MessageToast.show(`Search failed: ${(e as Error).message}`);
 		}
@@ -149,73 +155,110 @@ export default class DataProtection extends BaseController {
 		void this.loadForgetProfiles((event.getParameter("query" as never) as string) || "");
 	}
 
-	public onSelectProfile(event: Event): void {
-		const item = event.getParameter("listItem" as never) as { getBindingContext(m: string): { getObject(): ForgetRow } | undefined };
-		const row = item?.getBindingContext("dp")?.getObject();
+	// The MultiSelect table two-way-binds each row's `selected`; just recompute.
+	public onSelectionChange(): void {
+		this.recomputeSelection();
+	}
+
+	private selectedRows(): ForgetRow[] {
+		return (this.model().getProperty("/forgetProfiles") as ForgetRow[]).filter((r) => r.selected);
+	}
+
+	private recomputeSelection(): void {
+		const rows = this.selectedRows();
+		const m = this.model();
+		m.setProperty("/selectedCount", rows.length);
+		m.setProperty("/hasSelection", rows.length > 0);
+		m.setProperty("/selectedLabel", rows.map((r) => r.email ? `${r.itemId} (${r.email})` : r.itemId).join(", "));
+		m.setProperty("/profileId", rows[0]?.itemId ?? ""); // feeds the Policies tab
+	}
+
+	// Jump here from an audit row: load that exact profile, preselect it, switch tab.
+	public async onForgetFromAudit(event: Event): Promise<void> {
+		const row = (event.getSource() as Button).getBindingContext("dp")?.getObject() as ConsentRow | undefined;
 		if (!row) {
 			return;
 		}
-		const label = [row.itemId, row.email, row.name].filter(Boolean).join(" · ");
-		this.model().setProperty("/profileId", row.itemId);
-		this.model().setProperty("/selectedLabel", label);
-		this.model().setProperty("/hasSelection", true);
+		try {
+			const p = await UnomiClient.getJson<AProfile>(`/profiles/${encodeURIComponent(row.profileId)}`);
+			const fr = this.toForgetRow(p);
+			fr.selected = true;
+			this.model().setProperty("/forgetProfiles", [fr]);
+			this.model().setProperty("/forgetText", row.profileId);
+			this.recomputeSelection();
+			(this.byId("dpTabs") as IconTabBar).setSelectedKey("forget");
+		} catch (e) {
+			MessageToast.show(`Load profile failed: ${(e as Error).message}`);
+		}
+	}
+
+	// Run a privacy op over every selected profile, sequentially (avoid flooding
+	// the container — that's what OOM'd it before), and report a summary.
+	private async forEachSelected(op: (id: string) => Promise<void>, okMsg: (n: number) => string): Promise<void> {
+		const rows = this.selectedRows();
+		if (rows.length === 0) {
+			MessageToast.show("Selecciona al menos un perfil");
+			return;
+		}
+		let ok = 0;
+		const fails: string[] = [];
+		for (const r of rows) {
+			try {
+				await op(r.itemId);
+				ok += 1;
+			} catch {
+				fails.push(r.itemId);
+			}
+		}
+		MessageToast.show(fails.length ? `${okMsg(ok)} · fallaron: ${fails.join(", ")}` : okMsg(ok));
+	}
+
+	public async onAnonymize(): Promise<void> {
+		const scope = (this.model().getProperty("/anonScope") as string) || "systemscope";
+		await this.forEachSelected(
+			(id) => UnomiClient.postJson(`/privacy/profiles/${encodeURIComponent(id)}/anonymize?scope=${encodeURIComponent(scope)}`, {}),
+			(n) => `${n} perfil(es) anonimizados`
+		);
+	}
+
+	public async onDeleteProperty(): Promise<void> {
+		const prop = ((this.model().getProperty("/propName") as string) || "").trim();
+		if (!prop) {
+			MessageToast.show("Indica la propiedad");
+			return;
+		}
+		await this.forEachSelected(
+			(id) => UnomiClient.del(`/privacy/profiles/${encodeURIComponent(id)}/properties/${encodeURIComponent(prop)}`),
+			(n) => `Propiedad "${prop}" eliminada en ${n} perfil(es)`
+		);
+		this.model().setProperty("/propName", "");
+	}
+
+	public onDeleteData(): void {
+		const rows = this.selectedRows();
+		if (rows.length === 0) {
+			MessageToast.show("Selecciona al menos un perfil");
+			return;
+		}
+		const list = rows.map((r) => r.itemId).join(", ");
+		MessageBox.warning(`¿Borrar todos los datos de ${rows.length} perfil(es)?\n\n${list}\n\nEsta acción no se puede deshacer.`, {
+			actions: [MessageBox.Action.DELETE, MessageBox.Action.CANCEL],
+			emphasizedAction: MessageBox.Action.CANCEL,
+			onClose: (a: string | null) => { if (a === MessageBox.Action.DELETE) { void this.doDeleteData(); } }
+		});
+	}
+
+	private async doDeleteData(): Promise<void> {
+		await this.forEachSelected(
+			(id) => UnomiClient.del(`/privacy/profiles/${encodeURIComponent(id)}`),
+			(n) => `${n} perfil(es) borrados`
+		);
+		await this.loadForgetProfiles((this.model().getProperty("/forgetText") as string) || "");
+		void this.loadAudit(); // consents changed → refresh the audit
 	}
 
 	private forgetTarget(): string {
 		return ((this.model().getProperty("/profileId") as string) || "").trim();
-	}
-
-	public async onAnonymize(): Promise<void> {
-		const id = this.forgetTarget();
-		if (!id) {
-			MessageToast.show("Indica el ID de perfil");
-			return;
-		}
-		const scope = (this.model().getProperty("/anonScope") as string) || "systemscope";
-		try {
-			await UnomiClient.postJson(`/privacy/profiles/${encodeURIComponent(id)}/anonymize?scope=${encodeURIComponent(scope)}`, {});
-			MessageToast.show(`Perfil ${id} anonimizado`);
-		} catch (e) {
-			MessageToast.show(`Anonymize failed: ${(e as Error).message}`);
-		}
-	}
-
-	public onDeleteData(): void {
-		const id = this.forgetTarget();
-		if (!id) {
-			MessageToast.show("Indica el ID de perfil");
-			return;
-		}
-		MessageBox.warning(`¿Borrar todos los datos del perfil "${id}"? Esta acción no se puede deshacer.`, {
-			actions: [MessageBox.Action.DELETE, MessageBox.Action.CANCEL],
-			emphasizedAction: MessageBox.Action.CANCEL,
-			onClose: (a: string | null) => { if (a === MessageBox.Action.DELETE) { void this.doDeleteData(id); } }
-		});
-	}
-
-	private async doDeleteData(id: string): Promise<void> {
-		try {
-			await UnomiClient.del(`/privacy/profiles/${encodeURIComponent(id)}`);
-			MessageToast.show(`Datos del perfil ${id} borrados`);
-		} catch (e) {
-			MessageToast.show(`Delete failed: ${(e as Error).message}`);
-		}
-	}
-
-	public async onDeleteProperty(): Promise<void> {
-		const id = this.forgetTarget();
-		const prop = ((this.model().getProperty("/propName") as string) || "").trim();
-		if (!id || !prop) {
-			MessageToast.show("Indica ID de perfil y propiedad");
-			return;
-		}
-		try {
-			await UnomiClient.del(`/privacy/profiles/${encodeURIComponent(id)}/properties/${encodeURIComponent(prop)}`);
-			MessageToast.show(`Propiedad ${prop} eliminada`);
-			this.model().setProperty("/propName", "");
-		} catch (e) {
-			MessageToast.show(`Delete property failed: ${(e as Error).message}`);
-		}
 	}
 
 	// ---- Per-profile privacy "policies" (anonymousBrowsing + eventFilters) ----
