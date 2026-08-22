@@ -2,6 +2,7 @@
 	controllerName="unomi.ui.controller.ProfileDetail"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
 	displayBlock="true">
 	<Page
 		title="{detail>/profileId}"
@@ -11,6 +12,44 @@
 		busyIndicatorDelay="0">
 		<Panel headerText="{i18n>module.properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
 			<VBox id="propsHost" width="100%" />
+		</Panel>
+
+		<Panel headerText="{i18n>consent.title}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
+			<headerToolbar>
+				<Toolbar>
+					<Title text="{i18n>consent.title}" />
+					<ToolbarSpacer />
+					<Input id="consentType" placeholder="{i18n>consent.typePlaceholder}" width="12rem" />
+					<ComboBox id="consentScope" placeholder="{i18n>col.scope}" width="10rem" items="{detail>/scopes}">
+						<core:Item key="{detail>id}" text="{detail>name}" />
+					</ComboBox>
+					<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddConsent" />
+				</Toolbar>
+			</headerToolbar>
+			<Table items="{detail>/consents}" noDataText="{i18n>common.noData}">
+				<columns>
+					<Column><Text text="{i18n>consent.type}" /></Column>
+					<Column><Text text="{i18n>col.scope}" /></Column>
+					<Column><Text text="{i18n>consent.status}" /></Column>
+					<Column><Text text="{i18n>consent.statusDate}" /></Column>
+					<Column><Text text="{i18n>consent.revokeDate}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{detail>typeIdentifier}" />
+							<Text text="{detail>scope}" />
+							<Select selectedKey="{detail>status}" change=".onConsentStatusChange" width="9rem">
+								<core:Item key="GRANTED" text="{i18n>consent.granted}" />
+								<core:Item key="DENIED" text="{i18n>consent.denied}" />
+								<core:Item key="REVOKED" text="{i18n>consent.revoked}" />
+							</Select>
+							<Text text="{detail>statusDate}" />
+							<Text text="{detail>revokeDate}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
 		</Panel>
 
 		<Panel headerText="{i18n>profile.aliases}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
