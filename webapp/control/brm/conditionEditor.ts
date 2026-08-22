@@ -91,6 +91,20 @@ const DATE_FMT = "yyyy-MM-dd'T'HH:mm:ss";
 const isMulti = (op: string) => ["in", "notIn", "between", "all", "hasSomeOf", "hasNoneOf"].includes(op);
 const noValue = (op: string) => op === "exists" || op === "missing";
 
+// One-liner typed <Select>: opts are [key, text] pairs, onChange gets the new key.
+function select(selectedKey: string, opts: [string, string][], width: string, onChange: (key: string) => void): Select {
+	const sel = new Select({ selectedKey, width });
+	opts.forEach(([k, t]) => sel.addItem(new Item({ key: k, text: t })));
+	sel.attachChange(() => onChange(sel.getSelectedKey()));
+	return sel;
+}
+// Operator keys -> [key, human label] pairs for the operator selects.
+const opPairs = (keys: string[]): [string, string][] => keys.map((o) => [o, OP_LABEL[o] || o] as [string, string]);
+const MODES: [string, string][] = [["all", "ALL of"], ["any", "ANY of"], ["none", "NONE of"]];
+const TARGETS: [string, string][] = [["profile", "Profile"], ["session", "Session"], ["event", "Event"]];
+const TYPE_KEYS: [string, string][] = [["string", "string"], ["integer", "integer"], ["date", "date"], ["boolean", "boolean"]];
+const SCORE_OPS = ["equals", "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo"];
+
 // Both delegate to service/Catalog (single cache); shapes/normalization live there.
 export function loadProps(): Promise<BrmCtx["props"]> {
 	return Catalog.getProps();
@@ -206,11 +220,7 @@ function filterDialog(e: Event): void {
 function group(node: Node, ctx: BrmCtx, refresh: () => void, onRemove?: () => void): Control {
 	const g = readGroup(node);
 
-	const modeSel = new Select({ selectedKey: g.mode, width: "8rem" });
-	modeSel.addItem(new Item({ key: "all", text: "ALL of" }));
-	modeSel.addItem(new Item({ key: "any", text: "ANY of" }));
-	modeSel.addItem(new Item({ key: "none", text: "NONE of" }));
-	modeSel.attachChange(() => { setGroupMode(node, modeSel.getSelectedKey(), g.subs); refresh(); });
+	const modeSel = select(g.mode, MODES, "8rem", (k) => { setGroupMode(node, k, g.subs); refresh(); });
 
 	const add = (child: Node): void => {
 		if (node.type === "matchAllCondition") { setGroupMode(node, g.mode, []); }
@@ -262,9 +272,7 @@ function childEditor(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () 
 // "Profile is in segment/list [X, Y]" with a multi-select picker from the catalog.
 function membershipRow(node: Node, opts: Opt[], slot: string, label: string, refresh: () => void, onRemove: () => void): Control {
 	const pv = node.parameterValues;
-	const matchSel = new Select({ selectedKey: (pv.matchType as string) || "in", width: "10rem" });
-	MATCH_TYPES.forEach(([k, t]) => matchSel.addItem(new Item({ key: k, text: t })));
-	matchSel.attachChange(() => (pv.matchType = matchSel.getSelectedKey()));
+	const matchSel = select((pv.matchType as string) || "in", MATCH_TYPES, "10rem", (k) => (pv.matchType = k));
 	const mcb = new MultiComboBox({ width: "24rem", placeholder: label.toLowerCase() + "s" });
 	opts.forEach((o) => mcb.addItem(new Item({ key: o.id, text: o.name })));
 	mcb.setSelectedKeys(((pv[slot] as string[]) || []).slice());
@@ -281,9 +289,7 @@ function scoreRow(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => 
 	ctx.cat.scorings.forEach((s) => planSel.addItem(new Item({ key: s.id, text: s.name })));
 	planSel.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv.scoringPlanId = it.getKey(); } });
 	planSel.attachChange(() => (pv.scoringPlanId = planSel.getSelectedKey() || planSel.getValue()));
-	const opSel = new Select({ selectedKey: (pv.comparisonOperator as string) || "greaterThanOrEqualTo", width: "9rem" });
-	["equals", "greaterThan", "greaterThanOrEqualTo", "lessThan", "lessThanOrEqualTo"].forEach((o) => opSel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
-	opSel.attachChange(() => (pv.comparisonOperator = opSel.getSelectedKey()));
+	const opSel = select((pv.comparisonOperator as string) || "greaterThanOrEqualTo", opPairs(SCORE_OPS), "9rem", (k) => (pv.comparisonOperator = k));
 	const valInp = new Input({ value: pv.scoreValue == null ? "" : String(pv.scoreValue), type: "Number", width: "8rem", placeholder: "score" });
 	valInp.attachChange(() => (pv.scoreValue = Number(valInp.getValue()) || 0));
 	const box = new HBox({ wrap: "Wrap", alignItems: "Center", items: [new Label({ text: "Score", design: "Bold" }).addStyleClass("sapUiTinyMarginEnd"), planSel, opSel, valInp] }).addStyleClass("sapUiTinyMarginBottom");
@@ -361,10 +367,7 @@ function renderParam(nodeType: string, p: Param, pv: Record<string, any>, ctx: B
 		return;
 	}
 	if (p.type === "comparisonOperator" || p.id === "comparisonOperator" || p.id === "operator") {
-		const sel = new Select({ selectedKey: (pv[p.id] as string) || "", width: "12rem" });
-		BROAD_OPS.forEach((o) => sel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
-		sel.attachChange(() => (pv[p.id] = sel.getSelectedKey()));
-		host.addItem(labeled(label, sel));
+		host.addItem(labeled(label, select((pv[p.id] as string) || "", opPairs(BROAD_OPS), "12rem", (k) => (pv[p.id] = k))));
 		return;
 	}
 	if (p.type === "boolean") {
@@ -400,11 +403,7 @@ function row(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void)
 	const type = rowType(pv, propDef);
 	const op = (pv.comparisonOperator as string) || "";
 
-	const targetSel = new Select({ selectedKey: target, width: "6.5rem" });
-	targetSel.addItem(new Item({ key: "profile", text: "Profile" }));
-	targetSel.addItem(new Item({ key: "session", text: "Session" }));
-	targetSel.addItem(new Item({ key: "event", text: "Event" }));
-	targetSel.attachChange(() => { node.type = ROW_TYPE[targetSel.getSelectedKey() as Target]; refresh(); });
+	const targetSel = select(target, TARGETS, "6.5rem", (k) => { node.type = ROW_TYPE[k as Target]; refresh(); });
 
 	// Picker shows the catalog id/name; the stored propertyName carries the `properties.` path.
 	const picker = new ComboBox({ selectedKey: propDef ? pickerKey : "", value: propDef ? "" : propName, placeholder: "property", width: "14rem" });
@@ -412,19 +411,14 @@ function row(node: Node, ctx: BrmCtx, refresh: () => void, onRemove: () => void)
 	picker.attachSelectionChange((e: Event) => { const it = e.getParameter("selectedItem" as never) as Item; if (it) { pv.propertyName = prefix + it.getKey(); refresh(); } });
 	picker.attachChange(() => { const k = picker.getSelectedKey(); pv.propertyName = k ? prefix + k : picker.getValue(); refresh(); });
 
-	const typeSel = new Select({ selectedKey: type, width: "6rem" });
-	["string", "integer", "date", "boolean"].forEach((t) => typeSel.addItem(new Item({ key: t, text: t })));
-	typeSel.attachChange(() => {
-		const nt = typeSel.getSelectedKey();
+	const typeSel = select(type, TYPE_KEYS, "6rem", (nt) => {
 		const multi = isMulti(op);
 		clearValues(pv);
 		if (nt === "boolean") { pv.propertyValue = "false"; } else { pv[valueSlot(nt, multi)] = multi ? [] : (nt === "integer" ? 0 : ""); }
 		refresh();
 	});
 
-	const opSel = new Select({ selectedKey: op, width: "9rem" });
-	(OPS[type] || OPS.string).forEach((o) => opSel.addItem(new Item({ key: o, text: OP_LABEL[o] || o })));
-	opSel.attachChange(() => { pv.comparisonOperator = opSel.getSelectedKey(); refresh(); });
+	const opSel = select(op, opPairs(OPS[type] || OPS.string), "9rem", (k) => { pv.comparisonOperator = k; refresh(); });
 
 	const rowBox = new HBox({ wrap: "Wrap", alignItems: "Center", items: [targetSel, picker, typeSel, opSel] }).addStyleClass("sapUiTinyMarginBottom");
 	const val = valueField(pv, type, op);
