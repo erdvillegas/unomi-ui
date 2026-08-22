@@ -113,6 +113,22 @@ def register_schemas():
         })
 
 # --- Generación de perfiles y eventos ----------------------------------------
+# Consent types del dominio (Taller de Mike) para poblar profile.consents.
+CONSENT_TYPES = [("newsletter", "onlinestore"), ("marketing", "onlinestore"),
+                 ("sms", "tiendafisica"), ("dataProcessing", "systemscope"), ("cookies", "onlinestore")]
+
+def make_consents():
+    # 0–3 consentimientos por perfil, con estados y fechas variadas para ver la tabla.
+    chosen = random.sample(CONSENT_TYPES, random.randint(0, 3))
+    out = {}
+    for tid, scope in chosen:
+        status = random.choice(["GRANTED", "GRANTED", "DENIED", "REVOKED"])
+        days_ago = random.randint(1, 200)
+        sd = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - days_ago * 86400))
+        out[tid] = {"typeIdentifier": tid, "scope": scope, "status": status,
+                    "statusDate": sd, "revokeDate": sd if status == "REVOKED" else None}
+    return out
+
 def make_profile(pid):
     fn, ln = random.choice(FIRST), random.choice(LAST)
     props = {
@@ -125,7 +141,7 @@ def make_profile(pid):
         "customerType": random.choice(CUSTOMER_TYPES),
         "preferredChannel": random.choice(["online", "fisico", "online", "fisico", "ambos"]),
     }
-    api("POST", "/profiles", {"itemId": pid, "itemType": "profile", "properties": props})
+    api("POST", "/profiles", {"itemId": pid, "itemType": "profile", "properties": props, "consents": make_consents()})
     return props
 
 def evt(etype, env, target_id, target_type, tprops=None):
