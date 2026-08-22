@@ -214,6 +214,11 @@
           "target": "queries"
         },
         {
+          "name": "dataProtection",
+          "pattern": "dataProtection",
+          "target": "dataProtection"
+        },
+        {
           "name": "definitions",
           "pattern": "definitions",
           "target": "definitions"
@@ -345,6 +350,10 @@
         "queries": {
           "id": "queries",
           "name": "Queries"
+        },
+        "dataProtection": {
+          "id": "dataProtection",
+          "name": "DataProtection"
         }
       }
     }
