@@ -55,6 +55,12 @@ QUnit.test("getJson: default base, Basic header, parsed body", async (assert) =>
 	assert.strictEqual(header(0, "Authorization"), "Basic " + btoa("karaf:karaf"), "Basic auth header");
 });
 
+QUnit.test("getJson: 204 No Content → null instead of a JSON parse crash", async (assert) => {
+	stubFetch({ status: 204 });
+	const out = await UnomiClient.getJson<object | null>("/rules/updateConsent/statistics");
+	assert.strictEqual(out, null, "empty 204 body yields null, not a thrown DOMException");
+});
+
 QUnit.test("no auth header when unauthenticated", async (assert) => {
 	stubFetch({ json: {} });
 	await UnomiClient.getJson("/x");

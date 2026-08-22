@@ -65,7 +65,9 @@ export async function ping(): Promise<string> {
 /** Generic GET returning JSON. */
 export async function getJson<T>(path: string): Promise<T> {
 	const res = await request(path);
-	return (await res.json()) as T;
+	// 204 No Content (e.g. rule statistics before the rule has ever fired) has no
+	// body — calling res.json() on it throws "Unexpected end of JSON input".
+	return (res.status === 204 ? null : await res.json()) as T;
 }
 
 /** POST a Query/Condition body to a search|query endpoint → PartialList envelope. */

@@ -140,7 +140,7 @@ function renderParams(node: Node, params: Param[], defs: Defs, refresh: () => vo
 // profile's `properties` map by id. Boolean → CheckBox, integer → number Input, else
 // text Input; missing values render empty so the user can fill them. Laid out with a
 // responsive 2-column form (Horizon) so fields use the width instead of a cramped column.
-export interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
+interface NativeProp { id: string; name?: string; valueTypeId?: string | null; }
 export function nativePropsBox(map: Record<string, any>, defs: NativeProp[]): SimpleForm {
 	const content: Control[] = [];
 	defs.forEach((d) => {
