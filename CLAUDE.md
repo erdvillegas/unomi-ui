@@ -86,5 +86,13 @@ mountPath, so `baseUri` in `ui5.yaml` includes `/cxs`). `GET /cxs/test/ping` ret
 
 ## Changes
 
-On Every change make a local conventional commit, do not push to remote, 
-do not make a commit on "main" or "dev" branch, just for feature or wip  
+On every change make a local conventional commit, do not push to remote unless
+explicitly asked, and do not commit directly on `main` or `dev` — always work on a
+`feature/*`, `bugfix/*`, or wip branch.
+
+**Reaching `main` MUST be via Pull Request** (agreed policy). Never push or merge
+directly into `main`, not even locally. Releases and hotfixes prepare their branch
+(`release/*` from `dev`, `hotfix/*` from `main`), and a **PR into `main`** — with CI
+green — performs the merge; the SemVer tag (`vX.Y.Z`) is then created on `main`.
+Integration into `dev` is via `--no-ff` merges from `feature/*`/`bugfix/*` (a PR
+into `dev` is likewise preferred). See `.claude/skills/git-cicd-strategist/`.
