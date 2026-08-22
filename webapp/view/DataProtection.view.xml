@@ -73,38 +73,64 @@
 					</Panel>
 				</IconTabFilter>
 
-				<!-- Derecho al olvido: anonimizar / borrar -->
+				<!-- Derecho al olvido: elegir perfil de una lista, luego actuar -->
 				<IconTabFilter text="{i18n>dp.forget}" icon="sap-icon://key-user-settings" key="forget">
-					<VBox class="sapUiSmallMargin" width="40rem">
-						<Label text="{i18n>dp.profileId}" design="Bold" />
-						<Input value="{dp>/profileId}" placeholder="{i18n>dp.profileIdPlaceholder}" class="sapUiSmallMarginBottom" />
+					<HBox wrap="Wrap">
+						<!-- Selector de perfil -->
+						<VBox class="sapUiSmallMarginEnd" width="30rem">
+							<SearchField search=".onForgetSearch" placeholder="{i18n>dp.searchProfiles}" width="100%" class="sapUiSmallMarginBottom" />
+							<Table items="{dp>/forgetProfiles}" mode="SingleSelectMaster" selectionChange=".onSelectProfile" noDataText="{i18n>common.noData}" growing="true" growingThreshold="25">
+								<columns>
+									<Column><Text text="{i18n>col.id}" /></Column>
+									<Column><Text text="{i18n>col.email}" /></Column>
+									<Column><Text text="{i18n>col.name}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{dp>itemId}" />
+											<Text text="{dp>email}" />
+											<Text text="{dp>name}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</VBox>
 
-						<Panel headerText="{i18n>profile.anonymize}" class="sapUiSmallMarginTop">
-							<VBox class="sapUiSmallMargin">
-								<HBox alignItems="Center" class="sapUiTinyMarginBottom">
-									<Label text="{i18n>col.scope}" width="6rem" />
-									<Select selectedKey="{dp>/anonScope}" items="{dp>/scopes}" width="14rem">
-										<core:Item key="{dp>id}" text="{dp>name}" />
-									</Select>
-								</HBox>
-								<Button text="{i18n>profile.anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" width="16rem" />
-							</VBox>
-						</Panel>
+						<!-- Acciones sobre el perfil seleccionado -->
+						<VBox width="34rem">
+							<MessageStrip visible="{= !${dp>/hasSelection} }" text="{i18n>dp.selectFirst}" type="Information" showIcon="true" />
+							<VBox visible="{dp>/hasSelection}">
+								<MessageStrip text="{dp>/selectedLabel}" type="Warning" showIcon="true" class="sapUiSmallMarginBottom" />
 
-						<Panel headerText="{i18n>dp.deleteProperty}" class="sapUiSmallMarginTop">
-							<VBox class="sapUiSmallMargin">
-								<Input value="{dp>/propName}" placeholder="{i18n>dp.propertyPlaceholder}" class="sapUiTinyMarginBottom" width="20rem" />
-								<Button text="{i18n>dp.deleteProperty}" icon="sap-icon://delete" press=".onDeleteProperty" width="16rem" />
-							</VBox>
-						</Panel>
+								<Panel headerText="{i18n>profile.anonymize}" class="sapUiTinyMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+											<Label text="{i18n>col.scope}" width="6rem" />
+											<Select selectedKey="{dp>/anonScope}" items="{dp>/scopes}" width="14rem">
+												<core:Item key="{dp>id}" text="{dp>name}" />
+											</Select>
+										</HBox>
+										<Button text="{i18n>profile.anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" width="16rem" />
+									</VBox>
+								</Panel>
 
-						<Panel headerText="{i18n>profile.deleteData}" class="sapUiSmallMarginTop">
-							<VBox class="sapUiSmallMargin">
-								<MessageStrip text="{i18n>dp.deleteWarn}" type="Warning" showIcon="true" class="sapUiTinyMarginBottom" />
-								<Button text="{i18n>profile.deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" width="16rem" />
+								<Panel headerText="{i18n>dp.deleteProperty}" class="sapUiTinyMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<Input value="{dp>/propName}" placeholder="{i18n>dp.propertyPlaceholder}" class="sapUiTinyMarginBottom" width="20rem" />
+										<Button text="{i18n>dp.deleteProperty}" icon="sap-icon://delete" press=".onDeleteProperty" width="16rem" />
+									</VBox>
+								</Panel>
+
+								<Panel headerText="{i18n>profile.deleteData}" class="sapUiTinyMarginTop">
+									<VBox class="sapUiSmallMargin">
+										<MessageStrip text="{i18n>dp.deleteWarn}" type="Error" showIcon="true" class="sapUiTinyMarginBottom" />
+										<Button text="{i18n>profile.deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" width="16rem" />
+									</VBox>
+								</Panel>
 							</VBox>
-						</Panel>
-					</VBox>
+						</VBox>
+					</HBox>
 				</IconTabFilter>
 
 				<!-- Políticas de privacidad (por-perfil; Unomi no tiene políticas globales) -->

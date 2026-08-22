@@ -16,8 +16,11 @@ import { Opt } from "unomi/ui/service/Catalog";
 // per-profile privacy surface (anonymousBrowsing + eventFilters), not a global screen.
 
 interface Consent { typeIdentifier: string; scope: string; status: string; statusDate?: string; revokeDate?: string | null; }
-interface AProfile { itemId: string; consents?: Record<string, Consent>; }
+interface AProfile { itemId: string; consents?: Record<string, Consent>; properties?: Record<string, unknown>; }
 interface ConsentRow extends Consent { profileId: string; state: string; }
+interface ForgetRow { itemId: string; email: string; name: string; }
+
+const FORGET_PAGE = 25;
 
 const STATE: Record<string, string> = { GRANTED: "Success", DENIED: "Error", REVOKED: "Warning" };
 const AUDIT_PAGE = 50;
@@ -38,7 +41,8 @@ export default class DataProtection extends BaseController {
 			consents: [] as ConsentRow[], scopes: [] as Opt[], scopeCounts: [] as { scope: string; count: number }[],
 			counts: { total: 0, granted: 0, denied: 0, revoked: 0, profiles: 0 },
 			fStatus: "", fScope: "",
-			profileId: "", anonScope: "systemscope", propName: "",
+			forgetProfiles: [] as ForgetRow[], forgetText: "",
+			profileId: "", selectedLabel: "", hasSelection: false, anonScope: "systemscope", propName: "",
 			privacy: { loaded: false, anonBrowsing: false, filters: [] as object[] },
 			busy: false
 		}), "dp");
@@ -50,6 +54,7 @@ export default class DataProtection extends BaseController {
 			return;
 		}
 		void this.loadAudit();
+		void this.loadForgetProfiles("");
 	}
 
 	private model(): JSONModel {
@@ -123,6 +128,39 @@ export default class DataProtection extends BaseController {
 	}
 
 	// ---- Right to be forgotten -----------------------------------------------
+	// Pick the target from a searchable profile list (shows who you're erasing),
+	// instead of typing an opaque id blind into a destructive action.
+	private async loadForgetProfiles(text: string): Promise<void> {
+		try {
+			const res = await UnomiClient.queryList<AProfile>("/profiles/search",
+				{ text: text || null, offset: 0, limit: FORGET_PAGE, condition: { type: "matchAllCondition", parameterValues: {} } });
+			const rows: ForgetRow[] = res.list.map((p) => {
+				const pr = (p.properties || {}) as Record<string, unknown>;
+				const name = [pr.firstName, pr.lastName].filter(Boolean).join(" ");
+				return { itemId: p.itemId, email: (pr.email as string) || "", name };
+			});
+			this.model().setProperty("/forgetProfiles", rows);
+		} catch (e) {
+			MessageToast.show(`Search failed: ${(e as Error).message}`);
+		}
+	}
+
+	public onForgetSearch(event: Event): void {
+		void this.loadForgetProfiles((event.getParameter("query" as never) as string) || "");
+	}
+
+	public onSelectProfile(event: Event): void {
+		const item = event.getParameter("listItem" as never) as { getBindingContext(m: string): { getObject(): ForgetRow } | undefined };
+		const row = item?.getBindingContext("dp")?.getObject();
+		if (!row) {
+			return;
+		}
+		const label = [row.itemId, row.email, row.name].filter(Boolean).join(" · ");
+		this.model().setProperty("/profileId", row.itemId);
+		this.model().setProperty("/selectedLabel", label);
+		this.model().setProperty("/hasSelection", true);
+	}
+
 	private forgetTarget(): string {
 		return ((this.model().getProperty("/profileId") as string) || "").trim();
 	}
