@@ -34,7 +34,8 @@ Ejemplos:
 4. CI en verde (lint, tests, build) — ver `github-actions-patterns.md`.
 5. Al menos 1 revisión aprobada.
 6. Merge a `develop` (squash o merge commit, según prefiera el equipo — en Git Flow es común preservar merge commits para trazabilidad de releases).
-7. Borrar la rama tras el merge.
+7. El merge debera utilizar la opcion --no-ff para no perder el historial de los cambios
+8. Borrar la rama tras el merge.
 
 ## Flujo: release
 
