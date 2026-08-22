@@ -6,7 +6,10 @@ import Event from "sap/ui/base/Event";
 import ListItemBase from "sap/m/ListItemBase";
 import VBox from "sap/m/VBox";
 import Input from "sap/m/Input";
+import ComboBox from "sap/m/ComboBox";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
+import * as Catalog from "unomi/ui/service/Catalog";
+import { Opt } from "unomi/ui/service/Catalog";
 import { PartialList } from "unomi/ui/service/UnomiClient";
 import { Session, UnomiEvent, Metadata } from "unomi/ui/model/types";
 import Label from "sap/m/Label";
@@ -31,7 +34,7 @@ export default class ProfileDetail extends BaseController {
 		this.getView()?.setModel(new JSONModel({
 			profileId: "", segments: [] as Metadata[], sessions: [] as Session[],
 			events: [] as UnomiEvent[], aliases: [] as Alias[], consents: [] as (Consent & { key: string })[],
-			anonBrowsing: false, busy: false
+			scopes: [] as Opt[], anonBrowsing: false, busy: false
 		}), "detail");
 		this.getView()?.setModel(new JSONModel({}), "profile");
 		this.getRouter().getRoute("profileDetail")?.attachPatternMatched(this.onShow, this);
@@ -47,19 +50,21 @@ export default class ProfileDetail extends BaseController {
 
 	private async load(): Promise<void> {
 		const model = this.getView()?.getModel("detail") as JSONModel;
-		model.setData({ profileId: this.profileId, segments: [], sessions: [], events: [], aliases: [], consents: [], anonBrowsing: false, busy: true });
+		model.setData({ profileId: this.profileId, segments: [], sessions: [], events: [], aliases: [], consents: [], scopes: [], anonBrowsing: false, busy: true });
 		const enc = encodeURIComponent(this.profileId);
 		try {
-			const [profile, segments, sessions, aliases, anon] = await Promise.all([
+			const [profile, segments, sessions, aliases, anon, scopes] = await Promise.all([
 				UnomiClient.getJson<FullProfile>(`/profiles/${enc}`),
 				UnomiClient.getJson<Metadata[]>(`/profiles/${enc}/segments`),
 				UnomiClient.getJson<PartialList<Session>>(`/profiles/${enc}/sessions?size=50`),
 				UnomiClient.getJson<PartialList<Alias>>(`/profiles/${enc}/aliases`),
-				UnomiClient.getJson<boolean>(`/privacy/profiles/${enc}/anonymousBrowsing`)
+				UnomiClient.getJson<boolean>(`/privacy/profiles/${enc}/anonymousBrowsing`),
+				Catalog.get("scopes")
 			]);
 			(this.getView()?.getModel("profile") as JSONModel).setData(profile);
 			this.renderProps();
 			this.projectConsents();
+			model.setProperty("/scopes", scopes);
 			model.setProperty("/segments", segments);
 			model.setProperty("/sessions", sessions.list);
 			model.setProperty("/aliases", aliases.list);
@@ -112,17 +117,17 @@ export default class ProfileDetail extends BaseController {
 
 	public onAddConsent(): void {
 		const typeInput = this.byId("consentType") as Input;
-		const scopeInput = this.byId("consentScope") as Input;
+		const scopeBox = this.byId("consentScope") as ComboBox;
 		const type = typeInput.getValue().trim();
 		if (!type) {
 			return;
 		}
 		this.profileConsents()[type] = {
-			typeIdentifier: type, scope: scopeInput.getValue().trim() || "systemscope",
+			typeIdentifier: type, scope: (scopeBox.getSelectedKey() || scopeBox.getValue()).trim() || "systemscope",
 			status: "GRANTED", statusDate: new Date().toISOString(), revokeDate: null
 		};
 		typeInput.setValue("");
-		scopeInput.setValue("");
+		scopeBox.setValue("");
 		this.projectConsents();
 	}
 

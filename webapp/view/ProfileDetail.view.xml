@@ -20,7 +20,9 @@
 					<Title text="{i18n>consent.title}" />
 					<ToolbarSpacer />
 					<Input id="consentType" placeholder="{i18n>consent.typePlaceholder}" width="12rem" />
-					<Input id="consentScope" placeholder="{i18n>col.scope}" width="10rem" />
+					<ComboBox id="consentScope" placeholder="{i18n>col.scope}" width="10rem" items="{detail>/scopes}">
+						<core:Item key="{detail>id}" text="{detail>name}" />
+					</ComboBox>
 					<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddConsent" />
 				</Toolbar>
 			</headerToolbar>
