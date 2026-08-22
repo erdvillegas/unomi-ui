@@ -97,6 +97,9 @@
 									</ColumnListItem>
 								</items>
 							</Table>
+							<CheckBox selected="{dp>/selectAllMatching}" select=".onToggleSelectAll"
+								visible="{= ${dp>/forgetTotal} &gt; 0 }"
+								text="{= ${i18n>dp.selectAllMatching} + ' (' + ${dp>/forgetTotal} + ')' }" />
 						</VBox>
 
 						<!-- Acciones sobre el perfil seleccionado -->

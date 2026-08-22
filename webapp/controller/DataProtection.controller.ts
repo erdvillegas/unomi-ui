@@ -43,7 +43,7 @@ export default class DataProtection extends BaseController {
 			consents: [] as ConsentRow[], scopes: [] as Opt[], scopeCounts: [] as { scope: string; count: number }[],
 			counts: { total: 0, granted: 0, denied: 0, revoked: 0, profiles: 0 },
 			fStatus: "", fScope: "",
-			forgetProfiles: [] as ForgetRow[], forgetText: "",
+			forgetProfiles: [] as ForgetRow[], forgetText: "", forgetTotal: 0, selectAllMatching: false,
 			selectedCount: 0, selectedLabel: "", hasSelection: false, anonScope: "systemscope", propName: "",
 			profileId: "", // single-target field kept for the Policies tab
 			privacy: { loaded: false, anonBrowsing: false, filters: [] as object[] },
@@ -141,10 +141,12 @@ export default class DataProtection extends BaseController {
 
 	private async loadForgetProfiles(text: string): Promise<void> {
 		this.model().setProperty("/forgetText", text);
+		this.model().setProperty("/selectAllMatching", false); // new search invalidates a select-all
 		try {
 			const res = await UnomiClient.queryList<AProfile>("/profiles/search",
 				{ text: text || null, offset: 0, limit: FORGET_PAGE, condition: { type: "matchAllCondition", parameterValues: {} } });
 			this.model().setProperty("/forgetProfiles", res.list.map((p) => this.toForgetRow(p)));
+			this.model().setProperty("/forgetTotal", res.totalSize);
 			this.recomputeSelection();
 		} catch (e) {
 			MessageToast.show(`Search failed: ${(e as Error).message}`);
@@ -155,8 +157,15 @@ export default class DataProtection extends BaseController {
 		void this.loadForgetProfiles((event.getParameter("query" as never) as string) || "");
 	}
 
-	// The MultiSelect table two-way-binds each row's `selected`; just recompute.
+	// The MultiSelect table two-way-binds each row's `selected`; a manual row toggle
+	// cancels an active "select all matching".
 	public onSelectionChange(): void {
+		this.model().setProperty("/selectAllMatching", false);
+		this.recomputeSelection();
+	}
+
+	public onToggleSelectAll(event: Event): void {
+		this.model().setProperty("/selectAllMatching", (event.getParameter("selected" as never) as boolean));
 		this.recomputeSelection();
 	}
 
@@ -165,12 +174,40 @@ export default class DataProtection extends BaseController {
 	}
 
 	private recomputeSelection(): void {
-		const rows = this.selectedRows();
 		const m = this.model();
-		m.setProperty("/selectedCount", rows.length);
-		m.setProperty("/hasSelection", rows.length > 0);
-		m.setProperty("/selectedLabel", rows.map((r) => r.email ? `${r.itemId} (${r.email})` : r.itemId).join(", "));
-		m.setProperty("/profileId", rows[0]?.itemId ?? ""); // feeds the Policies tab
+		const all = m.getProperty("/selectAllMatching") as boolean;
+		const total = m.getProperty("/forgetTotal") as number;
+		const rows = this.selectedRows();
+		const count = all ? total : rows.length;
+		m.setProperty("/selectedCount", count);
+		m.setProperty("/hasSelection", count > 0);
+		m.setProperty("/selectedLabel", all
+			? `Todos los ${total} perfiles que cumplen la búsqueda`
+			: rows.map((r) => r.email ? `${r.itemId} (${r.email})` : r.itemId).join(", "));
+		m.setProperty("/profileId", all ? "" : (rows[0]?.itemId ?? "")); // feeds the Policies tab
+	}
+
+	// Resolve the actual target ids: the page selection, or — in select-all mode —
+	// every profile matching the current search, paged from the server.
+	private async resolveTargets(): Promise<string[]> {
+		if (!(this.model().getProperty("/selectAllMatching") as boolean)) {
+			return this.selectedRows().map((r) => r.itemId);
+		}
+		const text = (this.model().getProperty("/forgetText") as string) || "";
+		const ids: string[] = [];
+		let offset = 0, total = Infinity, page = 0;
+		while (offset < total && page < AUDIT_MAX_PAGES) {
+			const res = await UnomiClient.queryList<AProfile>("/profiles/search",
+				{ text: text || null, offset, limit: AUDIT_PAGE, condition: { type: "matchAllCondition", parameterValues: {} } });
+			total = res.totalSize;
+			res.list.forEach((p) => ids.push(p.itemId));
+			offset += res.list.length;
+			page += 1;
+			if (res.list.length === 0) {
+				break;
+			}
+		}
+		return ids;
 	}
 
 	// Jump here from an audit row: load that exact profile, preselect it, switch tab.
@@ -192,33 +229,32 @@ export default class DataProtection extends BaseController {
 		}
 	}
 
-	// Run a privacy op over every selected profile, sequentially (avoid flooding
-	// the container — that's what OOM'd it before), and report a summary.
-	private async forEachSelected(op: (id: string) => Promise<void>, okMsg: (n: number) => string): Promise<void> {
-		const rows = this.selectedRows();
-		if (rows.length === 0) {
+	// Run a privacy op over each target id, sequentially (avoid flooding the
+	// container — that's what OOM'd it before), and report a summary.
+	private async runOver(ids: string[], op: (id: string) => Promise<void>, okMsg: (n: number) => string): Promise<void> {
+		if (ids.length === 0) {
 			MessageToast.show("Selecciona al menos un perfil");
 			return;
 		}
 		let ok = 0;
 		const fails: string[] = [];
-		for (const r of rows) {
+		for (const id of ids) {
 			try {
-				await op(r.itemId);
+				await op(id);
 				ok += 1;
 			} catch {
-				fails.push(r.itemId);
+				fails.push(id);
 			}
 		}
-		MessageToast.show(fails.length ? `${okMsg(ok)} · fallaron: ${fails.join(", ")}` : okMsg(ok));
+		MessageToast.show(fails.length ? `${okMsg(ok)} · fallaron: ${fails.length}` : okMsg(ok));
 	}
 
 	public async onAnonymize(): Promise<void> {
 		const scope = (this.model().getProperty("/anonScope") as string) || "systemscope";
-		await this.forEachSelected(
+		const ids = await this.resolveTargets();
+		await this.runOver(ids,
 			(id) => UnomiClient.postJson(`/privacy/profiles/${encodeURIComponent(id)}/anonymize?scope=${encodeURIComponent(scope)}`, {}),
-			(n) => `${n} perfil(es) anonimizados`
-		);
+			(n) => `${n} perfil(es) anonimizados`);
 	}
 
 	public async onDeleteProperty(): Promise<void> {
@@ -227,32 +263,32 @@ export default class DataProtection extends BaseController {
 			MessageToast.show("Indica la propiedad");
 			return;
 		}
-		await this.forEachSelected(
+		const ids = await this.resolveTargets();
+		await this.runOver(ids,
 			(id) => UnomiClient.del(`/privacy/profiles/${encodeURIComponent(id)}/properties/${encodeURIComponent(prop)}`),
-			(n) => `Propiedad "${prop}" eliminada en ${n} perfil(es)`
-		);
+			(n) => `Propiedad "${prop}" eliminada en ${n} perfil(es)`);
 		this.model().setProperty("/propName", "");
 	}
 
-	public onDeleteData(): void {
-		const rows = this.selectedRows();
-		if (rows.length === 0) {
+	public async onDeleteData(): Promise<void> {
+		const ids = await this.resolveTargets();
+		if (ids.length === 0) {
 			MessageToast.show("Selecciona al menos un perfil");
 			return;
 		}
-		const list = rows.map((r) => r.itemId).join(", ");
-		MessageBox.warning(`¿Borrar todos los datos de ${rows.length} perfil(es)?\n\n${list}\n\nEsta acción no se puede deshacer.`, {
+		// Show the full list when small, just the count when it's a bulk select-all.
+		const detail = ids.length <= 10 ? `\n\n${ids.join(", ")}` : "";
+		MessageBox.warning(`¿Borrar todos los datos de ${ids.length} perfil(es)?${detail}\n\nEsta acción no se puede deshacer.`, {
 			actions: [MessageBox.Action.DELETE, MessageBox.Action.CANCEL],
 			emphasizedAction: MessageBox.Action.CANCEL,
-			onClose: (a: string | null) => { if (a === MessageBox.Action.DELETE) { void this.doDeleteData(); } }
+			onClose: (a: string | null) => { if (a === MessageBox.Action.DELETE) { void this.doDeleteData(ids); } }
 		});
 	}
 
-	private async doDeleteData(): Promise<void> {
-		await this.forEachSelected(
+	private async doDeleteData(ids: string[]): Promise<void> {
+		await this.runOver(ids,
 			(id) => UnomiClient.del(`/privacy/profiles/${encodeURIComponent(id)}`),
-			(n) => `${n} perfil(es) borrados`
-		);
+			(n) => `${n} perfil(es) borrados`);
 		await this.loadForgetProfiles((this.model().getProperty("/forgetText") as string) || "");
 		void this.loadAudit(); // consents changed → refresh the audit
 	}
