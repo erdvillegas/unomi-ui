@@ -35,6 +35,9 @@
 				<GenericTile header="{i18n>module.campaigns}" subheader="{i18n>home.campaigns}" press=".onNav" app:nav="campaigns" class="sapUiTinyMargin" width="15rem">
 					<tileContent><TileContent><content><ImageContent src="sap-icon://marketing-campaign" /></content></TileContent></tileContent>
 				</GenericTile>
+				<GenericTile header="{i18n>dp.title}" subheader="{i18n>home.dataProtection}" press=".onNav" app:nav="dataProtection" class="sapUiTinyMargin" width="15rem">
+					<tileContent><TileContent><content><ImageContent src="sap-icon://shield" /></content></TileContent></tileContent>
+				</GenericTile>
 				<GenericTile header="{i18n>io.title}" subheader="{i18n>home.configIO}" press=".onNav" app:nav="importConfig" class="sapUiTinyMargin" width="15rem">
 					<tileContent><TileContent><content><ImageContent src="sap-icon://upload" /></content></TileContent></tileContent>
 				</GenericTile>
