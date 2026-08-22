@@ -1,6 +1,6 @@
 {
   "name": "unomi-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "OpenUI5 + TypeScript client for the Apache Unomi CDP REST API",
   "scripts": {
