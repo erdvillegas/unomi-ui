@@ -92,7 +92,7 @@ export default class ItemDetail extends BaseController {
 			await this.initNested();
 			if (this.cfg.stats) {
 				const stats = await UnomiClient.getJson<object>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}/statistics`);
-				detail.setProperty("/stats", JSON.stringify(stats, null, 2));
+				detail.setProperty("/stats", stats ? JSON.stringify(stats, null, 2) : "");
 			}
 		} catch (e) {
 			MessageToast.show(`Load failed: ${(e as Error).message}`);
