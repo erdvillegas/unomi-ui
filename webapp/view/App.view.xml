@@ -2,6 +2,7 @@
 	controllerName="unomi.ui.controller.App"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:tnt="sap.tnt"
+	xmlns:f="sap.f"
 	xmlns="sap.m"
 	displayBlock="true">
 	<tnt:ToolPage id="toolPage">
@@ -50,6 +51,8 @@
 				</tnt:fixedItem>
 			</tnt:SideNavigation>
 		</tnt:sideContent>
-		<tnt:mainContents />
+		<tnt:mainContents>
+			<f:FlexibleColumnLayout id="fcl" backgroundDesign="Solid" />
+		</tnt:mainContents>
 	</tnt:ToolPage>
 </mvc:View>
