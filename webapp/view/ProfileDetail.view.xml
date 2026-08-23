@@ -37,6 +37,7 @@
 				<uxap:subSections>
 					<uxap:ObjectPageSubSection>
 						<uxap:blocks>
+							<VBox width="100%">
 							<Toolbar>
 								<ToolbarSpacer />
 								<Input id="consentType" placeholder="{i18n>consent.typePlaceholder}" width="12rem" />
@@ -69,6 +70,7 @@
 									</ColumnListItem>
 								</items>
 							</Table>
+							</VBox>
 						</uxap:blocks>
 					</uxap:ObjectPageSubSection>
 				</uxap:subSections>
@@ -78,6 +80,7 @@
 				<uxap:subSections>
 					<uxap:ObjectPageSubSection>
 						<uxap:blocks>
+							<VBox width="100%">
 							<Toolbar>
 								<ToolbarSpacer />
 								<Input id="aliasInput" placeholder="{i18n>profile.aliasPlaceholder}" width="14rem" />
@@ -86,6 +89,7 @@
 							<List items="{detail>/aliases}" mode="Delete" delete=".onRemoveAlias" noDataText="{i18n>common.noData}">
 								<StandardListItem title="{detail>itemId}" />
 							</List>
+							</VBox>
 						</uxap:blocks>
 					</uxap:ObjectPageSubSection>
 				</uxap:subSections>
