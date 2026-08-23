@@ -1,22 +1,32 @@
 <mvc:View
 	controllerName="unomi.ui.controller.DefinitionCatalog"
 	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.f"
 	xmlns="sap.m"
 	displayBlock="true">
-	<Page title="{i18n>module.definitions}" busy="{cat>/busy}" busyIndicatorDelay="0">
-		<IconTabBar expandable="false">
-			<items>
-				<IconTabFilter text="{i18n>module.conditions} ({cat>/conditions/length})" key="conditions">
-					<List items="{cat>/conditions}" noDataText="{i18n>common.noData}">
-						<StandardListItem title="{cat>name}" description="{cat>id}" info="{cat>version}" />
-					</List>
-				</IconTabFilter>
-				<IconTabFilter text="{i18n>module.actions} ({cat>/actions/length})" key="actions">
-					<List items="{cat>/actions}" noDataText="{i18n>common.noData}">
-						<StandardListItem title="{cat>name}" description="{cat>id}" info="{cat>version}" />
-					</List>
-				</IconTabFilter>
-			</items>
-		</IconTabBar>
-	</Page>
+	<f:DynamicPage busy="{cat>/busy}" busyIndicatorDelay="0" headerExpanded="false">
+		<f:title>
+			<f:DynamicPageTitle>
+				<f:heading>
+					<Title text="{i18n>module.definitions}" />
+				</f:heading>
+			</f:DynamicPageTitle>
+		</f:title>
+		<f:content>
+			<IconTabBar expandable="false">
+				<items>
+					<IconTabFilter text="{i18n>module.conditions} ({cat>/conditions/length})" key="conditions">
+						<List items="{cat>/conditions}" noDataText="{i18n>common.noData}">
+							<StandardListItem title="{cat>name}" description="{cat>id}" info="{cat>version}" />
+						</List>
+					</IconTabFilter>
+					<IconTabFilter text="{i18n>module.actions} ({cat>/actions/length})" key="actions">
+						<List items="{cat>/actions}" noDataText="{i18n>common.noData}">
+							<StandardListItem title="{cat>name}" description="{cat>id}" info="{cat>version}" />
+						</List>
+					</IconTabFilter>
+				</items>
+			</IconTabBar>
+		</f:content>
+	</f:DynamicPage>
 </mvc:View>
