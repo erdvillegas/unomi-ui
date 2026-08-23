@@ -12,7 +12,7 @@
 					<Title text="{i18n>module.profiles} ({list>/total})" />
 				</f:heading>
 				<f:content>
-					<SearchField placeholder="{i18n>query.search}" search=".onSearch" width="20rem" />
+					<SearchField placeholder="{i18n>query.search}" search=".onSearch" width="100%" />
 				</f:content>
 			</f:DynamicPageTitle>
 		</f:title>
