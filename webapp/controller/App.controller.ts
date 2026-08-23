@@ -1,5 +1,6 @@
 import BaseController from "unomi/ui/controller/BaseController";
 import Event from "sap/ui/base/Event";
+import UI5Element from "sap/ui/core/Element";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import SideNavigation from "sap/tnt/SideNavigation";
 import ToolPage from "sap/tnt/ToolPage";
@@ -55,6 +56,11 @@ export default class App extends BaseController {
 			return;
 		}
 		this.getRouter().navTo(key);
+	}
+
+	// Header user menu (ShellBar-style): each MenuItem carries its route in app:nav.
+	public onUserNav(event: Event): void {
+		this.getRouter().navTo((event.getSource() as UI5Element).data("nav") as string);
 	}
 
 	public onSideNavButtonPress(): void {
