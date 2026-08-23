@@ -3,134 +3,185 @@
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns="sap.m"
 	xmlns:core="sap.ui.core"
+	xmlns:uxap="sap.uxap"
 	displayBlock="true">
-	<Page
-		title="{detail>/profileId}"
-		showNavButton="true"
-		navButtonPress=".onNavBack"
+	<uxap:ObjectPageLayout
+		showTitleInHeaderContent="true"
+		useIconTabBar="false"
+		showFooter="true"
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
-		<Panel headerText="{i18n>module.properties}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<VBox id="propsHost" width="100%" />
-		</Panel>
+		<uxap:headerTitle>
+			<uxap:ObjectPageDynamicHeaderTitle>
+				<uxap:heading>
+					<Title text="{detail>/profileId}" />
+				</uxap:heading>
+				<uxap:navigationActions>
+					<Button icon="sap-icon://nav-back" tooltip="{i18n>common.back}" press=".onNavBack" />
+				</uxap:navigationActions>
+			</uxap:ObjectPageDynamicHeaderTitle>
+		</uxap:headerTitle>
 
-		<Panel headerText="{i18n>consent.title}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<headerToolbar>
-				<Toolbar>
-					<Title text="{i18n>consent.title}" />
-					<ToolbarSpacer />
-					<Input id="consentType" placeholder="{i18n>consent.typePlaceholder}" width="12rem" />
-					<ComboBox id="consentScope" placeholder="{i18n>col.scope}" width="10rem" items="{detail>/scopes}">
-						<core:Item key="{detail>id}" text="{detail>name}" />
-					</ComboBox>
-					<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddConsent" />
-				</Toolbar>
-			</headerToolbar>
-			<Table items="{detail>/consents}" noDataText="{i18n>common.noData}">
-				<columns>
-					<Column><Text text="{i18n>consent.type}" /></Column>
-					<Column><Text text="{i18n>col.scope}" /></Column>
-					<Column><Text text="{i18n>consent.status}" /></Column>
-					<Column><Text text="{i18n>consent.statusDate}" /></Column>
-					<Column><Text text="{i18n>consent.revokeDate}" /></Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<cells>
-							<Text text="{detail>typeIdentifier}" />
-							<Text text="{detail>scope}" />
-							<Select selectedKey="{detail>status}" change=".onConsentStatusChange" width="9rem">
-								<core:Item key="GRANTED" text="{i18n>consent.granted}" />
-								<core:Item key="DENIED" text="{i18n>consent.denied}" />
-								<core:Item key="REVOKED" text="{i18n>consent.revoked}" />
-							</Select>
-							<Text text="{detail>statusDate}" />
-							<Text text="{detail>revokeDate}" />
-						</cells>
-					</ColumnListItem>
-				</items>
-			</Table>
-		</Panel>
+		<uxap:sections>
+			<uxap:ObjectPageSection title="{i18n>module.properties}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<VBox id="propsHost" width="100%" />
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
 
-		<Panel headerText="{i18n>profile.aliases}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<headerToolbar>
-				<Toolbar>
-					<Title text="{i18n>profile.aliases}" />
-					<ToolbarSpacer />
-					<Input id="aliasInput" placeholder="{i18n>profile.aliasPlaceholder}" width="14rem" />
-					<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddAlias" />
-				</Toolbar>
-			</headerToolbar>
-			<List items="{detail>/aliases}" mode="Delete" delete=".onRemoveAlias" noDataText="{i18n>common.noData}">
-				<StandardListItem title="{detail>itemId}" />
-			</List>
-		</Panel>
+			<uxap:ObjectPageSection title="{i18n>consent.title}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<Toolbar>
+								<ToolbarSpacer />
+								<Input id="consentType" placeholder="{i18n>consent.typePlaceholder}" width="12rem" />
+								<ComboBox id="consentScope" placeholder="{i18n>col.scope}" width="10rem" items="{detail>/scopes}">
+									<core:Item key="{detail>id}" text="{detail>name}" />
+								</ComboBox>
+								<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddConsent" />
+							</Toolbar>
+							<Table items="{detail>/consents}" noDataText="{i18n>common.noData}">
+								<columns>
+									<Column><Text text="{i18n>consent.type}" /></Column>
+									<Column><Text text="{i18n>col.scope}" /></Column>
+									<Column><Text text="{i18n>consent.status}" /></Column>
+									<Column><Text text="{i18n>consent.statusDate}" /></Column>
+									<Column><Text text="{i18n>consent.revokeDate}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{detail>typeIdentifier}" />
+											<Text text="{detail>scope}" />
+											<Select selectedKey="{detail>status}" change=".onConsentStatusChange" width="9rem">
+												<core:Item key="GRANTED" text="{i18n>consent.granted}" />
+												<core:Item key="DENIED" text="{i18n>consent.denied}" />
+												<core:Item key="REVOKED" text="{i18n>consent.revoked}" />
+											</Select>
+											<Text text="{detail>statusDate}" />
+											<Text text="{detail>revokeDate}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
 
-		<Panel headerText="{i18n>profile.privacy}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<VBox class="sapUiSmallMargin">
-				<HBox alignItems="Center" class="sapUiTinyMarginBottom">
-					<Switch state="{detail>/anonBrowsing}" change=".onToggleAnonBrowsing" />
-					<Label text="{i18n>profile.anonBrowsing}" class="sapUiSmallMarginBegin" />
-				</HBox>
-				<HBox>
-					<Button text="{i18n>profile.anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" class="sapUiTinyMarginEnd" />
-					<Button text="{i18n>profile.deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" />
-				</HBox>
-			</VBox>
-		</Panel>
+			<uxap:ObjectPageSection title="{i18n>profile.aliases}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<Toolbar>
+								<ToolbarSpacer />
+								<Input id="aliasInput" placeholder="{i18n>profile.aliasPlaceholder}" width="14rem" />
+								<Button text="{i18n>common.add}" icon="sap-icon://add" press=".onAddAlias" />
+							</Toolbar>
+							<List items="{detail>/aliases}" mode="Delete" delete=".onRemoveAlias" noDataText="{i18n>common.noData}">
+								<StandardListItem title="{detail>itemId}" />
+							</List>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
 
-		<Panel headerText="{i18n>module.segments}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<List items="{detail>/segments}" noDataText="{i18n>common.noData}">
-				<StandardListItem title="{detail>name}" description="{detail>id}" />
-			</List>
-		</Panel>
+			<uxap:ObjectPageSection title="{i18n>profile.privacy}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<VBox>
+								<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+									<Switch state="{detail>/anonBrowsing}" change=".onToggleAnonBrowsing" />
+									<Label text="{i18n>profile.anonBrowsing}" class="sapUiSmallMarginBegin" />
+								</HBox>
+								<HBox>
+									<Button text="{i18n>profile.anonymize}" icon="sap-icon://key-user-settings" press=".onAnonymize" class="sapUiTinyMarginEnd" />
+									<Button text="{i18n>profile.deleteData}" type="Reject" icon="sap-icon://delete" press=".onDeleteData" />
+								</HBox>
+							</VBox>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
 
-		<Panel headerText="{i18n>profile.sessions}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<Table
-				items="{detail>/sessions}"
-				mode="SingleSelectMaster"
-				itemPress=".onSessionPress"
-				noDataText="{i18n>common.noData}">
-				<columns>
-					<Column><Text text="{i18n>col.id}" /></Column>
-					<Column><Text text="{i18n>col.timestamp}" /></Column>
-					<Column><Text text="{i18n>col.duration}" /></Column>
-				</columns>
-				<items>
-					<ColumnListItem type="Active">
-						<cells>
-							<Text text="{detail>itemId}" />
-							<Text text="{detail>timeStamp}" />
-							<Text text="{detail>duration}" />
-						</cells>
-					</ColumnListItem>
-				</items>
-			</Table>
-		</Panel>
+			<uxap:ObjectPageSection title="{i18n>module.segments}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<List items="{detail>/segments}" noDataText="{i18n>common.noData}">
+								<StandardListItem title="{detail>name}" description="{detail>id}" />
+							</List>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
 
-		<Panel headerText="{i18n>module.events}" expandable="true" expanded="true" class="sapUiResponsiveMargin" width="auto">
-			<Table items="{detail>/events}" noDataText="{i18n>query.selectSession}">
-				<columns>
-					<Column><Text text="{i18n>col.type}" /></Column>
-					<Column><Text text="{i18n>col.scope}" /></Column>
-					<Column><Text text="{i18n>col.timestamp}" /></Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<cells>
-							<Text text="{detail>eventType}" />
-							<Text text="{detail>scope}" />
-							<Text text="{detail>timeStamp}" />
-						</cells>
-					</ColumnListItem>
-				</items>
-			</Table>
-		</Panel>
-		<footer>
-			<Toolbar>
+			<uxap:ObjectPageSection title="{i18n>profile.sessions}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<Table
+								items="{detail>/sessions}"
+								mode="SingleSelectMaster"
+								itemPress=".onSessionPress"
+								noDataText="{i18n>common.noData}">
+								<columns>
+									<Column><Text text="{i18n>col.id}" /></Column>
+									<Column><Text text="{i18n>col.timestamp}" /></Column>
+									<Column><Text text="{i18n>col.duration}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem type="Active">
+										<cells>
+											<Text text="{detail>itemId}" />
+											<Text text="{detail>timeStamp}" />
+											<Text text="{detail>duration}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+
+			<uxap:ObjectPageSection title="{i18n>module.events}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<Table items="{detail>/events}" noDataText="{i18n>query.selectSession}">
+								<columns>
+									<Column><Text text="{i18n>col.type}" /></Column>
+									<Column><Text text="{i18n>col.scope}" /></Column>
+									<Column><Text text="{i18n>col.timestamp}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{detail>eventType}" />
+											<Text text="{detail>scope}" />
+											<Text text="{detail>timeStamp}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+		</uxap:sections>
+
+		<uxap:footer>
+			<OverflowToolbar>
 				<ToolbarSpacer />
 				<Button text="{i18n>common.save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
-			</Toolbar>
-		</footer>
-	</Page>
+			</OverflowToolbar>
+		</uxap:footer>
+	</uxap:ObjectPageLayout>
 </mvc:View>

@@ -42,6 +42,7 @@
         "sap.f": {},
         "sap.ui.layout": {},
         "sap.ui.unified": {},
+        "sap.uxap": {},
         "sap.tnt": {}
       }
     },
