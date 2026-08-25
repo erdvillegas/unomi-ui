@@ -9,55 +9,45 @@
 	<tnt:ToolPage id="toolPage">
 		<tnt:header>
 			<tnt:ToolHeader>
-				<Button icon="sap-icon://menu2" type="Transparent" press=".onSideNavButtonPress" tooltip="{i18n>common.menu}">
-					<layoutData>
-						<OverflowToolbarLayoutData priority="NeverOverflow" />
-					</layoutData>
-				</Button>
 				<Image height="1.5rem"
 					class="sapUiSmallMarginBegin"
 					src="https://unomi.apache.org/assets/images/unomi-86x20.png" />
+				<Title text="{app>/appName}" level="H2" class="sapUiSmallMarginBegin" />
+				<!-- Module selector (Fiori variant-style "Standard ▾") replaces the side rail. -->
+				<MenuButton text="{app>/currentModule}" type="Transparent" visible="{session>/authed}" class="sapUiMediumMarginBegin">
+					<menu>
+						<Menu>
+							<MenuItem text="{i18n>module.home}" icon="sap-icon://home" press=".onNav" app:nav="home" />
+							<MenuItem text="{i18n>module.profiles}" icon="sap-icon://person-placeholder" press=".onNav" app:nav="profiles" />
+							<MenuItem text="{i18n>module.events}" icon="sap-icon://newspaper" press=".onNav" app:nav="events" />
+							<MenuItem text="{i18n>module.segments}" icon="sap-icon://group" press=".onNav" app:nav="segments" />
+							<MenuItem text="{i18n>module.rules}" icon="sap-icon://workflow-tasks" press=".onNav" app:nav="rules" />
+							<MenuItem text="{i18n>module.scoring}" icon="sap-icon://target-group" press=".onNav" app:nav="scoring" />
+							<MenuItem text="{i18n>module.goals}" icon="sap-icon://goal" press=".onNav" app:nav="goals" />
+							<MenuItem text="{i18n>module.campaigns}" icon="sap-icon://marketing-campaign" press=".onNav" app:nav="campaigns" />
+							<MenuItem text="{i18n>module.lists}" icon="sap-icon://list" press=".onNav" app:nav="lists" />
+							<MenuItem text="{i18n>module.scopes}" icon="sap-icon://folder-blank" press=".onNav" app:nav="scopes" />
+							<MenuItem text="{i18n>module.properties}" icon="sap-icon://form" press=".onNav" app:nav="properties" />
+							<MenuItem text="{i18n>module.importConfig}" icon="sap-icon://upload" press=".onNav" app:nav="importConfig" />
+							<MenuItem text="{i18n>module.exportConfig}" icon="sap-icon://download" press=".onNav" app:nav="exportConfig" />
+							<MenuItem text="{i18n>module.queries}" icon="sap-icon://search" press=".onNav" app:nav="queries" />
+							<MenuItem text="{i18n>dp.title}" icon="sap-icon://shield" press=".onNav" app:nav="dataProtection" />
+							<MenuItem text="{i18n>module.definitions}" icon="sap-icon://activities" press=".onNav" app:nav="definitions" />
+						</Menu>
+					</menu>
+				</MenuButton>
 				<ToolbarSpacer />
-				<Title text="{app>/appName}" level="H2" />
-				<ToolbarSpacer />
-					<MenuButton icon="sap-icon://account" type="Transparent" tooltip="{i18n>shell.userMenu}" visible="{session>/authed}">
-						<menu>
-							<Menu>
-								<MenuItem text="{i18n>module.settings}" icon="sap-icon://action-settings" press=".onUserNav" app:nav="settings" />
-								<MenuItem text="{i18n>module.info}" icon="sap-icon://information" press=".onUserNav" app:nav="info" />
-								<MenuItem text="{i18n>common.logout}" icon="sap-icon://log" press=".onLogout" />
-							</Menu>
-						</menu>
-					</MenuButton>
-				</tnt:ToolHeader>
+				<MenuButton icon="sap-icon://account" type="Transparent" tooltip="{i18n>shell.userMenu}" visible="{session>/authed}">
+					<menu>
+						<Menu>
+							<MenuItem text="{i18n>module.settings}" icon="sap-icon://action-settings" press=".onNav" app:nav="settings" />
+							<MenuItem text="{i18n>module.info}" icon="sap-icon://information" press=".onNav" app:nav="info" />
+							<MenuItem text="{i18n>common.logout}" icon="sap-icon://log" press=".onLogout" />
+						</Menu>
+					</menu>
+				</MenuButton>
+			</tnt:ToolHeader>
 		</tnt:header>
-		<tnt:sideContent>
-			<tnt:SideNavigation id="sideNav" itemSelect=".onNavSelect">
-				<tnt:NavigationList visible="{session>/authed}">
-					<tnt:NavigationListItem text="{i18n>module.home}" icon="sap-icon://home" key="home" />
-					<tnt:NavigationListItem text="{i18n>module.profiles}" icon="sap-icon://person-placeholder" key="profiles" />
-					<tnt:NavigationListItem text="{i18n>module.events}" icon="sap-icon://newspaper" key="events" />
-					<tnt:NavigationListItem text="{i18n>module.segments}" icon="sap-icon://group" key="segments" />
-					<tnt:NavigationListItem text="{i18n>module.rules}" icon="sap-icon://workflow-tasks" key="rules" />
-					<tnt:NavigationListItem text="{i18n>module.scoring}" icon="sap-icon://target-group" key="scoring" />
-					<tnt:NavigationListItem text="{i18n>module.goals}" icon="sap-icon://goal" key="goals" />
-					<tnt:NavigationListItem text="{i18n>module.campaigns}" icon="sap-icon://marketing-campaign" key="campaigns" />
-					<tnt:NavigationListItem text="{i18n>module.lists}" icon="sap-icon://list" key="lists" />
-					<tnt:NavigationListItem text="{i18n>module.scopes}" icon="sap-icon://folder-blank" key="scopes" />
-					<tnt:NavigationListItem text="{i18n>module.properties}" icon="sap-icon://form" key="properties" />
-					<tnt:NavigationListItem text="{i18n>module.importConfig}" icon="sap-icon://upload" key="importConfig" />
-					<tnt:NavigationListItem text="{i18n>module.exportConfig}" icon="sap-icon://download" key="exportConfig" />
-					<tnt:NavigationListItem text="{i18n>module.queries}" icon="sap-icon://search" key="queries" />
-					<tnt:NavigationListItem text="{i18n>dp.title}" icon="sap-icon://shield" key="dataProtection" />
-					<tnt:NavigationListItem text="{i18n>module.definitions}" icon="sap-icon://activities" key="definitions" />
-				</tnt:NavigationList>
-				<tnt:fixedItem>
-					<tnt:NavigationList>
-						<tnt:NavigationListItem text="{i18n>module.login}" icon="sap-icon://log" key="login" visible="{= !${session>/authed} }" />
-					</tnt:NavigationList>
-				</tnt:fixedItem>
-			</tnt:SideNavigation>
-		</tnt:sideContent>
 		<tnt:mainContents>
 			<f:FlexibleColumnLayout id="fcl" backgroundDesign="Solid" />
 		</tnt:mainContents>
