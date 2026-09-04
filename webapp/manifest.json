@@ -42,6 +42,7 @@
         "sap.f": {},
         "sap.ui.layout": {},
         "sap.ui.unified": {},
+        "sap.uxap": {},
         "sap.tnt": {}
       }
     },
@@ -68,292 +69,351 @@
     },
     "routing": {
       "config": {
-        "routerClass": "sap.m.routing.Router",
+        "routerClass": "sap.f.routing.Router",
         "type": "View",
         "viewType": "XML",
         "path": "unomi.ui.view",
-        "controlId": "toolPage",
-        "controlAggregation": "mainContents",
-        "clearControlAggregation": true,
+        "controlId": "fcl",
         "async": true
       },
       "routes": [
         {
           "name": "home",
           "pattern": "",
-          "target": "home"
+          "target": "home",
+          "layout": "OneColumn"
         },
         {
           "name": "login",
           "pattern": "login",
-          "target": "login"
+          "target": "login",
+          "layout": "OneColumn"
         },
         {
           "name": "profiles",
           "pattern": "profiles",
-          "target": "profiles"
+          "target": "profiles",
+          "layout": "OneColumn"
         },
         {
           "name": "profileDetail",
           "pattern": "profiles/{profileId}",
-          "target": "profileDetail"
+          "target": "profileDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "events",
           "pattern": "events",
-          "target": "events"
+          "target": "events",
+          "layout": "OneColumn"
         },
         {
           "name": "eventDetail",
           "pattern": "events/{eventId}",
-          "target": "eventDetail"
+          "target": "eventDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "segments",
           "pattern": "segments",
-          "target": "segments"
+          "target": "segments",
+          "layout": "OneColumn"
         },
         {
           "name": "segmentDetail",
           "pattern": "segments/{itemId}",
-          "target": "segmentDetail"
+          "target": "segmentDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "rules",
           "pattern": "rules",
-          "target": "rules"
+          "target": "rules",
+          "layout": "OneColumn"
         },
         {
           "name": "ruleDetail",
           "pattern": "rules/{itemId}",
-          "target": "ruleDetail"
+          "target": "ruleDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "scoring",
           "pattern": "scoring",
-          "target": "scoring"
+          "target": "scoring",
+          "layout": "OneColumn"
         },
         {
           "name": "scoringDetail",
           "pattern": "scoring/{itemId}",
-          "target": "scoringDetail"
+          "target": "scoringDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "goals",
           "pattern": "goals",
-          "target": "goals"
+          "target": "goals",
+          "layout": "OneColumn"
         },
         {
           "name": "goalDetail",
           "pattern": "goals/{itemId}",
-          "target": "goalDetail"
+          "target": "goalDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "campaigns",
           "pattern": "campaigns",
-          "target": "campaigns"
+          "target": "campaigns",
+          "layout": "OneColumn"
         },
         {
           "name": "campaignDetail",
           "pattern": "campaigns/{itemId}",
-          "target": "campaignDetail"
+          "target": "campaignDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "scopes",
           "pattern": "scopes",
-          "target": "scopes"
+          "target": "scopes",
+          "layout": "OneColumn"
         },
         {
           "name": "scopeDetail",
           "pattern": "scopes/{itemId}",
-          "target": "scopeDetail"
+          "target": "scopeDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "lists",
           "pattern": "lists",
-          "target": "lists"
+          "target": "lists",
+          "layout": "OneColumn"
         },
         {
           "name": "listDetail",
           "pattern": "lists/{itemId}",
-          "target": "listDetail"
+          "target": "listDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "properties",
           "pattern": "properties",
-          "target": "properties"
+          "target": "properties",
+          "layout": "OneColumn"
         },
         {
           "name": "propertyDetail",
           "pattern": "properties/{itemId}",
-          "target": "propertyDetail"
+          "target": "propertyDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "importConfig",
           "pattern": "importConfig",
-          "target": "configIO"
+          "target": "configIO",
+          "layout": "OneColumn"
         },
         {
           "name": "importConfigDetail",
           "pattern": "importConfig/{itemId}",
-          "target": "importConfigDetail"
+          "target": "importConfigDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "exportConfig",
           "pattern": "exportConfig",
-          "target": "configIO"
+          "target": "configIO",
+          "layout": "OneColumn"
         },
         {
           "name": "exportConfigDetail",
           "pattern": "exportConfig/{itemId}",
-          "target": "exportConfigDetail"
+          "target": "exportConfigDetail",
+          "layout": "TwoColumnsMidExpanded"
         },
         {
           "name": "queries",
           "pattern": "queries",
-          "target": "queries"
+          "target": "queries",
+          "layout": "OneColumn"
         },
         {
           "name": "dataProtection",
           "pattern": "dataProtection",
-          "target": "dataProtection"
+          "target": "dataProtection",
+          "layout": "OneColumn"
         },
         {
           "name": "definitions",
           "pattern": "definitions",
-          "target": "definitions"
+          "target": "definitions",
+          "layout": "OneColumn"
         },
         {
           "name": "settings",
           "pattern": "settings",
-          "target": "settings"
+          "target": "settings",
+          "layout": "OneColumn"
         },
         {
           "name": "info",
           "pattern": "info",
-          "target": "info"
+          "target": "info",
+          "layout": "OneColumn"
         }
       ],
       "targets": {
         "login": {
           "id": "login",
-          "name": "Login"
+          "name": "Login",
+          "controlAggregation": "beginColumnPages"
         },
         "home": {
           "id": "home",
-          "name": "Home"
+          "name": "Home",
+          "controlAggregation": "beginColumnPages"
         },
         "profiles": {
           "id": "profiles",
-          "name": "ProfileList"
+          "name": "ProfileList",
+          "controlAggregation": "beginColumnPages"
         },
         "profileDetail": {
           "id": "profileDetail",
-          "name": "ProfileDetail"
+          "name": "ProfileDetail",
+          "controlAggregation": "midColumnPages"
         },
         "events": {
           "id": "events",
-          "name": "EventList"
+          "name": "EventList",
+          "controlAggregation": "beginColumnPages"
         },
         "eventDetail": {
           "id": "eventDetail",
-          "name": "EventDetail"
+          "name": "EventDetail",
+          "controlAggregation": "midColumnPages"
         },
         "segments": {
           "id": "segments",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "segmentDetail": {
           "id": "segmentDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "rules": {
           "id": "rules",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "ruleDetail": {
           "id": "ruleDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "scoring": {
           "id": "scoring",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "scoringDetail": {
           "id": "scoringDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "goals": {
           "id": "goals",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "goalDetail": {
           "id": "goalDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "campaigns": {
           "id": "campaigns",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "campaignDetail": {
           "id": "campaignDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "scopes": {
           "id": "scopes",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "scopeDetail": {
           "id": "scopeDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "lists": {
           "id": "lists",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "listDetail": {
           "id": "listDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "properties": {
           "id": "properties",
-          "name": "MetadataList"
+          "name": "MetadataList",
+          "controlAggregation": "beginColumnPages"
         },
         "propertyDetail": {
           "id": "propertyDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "configIO": {
           "id": "configIO",
-          "name": "ConfigIO"
+          "name": "ConfigIO",
+          "controlAggregation": "beginColumnPages"
         },
         "importConfigDetail": {
           "id": "importConfigDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "exportConfigDetail": {
           "id": "exportConfigDetail",
-          "name": "ItemDetail"
+          "name": "ItemDetail",
+          "controlAggregation": "midColumnPages"
         },
         "definitions": {
           "id": "definitions",
-          "name": "DefinitionCatalog"
+          "name": "DefinitionCatalog",
+          "controlAggregation": "beginColumnPages"
         },
         "settings": {
           "id": "settings",
-          "name": "Settings"
+          "name": "Settings",
+          "controlAggregation": "beginColumnPages"
         },
         "info": {
           "id": "info",
-          "name": "info"
+          "name": "info",
+          "controlAggregation": "beginColumnPages"
         },
         "queries": {
           "id": "queries",
-          "name": "Queries"
+          "name": "Queries",
+          "controlAggregation": "beginColumnPages"
         },
         "dataProtection": {
           "id": "dataProtection",
-          "name": "DataProtection"
+          "name": "DataProtection",
+          "controlAggregation": "beginColumnPages"
         }
       }
     }

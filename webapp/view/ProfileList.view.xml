@@ -2,56 +2,68 @@
 	controllerName="unomi.ui.controller.ProfileList"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:core="sap.ui.core"
+	xmlns:f="sap.f"
 	xmlns="sap.m"
 	displayBlock="true">
-	<Page title="Profiles ({list>/total})" busy="{list>/busy}" busyIndicatorDelay="0">
-		<subHeader>
-			<Toolbar>
-				<SearchField placeholder="{i18n>query.search}" search=".onSearch" width="100%" />
-			</Toolbar>
-		</subHeader>
-		<Panel headerText="{i18n>query.builder}" expandable="true" expanded="false" class="sapUiResponsiveMargin" width="auto">
-			<VBox>
-				<VBox id="queryHost" />
-				<Toolbar>
-					<Select id="savedQueries" items="{query>/saved}" width="12rem">
-						<core:Item key="{query>}" text="{query>}" />
-					</Select>
-					<Button text="{i18n>query.load}" icon="sap-icon://open-folder" press=".onLoadQuery" />
-					<Button text="{i18n>common.delete}" icon="sap-icon://delete" press=".onDeleteQuery" />
-					<ToolbarSpacer />
-					<Input id="queryName" placeholder="{i18n>query.name}" width="12rem" />
-					<Button text="{i18n>common.save}" icon="sap-icon://save" press=".onSaveQuery" />
-					<Button text="{i18n>query.run}" type="Emphasized" icon="sap-icon://search" press=".onRunQuery" />
-				</Toolbar>
-			</VBox>
-		</Panel>
-		<Table
-			id="profilesTable"
-			items="{list>/profiles}"
-			mode="SingleSelectMaster"
-			itemPress=".onProfilePress"
-			noDataText="{i18n>common.noData}">
-			<columns>
-				<Column><Text text="{i18n>col.id}" /></Column>
-				<Column><Text text="{i18n>col.email}" /></Column>
-				<Column><Text text="{i18n>col.scope}" /></Column>
-			</columns>
-			<items>
-				<ColumnListItem type="Navigation">
-					<cells>
-						<Text text="{list>itemId}" />
-						<Text text="{list>properties/email}" />
-						<Text text="{list>scope}" />
-					</cells>
-				</ColumnListItem>
-			</items>
-		</Table>
-		<footer>
-			<Toolbar>
+	<f:DynamicPage busy="{list>/busy}" busyIndicatorDelay="0" showFooter="{list>/canLoadMore}">
+		<f:title>
+			<f:DynamicPageTitle>
+				<f:heading>
+					<Title text="{i18n>module.profiles} ({list>/total})" />
+				</f:heading>
+				<f:content>
+					<SearchField placeholder="{i18n>query.search}" search=".onSearch" width="100%" />
+				</f:content>
+			</f:DynamicPageTitle>
+		</f:title>
+		<f:header>
+			<f:DynamicPageHeader pinnable="true">
+				<Panel headerText="{i18n>query.builder}" width="auto" backgroundDesign="Transparent">
+					<VBox>
+						<VBox id="queryHost" />
+						<Toolbar>
+							<Select id="savedQueries" items="{query>/saved}" width="12rem">
+								<core:Item key="{query>}" text="{query>}" />
+							</Select>
+							<Button text="{i18n>query.load}" icon="sap-icon://open-folder" press=".onLoadQuery" />
+							<Button text="{i18n>common.delete}" icon="sap-icon://delete" press=".onDeleteQuery" />
+							<ToolbarSpacer />
+							<Input id="queryName" placeholder="{i18n>query.name}" width="12rem" />
+							<Button text="{i18n>common.save}" icon="sap-icon://save" press=".onSaveQuery" />
+							<Button text="{i18n>query.run}" type="Emphasized" icon="sap-icon://search" press=".onRunQuery" />
+						</Toolbar>
+					</VBox>
+				</Panel>
+			</f:DynamicPageHeader>
+		</f:header>
+		<f:content>
+			<Table
+				id="profilesTable"
+				items="{list>/profiles}"
+				mode="SingleSelectMaster"
+				itemPress=".onProfilePress"
+				noDataText="{i18n>common.noData}">
+				<columns>
+					<Column><Text text="{i18n>col.id}" /></Column>
+					<Column><Text text="{i18n>col.email}" /></Column>
+					<Column><Text text="{i18n>col.scope}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation">
+						<cells>
+							<Text text="{list>itemId}" />
+							<Text text="{list>properties/email}" />
+							<Text text="{list>scope}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</f:content>
+		<f:footer>
+			<OverflowToolbar>
 				<ToolbarSpacer />
-				<Button text="{i18n>common.loadMore}" visible="{list>/canLoadMore}" press=".onLoadMore" />
-			</Toolbar>
-		</footer>
-	</Page>
+				<Button text="{i18n>common.loadMore}" press=".onLoadMore" />
+			</OverflowToolbar>
+		</f:footer>
+	</f:DynamicPage>
 </mvc:View>

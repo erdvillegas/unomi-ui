@@ -1,13 +1,14 @@
 import BaseController from "unomi/ui/controller/BaseController";
 import Event from "sap/ui/base/Event";
+import UI5Element from "sap/ui/core/Element";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import SideNavigation from "sap/tnt/SideNavigation";
-import ToolPage from "sap/tnt/ToolPage";
+import ResourceModel from "sap/ui/model/resource/ResourceModel";
+import ResourceBundle from "sap/base/i18n/ResourceBundle";
 import Component from "unomi/ui/Component";
 import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import * as Catalog from "unomi/ui/service/Catalog";
 
-// Route name -> side-nav key (detail routes highlight their parent section).
+// Route name -> module key (detail routes fold into their parent module).
 const NAV_KEY: Record<string, string> = {
 	login: "login",
 	home: "home",
@@ -30,6 +31,17 @@ const NAV_KEY: Record<string, string> = {
 	info: "info"
 };
 
+// Module key -> i18n label key, shown as the header module-selector text.
+const MODULE_LABEL: Record<string, string> = {
+	home: "module.home", profiles: "module.profiles", events: "module.events",
+	segments: "module.segments", rules: "module.rules", scoring: "module.scoring",
+	goals: "module.goals", campaigns: "module.campaigns", lists: "module.lists",
+	scopes: "module.scopes", properties: "module.properties",
+	importConfig: "module.importConfig", exportConfig: "module.exportConfig",
+	queries: "module.queries", dataProtection: "dp.title", definitions: "module.definitions",
+	settings: "module.settings", info: "module.info", login: "module.login"
+};
+
 /**
  * @namespace unomi.ui.controller
  */
@@ -42,24 +54,16 @@ export default class App extends BaseController {
 
 	private onRouteMatched(event: Event): void {
 		const name = event.getParameter("name" as never) as string;
-		// Logged out → nav shows only the Login entry (item visibility bound to session>/authed).
+		// Logged out → the module selector and user menu hide (bound to session>/authed).
 		(this.getOwnerComponent()?.getModel("session") as JSONModel).setProperty("/authed", UnomiClient.isAuthenticated());
-		(this.byId("toolPage") as ToolPage).setSideExpanded(name !== "login");
-		(this.byId("sideNav") as SideNavigation).setSelectedKey(NAV_KEY[name] ?? "");
+		const bundle = (this.getOwnerComponent()?.getModel("i18n") as ResourceModel).getResourceBundle() as ResourceBundle;
+		const labelKey = MODULE_LABEL[NAV_KEY[name] ?? name];
+		(this.getOwnerComponent()?.getModel("app") as JSONModel).setProperty("/currentModule", labelKey ? bundle.getText(labelKey) : "");
 	}
 
-	public onNavSelect(event: Event): void {
-		const key = (event.getParameter("item" as never) as { getKey(): string }).getKey();
-		if (key === "logout") {
-			this.onLogout();
-			return;
-		}
-		this.getRouter().navTo(key);
-	}
-
-	public onSideNavButtonPress(): void {
-		const nav = this.byId("toolPage") as ToolPage;
-		nav.setSideExpanded(!nav.getSideExpanded());
+	// Header module selector + user menu: each MenuItem carries its route in app:nav.
+	public onNav(event: Event): void {
+		this.getRouter().navTo((event.getSource() as UI5Element).data("nav") as string);
 	}
 
 	public onLogout(): void {

@@ -11,3 +11,5 @@ import "unomi/ui/test/unit/control/formEngine.qunit";
 import "unomi/ui/test/unit/control/guidedEditors.qunit";
 import "unomi/ui/test/unit/control/refSelect.qunit";
 import "unomi/ui/test/unit/model/forms.qunit";
+import "unomi/ui/test/unit/model/ruleStats.qunit";
+import "unomi/ui/test/unit/view/objectPageLayout.qunit";

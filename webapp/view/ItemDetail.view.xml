@@ -2,32 +2,166 @@
 	controllerName="unomi.ui.controller.ItemDetail"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns="sap.m"
+	xmlns:uxap="sap.uxap"
 	displayBlock="true">
-	<Page
-		title="{detail>/name}"
-		showNavButton="true"
-		navButtonPress=".onNavBack"
+	<uxap:ObjectPageLayout
+		showTitleInHeaderContent="false"
+		showFooter="true"
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
-		<VBox class="sapUiSmallMargin">
-			<VBox id="formHost" />
-			<VBox id="nestedHost" />
-			<Panel headerText="{i18n>common.statistics}" visible="{detail>/hasStats}" expandable="true" expanded="false">
-				<TextArea value="{detail>/stats}" editable="false" rows="12" width="100%" growing="false" />
-			</Panel>
-			<Panel headerText="{i18n>common.advancedJson}" expandable="true" expanded="false" expand=".refreshJson">
-				<VBox>
-					<TextArea value="{detail>/json}" editable="true" rows="18" width="100%" growing="false" />
-					<Button text="{i18n>common.applyJson}" icon="sap-icon://synchronize" press=".onApplyJson" class="sapUiSmallMarginTop" />
+		<uxap:headerTitle>
+			<uxap:ObjectPageDynamicHeaderTitle>
+				<uxap:heading>
+					<Title text="{detail>/name}" />
+				</uxap:heading>
+				<uxap:snappedContent>
+					<Text text="{detail>/name}" />
+				</uxap:snappedContent>
+				<uxap:navigationActions>
+					<Button icon="sap-icon://nav-back" tooltip="{i18n>common.back}" press=".onNavBack" />
+				</uxap:navigationActions>
+			</uxap:ObjectPageDynamicHeaderTitle>
+		</uxap:headerTitle>
+
+		<!-- Facts from the shared metadata block (config types have none → header hidden). -->
+		<uxap:headerContent>
+			<FlexBox wrap="Wrap" alignItems="Start" visible="{= !!${form>/metadata} }">
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.id}" />
+					<Text text="{form>/metadata/id}" />
 				</VBox>
-			</Panel>
-		</VBox>
-		<footer>
-			<Toolbar>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.scope}" />
+					<Text text="{form>/metadata/scope}" />
+				</VBox>
+				<VBox>
+					<Label text="{i18n>col.enabled}" />
+					<ObjectStatus text="{= ${form>/metadata/enabled} ? ${i18n>common.yes} : ${i18n>common.no} }"
+						state="{= ${form>/metadata/enabled} ? 'Success' : 'Warning' }" />
+				</VBox>
+			</FlexBox>
+		</uxap:headerContent>
+
+		<uxap:sections>
+			<uxap:ObjectPageSection title="{i18n>module.properties}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<VBox width="100%">
+								<VBox id="formHost" />
+								<VBox id="nestedHost" />
+							</VBox>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+
+			<uxap:ObjectPageSection title="{i18n>common.statistics}" visible="{detail>/hasStats}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<VBox width="100%">
+								<!-- KPI strip -->
+								<HBox wrap="Wrap" alignItems="End" class="sapUiSmallMarginBottom">
+									<VBox class="sapUiLargeMarginEnd">
+										<Label text="{i18n>stats.executions}" />
+										<ObjectNumber number="{detail>/stats/executionCount}" emphasized="true" />
+									</VBox>
+									<VBox class="sapUiLargeMarginEnd">
+										<Label text="{i18n>stats.conditionsTime}" />
+										<ObjectNumber number="{detail>/stats/conditionsTime}" unit="ms" />
+									</VBox>
+									<VBox class="sapUiLargeMarginEnd">
+										<Label text="{i18n>stats.actionsTime}" />
+										<ObjectNumber number="{detail>/stats/actionsTime}" unit="ms" />
+									</VBox>
+									<VBox>
+										<Label text="{i18n>stats.lastSync}" />
+										<Text text="{detail>/stats/lastSyncDate}" />
+									</VBox>
+								</HBox>
+
+								<!-- Time split: conditions vs actions -->
+								<Title text="{i18n>stats.timeSplit}" level="H5" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+								<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+									<Label text="{i18n>stats.conditionsTime}" width="11rem" />
+									<ProgressIndicator width="24rem" state="Information"
+										percentValue="{detail>/stats/conditionsPct}" showValue="true"
+										displayValue="{detail>/stats/conditionsTime} ms ({detail>/stats/conditionsPct}%)" />
+								</HBox>
+								<HBox alignItems="Center">
+									<Label text="{i18n>stats.actionsTime}" width="11rem" />
+									<ProgressIndicator width="24rem" state="Warning"
+										percentValue="{detail>/stats/actionsPct}" showValue="true"
+										displayValue="{detail>/stats/actionsTime} ms ({detail>/stats/actionsPct}%)" />
+								</HBox>
+
+								<!-- Local vs cluster executions -->
+								<Title text="{i18n>stats.localShare}" level="H5" class="sapUiMediumMarginTop sapUiTinyMarginBottom" />
+								<HBox alignItems="Center">
+									<Label text="{i18n>stats.local}" width="11rem" />
+									<ProgressIndicator width="24rem" state="Success"
+										percentValue="{detail>/stats/localPct}" showValue="true"
+										displayValue="{detail>/stats/localExecutionCount} / {detail>/stats/executionCount} ({detail>/stats/localPct}%)" />
+								</HBox>
+
+								<!-- Totals table: total vs local per metric -->
+								<Table class="sapUiMediumMarginTop">
+									<columns>
+										<Column><Text text="{i18n>stats.metric}" /></Column>
+										<Column hAlign="End"><Text text="{i18n>stats.total}" /></Column>
+										<Column hAlign="End"><Text text="{i18n>stats.local}" /></Column>
+									</columns>
+									<items>
+										<ColumnListItem>
+											<cells>
+												<Text text="{i18n>stats.executions}" />
+												<ObjectNumber number="{detail>/stats/executionCount}" />
+												<ObjectNumber number="{detail>/stats/localExecutionCount}" />
+											</cells>
+										</ColumnListItem>
+										<ColumnListItem>
+											<cells>
+												<Text text="{i18n>stats.conditionsTime}" />
+												<ObjectNumber number="{detail>/stats/conditionsTime}" unit="ms" />
+												<ObjectNumber number="{detail>/stats/localConditionsTime}" unit="ms" />
+											</cells>
+										</ColumnListItem>
+										<ColumnListItem>
+											<cells>
+												<Text text="{i18n>stats.actionsTime}" />
+												<ObjectNumber number="{detail>/stats/actionsTime}" unit="ms" />
+												<ObjectNumber number="{detail>/stats/localActionsTime}" unit="ms" />
+											</cells>
+										</ColumnListItem>
+									</items>
+								</Table>
+							</VBox>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+
+			<uxap:ObjectPageSection title="{i18n>common.advancedJson}">
+				<uxap:subSections>
+					<uxap:ObjectPageSubSection>
+						<uxap:blocks>
+							<VBox>
+								<TextArea value="{detail>/json}" editable="true" rows="18" width="100%" growing="false" />
+								<Button text="{i18n>common.applyJson}" icon="sap-icon://synchronize" press=".onApplyJson" class="sapUiSmallMarginTop" />
+							</VBox>
+						</uxap:blocks>
+					</uxap:ObjectPageSubSection>
+				</uxap:subSections>
+			</uxap:ObjectPageSection>
+		</uxap:sections>
+
+		<uxap:footer>
+			<OverflowToolbar>
 				<Button text="{i18n>common.delete}" type="Reject" icon="sap-icon://delete" press=".onDelete" visible="{= !${detail>/isNew} }" />
 				<ToolbarSpacer />
 				<Button text="{i18n>common.save}" type="Emphasized" icon="sap-icon://save" press=".onSave" />
-			</Toolbar>
-		</footer>
-	</Page>
+			</OverflowToolbar>
+		</uxap:footer>
+	</uxap:ObjectPageLayout>
 </mvc:View>
