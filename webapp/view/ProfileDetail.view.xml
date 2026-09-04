@@ -6,7 +6,7 @@
 	xmlns:uxap="sap.uxap"
 	displayBlock="true">
 	<uxap:ObjectPageLayout
-		showTitleInHeaderContent="true"
+		showTitleInHeaderContent="false"
 		useIconTabBar="false"
 		showFooter="true"
 		busy="{detail>/busy}"
@@ -16,11 +16,40 @@
 				<uxap:heading>
 					<Title text="{detail>/profileId}" />
 				</uxap:heading>
+				<uxap:snappedContent>
+					<ObjectStatus text="{profile>/properties/email}" icon="sap-icon://email" />
+				</uxap:snappedContent>
 				<uxap:navigationActions>
 					<Button icon="sap-icon://nav-back" tooltip="{i18n>common.back}" press=".onNavBack" />
 				</uxap:navigationActions>
 			</uxap:ObjectPageDynamicHeaderTitle>
 		</uxap:headerTitle>
+
+		<uxap:headerContent>
+			<FlexBox wrap="Wrap" alignItems="Start">
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.email}" />
+					<Text text="{profile>/properties/email}" />
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.scope}" />
+					<ObjectStatus text="{profile>/scope}" state="Information" />
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>module.segments}" />
+					<ObjectNumber number="{= ${detail>/segments}.length }" />
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>profile.sessions}" />
+					<ObjectNumber number="{= ${detail>/sessions}.length }" />
+				</VBox>
+				<VBox>
+					<Label text="{i18n>profile.anonBrowsing}" />
+					<ObjectStatus text="{= ${detail>/anonBrowsing} ? ${i18n>common.yes} : ${i18n>common.no} }"
+						state="{= ${detail>/anonBrowsing} ? 'Warning' : 'None' }" />
+				</VBox>
+			</FlexBox>
+		</uxap:headerContent>
 
 		<uxap:sections>
 			<uxap:ObjectPageSection title="{i18n>module.properties}">
