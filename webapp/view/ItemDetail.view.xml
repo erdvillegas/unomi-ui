@@ -60,7 +60,83 @@
 				<uxap:subSections>
 					<uxap:ObjectPageSubSection>
 						<uxap:blocks>
-							<TextArea value="{detail>/stats}" editable="false" rows="12" width="100%" growing="false" />
+							<VBox width="100%">
+								<!-- KPI strip -->
+								<HBox wrap="Wrap" alignItems="End" class="sapUiSmallMarginBottom">
+									<VBox class="sapUiLargeMarginEnd">
+										<Label text="{i18n>stats.executions}" />
+										<ObjectNumber number="{detail>/stats/executionCount}" emphasized="true" />
+									</VBox>
+									<VBox class="sapUiLargeMarginEnd">
+										<Label text="{i18n>stats.conditionsTime}" />
+										<ObjectNumber number="{detail>/stats/conditionsTime}" unit="ms" />
+									</VBox>
+									<VBox class="sapUiLargeMarginEnd">
+										<Label text="{i18n>stats.actionsTime}" />
+										<ObjectNumber number="{detail>/stats/actionsTime}" unit="ms" />
+									</VBox>
+									<VBox>
+										<Label text="{i18n>stats.lastSync}" />
+										<Text text="{detail>/stats/lastSyncDate}" />
+									</VBox>
+								</HBox>
+
+								<!-- Time split: conditions vs actions -->
+								<Title text="{i18n>stats.timeSplit}" level="H5" class="sapUiSmallMarginTop sapUiTinyMarginBottom" />
+								<HBox alignItems="Center" class="sapUiTinyMarginBottom">
+									<Label text="{i18n>stats.conditionsTime}" width="11rem" />
+									<ProgressIndicator width="24rem" state="Information"
+										percentValue="{detail>/stats/conditionsPct}" showValue="true"
+										displayValue="{detail>/stats/conditionsTime} ms ({detail>/stats/conditionsPct}%)" />
+								</HBox>
+								<HBox alignItems="Center">
+									<Label text="{i18n>stats.actionsTime}" width="11rem" />
+									<ProgressIndicator width="24rem" state="Warning"
+										percentValue="{detail>/stats/actionsPct}" showValue="true"
+										displayValue="{detail>/stats/actionsTime} ms ({detail>/stats/actionsPct}%)" />
+								</HBox>
+
+								<!-- Local vs cluster executions -->
+								<Title text="{i18n>stats.localShare}" level="H5" class="sapUiMediumMarginTop sapUiTinyMarginBottom" />
+								<HBox alignItems="Center">
+									<Label text="{i18n>stats.local}" width="11rem" />
+									<ProgressIndicator width="24rem" state="Success"
+										percentValue="{detail>/stats/localPct}" showValue="true"
+										displayValue="{detail>/stats/localExecutionCount} / {detail>/stats/executionCount} ({detail>/stats/localPct}%)" />
+								</HBox>
+
+								<!-- Totals table: total vs local per metric -->
+								<Table class="sapUiMediumMarginTop">
+									<columns>
+										<Column><Text text="{i18n>stats.metric}" /></Column>
+										<Column hAlign="End"><Text text="{i18n>stats.total}" /></Column>
+										<Column hAlign="End"><Text text="{i18n>stats.local}" /></Column>
+									</columns>
+									<items>
+										<ColumnListItem>
+											<cells>
+												<Text text="{i18n>stats.executions}" />
+												<ObjectNumber number="{detail>/stats/executionCount}" />
+												<ObjectNumber number="{detail>/stats/localExecutionCount}" />
+											</cells>
+										</ColumnListItem>
+										<ColumnListItem>
+											<cells>
+												<Text text="{i18n>stats.conditionsTime}" />
+												<ObjectNumber number="{detail>/stats/conditionsTime}" unit="ms" />
+												<ObjectNumber number="{detail>/stats/localConditionsTime}" unit="ms" />
+											</cells>
+										</ColumnListItem>
+										<ColumnListItem>
+											<cells>
+												<Text text="{i18n>stats.actionsTime}" />
+												<ObjectNumber number="{detail>/stats/actionsTime}" unit="ms" />
+												<ObjectNumber number="{detail>/stats/localActionsTime}" unit="ms" />
+											</cells>
+										</ColumnListItem>
+									</items>
+								</Table>
+							</VBox>
 						</uxap:blocks>
 					</uxap:ObjectPageSubSection>
 				</uxap:subSections>

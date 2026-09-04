@@ -10,6 +10,7 @@ import * as UnomiClient from "unomi/ui/service/UnomiClient";
 import * as Catalog from "unomi/ui/service/Catalog";
 import { buildForm } from "unomi/ui/control/FormEngine";
 import { formFields } from "unomi/ui/model/forms";
+import { deriveRuleStats, RuleStats } from "unomi/ui/model/ruleStats";
 import { loadDefs, conditionPanel, actionsList, elementPanel, emptyCondition, emptyDefs, Defs, Node } from "unomi/ui/control/builders";
 import { conditionEditor, loadProps, loadCatalogs, emptyCat, PropDef } from "unomi/ui/control/brm/conditionEditor";
 import { sourceBuilder } from "unomi/ui/control/sourceBuilder";
@@ -51,7 +52,7 @@ export default class ItemDetail extends BaseController {
 	private cat = emptyCat();
 
 	public onInit(): void {
-		this.getView()?.setModel(new JSONModel({ name: "", json: "", stats: "", hasStats: false, isNew: false, busy: false }), "detail");
+		this.getView()?.setModel(new JSONModel({ name: "", json: "", stats: {}, hasStats: false, isNew: false, busy: false }), "detail");
 		this.getView()?.setModel(new JSONModel({}), "form");
 		const router = this.getRouter();
 		Object.keys(RES).forEach((name) => router.getRoute(name)?.attachPatternMatched(this.onShow, this));
@@ -65,7 +66,7 @@ export default class ItemDetail extends BaseController {
 		this.itemId = decodeURIComponent(event.getParameter("arguments" as never)["itemId"] as string);
 		const isNew = this.itemId === "new";
 		const detail = this.getView()?.getModel("detail") as JSONModel;
-		detail.setData({ name: isNew ? "New" : this.itemId, json: "", stats: "", hasStats: this.cfg.stats && !isNew, isNew, busy: !isNew });
+		detail.setData({ name: isNew ? "New" : this.itemId, json: "", stats: {}, hasStats: this.cfg.stats && !isNew, isNew, busy: !isNew });
 		// Build the scalar form synchronously (config known without data); values and
 		// nested editors fill in once data + definitions arrive.
 		(this.getView()?.getModel("form") as JSONModel).setData(isNew ? structuredClone(this.cfg.template) : {});
@@ -91,8 +92,8 @@ export default class ItemDetail extends BaseController {
 			detail.setProperty("/name", it.metadata?.name ?? it.name ?? this.itemId);
 			await this.initNested();
 			if (this.cfg.stats) {
-				const stats = await UnomiClient.getJson<object>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}/statistics`);
-				detail.setProperty("/stats", stats ? JSON.stringify(stats, null, 2) : "");
+				const stats = await UnomiClient.getJson<RuleStats>(`${this.cfg.path}/${encodeURIComponent(this.itemId)}/statistics`);
+				detail.setProperty("/stats", deriveRuleStats(stats));
 			}
 		} catch (e) {
 			MessageToast.show(`Load failed: ${(e as Error).message}`);
