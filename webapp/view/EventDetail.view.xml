@@ -6,7 +6,7 @@
 	xmlns:uxap="sap.uxap"
 	displayBlock="true">
 	<uxap:ObjectPageLayout
-		showTitleInHeaderContent="true"
+		showTitleInHeaderContent="false"
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
 		<uxap:headerTitle>
@@ -14,11 +14,35 @@
 				<uxap:heading>
 					<Title text="{detail>/title}" />
 				</uxap:heading>
+				<uxap:snappedContent>
+					<ObjectStatus text="{detail>/e/eventType}" state="Information" />
+				</uxap:snappedContent>
 				<uxap:navigationActions>
 					<Button icon="sap-icon://nav-back" tooltip="{i18n>common.back}" press=".onNavBack" />
 				</uxap:navigationActions>
 			</uxap:ObjectPageDynamicHeaderTitle>
 		</uxap:headerTitle>
+
+		<uxap:headerContent>
+			<FlexBox wrap="Wrap" alignItems="Start">
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.type}" />
+					<ObjectStatus text="{detail>/e/eventType}" state="Information" />
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.scope}" />
+					<Text text="{detail>/e/scope}" />
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.profile}" />
+					<Text text="{detail>/e/profileId}" />
+				</VBox>
+				<VBox>
+					<Label text="{i18n>col.timestamp}" />
+					<Text text="{detail>/e/timeStamp}" />
+				</VBox>
+			</FlexBox>
+		</uxap:headerContent>
 
 		<uxap:sections>
 			<uxap:ObjectPageSection title="{i18n>event.detail}">

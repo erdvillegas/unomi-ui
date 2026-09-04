@@ -5,7 +5,7 @@
 	xmlns:uxap="sap.uxap"
 	displayBlock="true">
 	<uxap:ObjectPageLayout
-		showTitleInHeaderContent="true"
+		showTitleInHeaderContent="false"
 		showFooter="true"
 		busy="{detail>/busy}"
 		busyIndicatorDelay="0">
@@ -14,11 +14,33 @@
 				<uxap:heading>
 					<Title text="{detail>/name}" />
 				</uxap:heading>
+				<uxap:snappedContent>
+					<Text text="{detail>/name}" />
+				</uxap:snappedContent>
 				<uxap:navigationActions>
 					<Button icon="sap-icon://nav-back" tooltip="{i18n>common.back}" press=".onNavBack" />
 				</uxap:navigationActions>
 			</uxap:ObjectPageDynamicHeaderTitle>
 		</uxap:headerTitle>
+
+		<!-- Facts from the shared metadata block (config types have none → header hidden). -->
+		<uxap:headerContent>
+			<FlexBox wrap="Wrap" alignItems="Start" visible="{= !!${form>/metadata} }">
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.id}" />
+					<Text text="{form>/metadata/id}" />
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<Label text="{i18n>col.scope}" />
+					<Text text="{form>/metadata/scope}" />
+				</VBox>
+				<VBox>
+					<Label text="{i18n>col.enabled}" />
+					<ObjectStatus text="{= ${form>/metadata/enabled} ? ${i18n>common.yes} : ${i18n>common.no} }"
+						state="{= ${form>/metadata/enabled} ? 'Success' : 'Warning' }" />
+				</VBox>
+			</FlexBox>
+		</uxap:headerContent>
 
 		<uxap:sections>
 			<uxap:ObjectPageSection title="{i18n>module.properties}">
